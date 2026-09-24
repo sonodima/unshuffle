@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useIsPresent, type Transition } from 'motion/r
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AvatarGroup, Button, Equalizer, Modal, cn } from '../../components/ui'
 import type { Player } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { joinNames } from './stats'
 
 type DockPlacement = 'fixed' | 'inline'
@@ -41,6 +42,7 @@ const REMATCH_COOLDOWN_MS = 8000
 
 /** Thumb-reachable action dock: host replays / closes the room, guests wait or leave. */
 export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, reduced, placement, big = true, className, onRematch, rematchFrom = [] }: ActionDockProps) {
+  const t = useT()
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
@@ -100,14 +102,14 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
   const waiting = (
     <>
       <Equalizer bars={4} size={18} label={null} className="shrink-0" />
-      <span className="leading-tight">In attesa dell’host per rigiocare…</span>
+      <span className="leading-tight">{t('final.dock.waiting')}</span>
     </>
   )
 
   const pill = (big: boolean) => (
     <div
       role="group"
-      aria-label="Azioni"
+      aria-label={t('final.dock.label')}
       className={cn(
         'glass-dock pointer-events-auto flex w-full items-center gap-2 rounded-full p-2 sm:gap-3',
         big ? (isHost ? 'max-w-[600px] pb-1.5' : 'max-w-[520px] pb-1.5') : 'max-w-[560px] pb-1',
@@ -116,19 +118,19 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
       {isHost ? (
         <>
           <Button variant="glass" size="lg" leftIcon="logout" onClick={leave} className="shrink-0 max-[380px]:px-5">
-            Esci
+            {t('final.dock.leave')}
           </Button>
           <Button variant="primary" size={big ? 'xl' : 'lg'} leftIcon="refresh" fullWidth loading={busy} onClick={replay} sound="go" className="min-w-0 flex-1">
-            Rigioca
+            {t('final.dock.playAgain')}
           </Button>
         </>
       ) : onRematch ? (
         <>
           <Button variant="secondary" size="lg" leftIcon={asked ? 'check' : 'refresh'} fullWidth disabled={asked} onClick={rematch} sound="pop" className="min-w-0 flex-1 max-[380px]:px-4">
-            {asked ? 'Richiesta inviata' : 'Rivincita!'}
+            {asked ? t('final.dock.rematchSent') : t('final.dock.rematch')}
           </Button>
           <Button variant="glass" size="lg" leftIcon="logout" onClick={leave} className="shrink-0 max-[380px]:px-5">
-            Esci
+            {t('final.dock.leave')}
           </Button>
         </>
       ) : (
@@ -137,7 +139,7 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
             {waiting}
           </div>
           <Button variant="glass" size="lg" leftIcon="logout" onClick={leave} className="shrink-0">
-            Esci
+            {t('final.dock.leave')}
           </Button>
         </>
       )}
@@ -156,7 +158,8 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
       </div>
     )
   } else if (isHost && rematchFrom.length > 0) {
-    const names = rematchFrom.length > 2 ? `${rematchFrom.length} giocatori` : joinNames(rematchFrom.map((p) => p.name))
+    const count = rematchFrom.length
+    const asking = count > 2 ? t('final.dock.rematchMany', { count }) : t('final.dock.rematchNamed', { count, names: joinNames(rematchFrom.map((p) => p.name)) })
     hint = (
       <motion.div
         key={rematchFrom.length}
@@ -167,9 +170,7 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
         transition={reduced ? { duration: 0.2 } : { type: 'spring', stiffness: 420, damping: 22 }}
       >
         <AvatarGroup players={rematchFrom} size="xs" max={3} className="shrink-0" />
-        <span className="min-w-0 truncate">
-          {names} {rematchFrom.length === 1 ? 'vuole' : 'vogliono'} la rivincita!
-        </span>
+        <span className="min-w-0 truncate">{asking}</span>
       </motion.div>
     )
   }
@@ -231,16 +232,12 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
         open={confirmLeave}
         onClose={() => setConfirmLeave(false)}
         size="sm"
-        title="Chiudere la stanza?"
-        description={
-          othersOnline === 1
-            ? 'L’altro giocatore verrà disconnesso e la partita non potrà essere rigiocata.'
-            : `Gli altri ${othersOnline} giocatori verranno disconnessi e la partita non potrà essere rigiocata.`
-        }
+        title={t('final.leaveDialog.title')}
+        description={t('final.leaveDialog.body', { count: othersOnline })}
         footer={
           <>
             <Button variant="glass" onClick={() => setConfirmLeave(false)}>
-              Annulla
+              {t('final.leaveDialog.cancel')}
             </Button>
             <Button
               variant="danger"
@@ -250,7 +247,7 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
                 onLeave()
               }}
             >
-              Chiudi stanza
+              {t('final.leaveDialog.confirm')}
             </Button>
           </>
         }

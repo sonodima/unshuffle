@@ -1,13 +1,14 @@
 // Between rounds / before the first one: the host picks and slices the song while
 // every peer downloads it. A spinning record, a live checklist, who's ready.
-import { t } from '../../i18n'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useAudioBuffer } from '../../components/board'
 import { Button, Equalizer, Icon, ProgressDots, Spinner, Vinyl, cn, useCanHover, useMediaQuery } from '../../components/ui'
+import { MAX_ROUND_POINTS } from '../../game/constants'
 import type { AudioStatus } from '../../game/store'
 import type { PlayerId, RoomState } from '../../game/types'
+import { rich, useT } from '../../i18n/react'
 import { GameMenuButton } from './GameMenu'
 import { activePlayers, readyCount, roundInfo } from './model'
 import { PlayersStrip } from './PlayersStrip'
@@ -24,23 +25,20 @@ interface PreparingViewProps {
 
 type StepState = 'done' | 'active' | 'pending' | 'error'
 
-const TIPS = [
-  '', // how to play, worded for the device (see tipText)
-  '“Ascolta tutto” suona i blocchi nell’ordine attuale: se fila liscio, ci sei quasi.',
-  'Tieni premuto un blocco per ascoltare la sequenza da lì.',
-  'Due blocchi vicini nell’ordine giusto valgono punti anche se sono fuori posto.',
-  'Chi conferma per primo fa partire il timer finale per tutti.',
-  'Cerca l’attacco della canzone e il punto in cui sfuma: sono i primi e gli ultimi blocchi.',
-  'Ordine perfetto = 5.000 punti. Nessuna pressione.',
-]
+/** 'howTo' is worded for the device (click / tap). */
+const TIPS = ['howTo', 'playAll', 'hold', 'pairs', 'firstConfirm', 'edges', 'perfect'] as const
 const TIP_MS = 5200
 
-function tipText(i: number, canHover: boolean): string {
-  if (i === 0) return canHover ? 'Clicca un blocco per ascoltarlo, trascinalo per spostarlo.' : 'Tocca un blocco per ascoltarlo, trascinalo per spostarlo.'
-  return TIPS[i] ?? ''
+function tipText(t: ReturnType<typeof useT>, tip: (typeof TIPS)[number], canHover: boolean): string {
+  if (tip === 'howTo') return canHover ? t('round.tips.howToHover') : t('round.tips.howToTouch')
+  if (tip === 'perfect') return t('round.tips.perfect', { points: MAX_ROUND_POINTS })
+  return t(`round.tips.${tip}`)
 }
 
+const white = (c: string) => <span className="text-white">{c}</span>
+
 export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewProps) {
+  const t = useT()
   const reduce = useReducedMotion()
   const phase = room.phase
   const index = phase.kind === 'preparing' ? phase.round : 0
@@ -67,9 +65,11 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
   // Once the round is cut only the others can hold us up; before that the host's message tells the story.
   const message = info.data
     ? allReady
-      ? 'Tutti pronti, si parte!'
-      : 'Aspetto che tutti siano pronti…'
-    : (phase.kind === 'preparing' && phase.message ? t(phase.message) : '') || 'Preparo il round…'
+      ? t('round.preparing.allReady')
+      : t('round.preparing.waiting')
+    : phase.kind === 'preparing' && phase.message
+      ? t(phase.message)
+      : t('round.preparing.fallback')
 
   const retry = () => {
     if (!onRetryAudio || retrying) return
@@ -87,8 +87,7 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
   const header = (
     <>
       <span className={cn('display display-skew block text-[15px] text-ink-200 md:text-lg', big && 'md:text-xl')}>
-        Round <span className="text-white">{info.number}</span>
-        <span className="text-ink-400"> / {info.total}</span>
+        {rich(t('round.preparing.header', { number: info.number, total: info.total }), { b: white, dim: (c) => <span className="text-ink-400">{c}</span> })}
       </span>
       <ProgressDots total={info.total} current={info.index} size="md" />
     </>
@@ -148,16 +147,27 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
             {...rise(0.2)}
             className={cn('glass-flat mt-6 flex w-full flex-col gap-1 rounded-[24px] p-2 text-left md:mt-7 [@media(max-height:500px)]:mt-4!', big ? 'max-w-[480px] md:mt-8' : 'max-w-[420px]')}
           >
-            <Step big={big} state={song} label={song === 'done' ? 'Canzone scelta' : 'Scelgo la canzone…'} detail={song === 'done' ? 'Top secret fino alla fine' : undefined} />
+            <Step
+              big={big}
+              state={song}
+              label={song === 'done' ? t('round.preparing.steps.songDone') : t('round.preparing.steps.songActive')}
+              detail={song === 'done' ? t('round.preparing.steps.songDetail') : undefined}
+            />
             <Step
               big={big}
               state={download}
-              label={download === 'done' ? 'Spezzoni scaricati' : download === 'error' ? 'Download fallito' : 'Scarico gli spezzoni…'}
-              detail={download === 'error' ? 'Si gioca anche senza audio' : undefined}
+              label={
+                download === 'done'
+                  ? t('round.preparing.steps.downloadDone')
+                  : download === 'error'
+                    ? t('round.preparing.steps.downloadError')
+                    : t('round.preparing.steps.downloadActive')
+              }
+              detail={download === 'error' ? t('round.preparing.steps.downloadErrorDetail') : undefined}
               action={
                 download === 'error' && onRetryAudio ? (
                   <Button size="sm" variant="danger" leftIcon="refresh" loading={retrying} onClick={retry}>
-                    Riprova
+                    {t('round.retry')}
                   </Button>
                 ) : null
               }
@@ -165,18 +175,20 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
             <Step
               big={big}
               state={slice}
-              label={slice === 'done' ? 'Traccia affettata' : 'Sto affettando la traccia…'}
-              detail={slice === 'done' ? `${info.snippets} spezzoni a tempo di musica` : undefined}
+              label={slice === 'done' ? t('round.preparing.steps.sliceDone') : t('round.preparing.steps.sliceActive')}
+              detail={slice === 'done' ? t('round.preparing.steps.sliceDetail', { count: info.snippets }) : undefined}
             />
           </motion.ol>
 
           {players.length > 0 && (
             <motion.div {...rise(0.3)} className={cn('flex flex-col items-center gap-2.5 md:flex-row md:gap-4', big ? 'mt-6' : 'mt-5')}>
               <span className="eyebrow">
-                Pronti <span className="num text-ink-50">{ready.ready}</span>
-                <span className="num text-ink-300">/{ready.total}</span>
+                {rich(t('round.preparing.ready', { ready: ready.ready, total: ready.total }), {
+                  b: (c) => <span className="num text-ink-50">{c}</span>,
+                  dim: (c) => <span className="num text-ink-300">{c}</span>,
+                })}
               </span>
-              <PlayersStrip players={players} checked={readySet} me={me} size={big ? 'md' : 'sm'} max={10} label="Giocatori pronti" />
+              <PlayersStrip players={players} checked={readySet} me={me} size={big ? 'md' : 'sm'} max={10} label={t('round.preparing.readyPlayers')} />
             </motion.div>
           )}
 
@@ -249,6 +261,7 @@ function StepIcon({ state }: { state: StepState }) {
 }
 
 function Tips() {
+  const t = useT()
   const canHover = useCanHover()
   const [i, setI] = useState(() => Math.floor(Math.random() * TIPS.length))
   useEffect(() => {
@@ -261,11 +274,11 @@ function Tips() {
         <Icon name="sparkles" size={15} strokeWidth={2.4} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="eyebrow text-[10px] text-gold/80">Lo sapevi?</p>
+        <p className="eyebrow text-[10px] text-gold/80">{t('round.tips.title')}</p>
         <div className="relative mt-1 min-h-[2.8em] text-[13px] leading-snug font-semibold text-ink-100">
           <AnimatePresence mode="wait" initial={false}>
             <motion.p key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
-              {tipText(i, canHover)}
+              {tipText(t, TIPS[i], canHover)}
             </motion.p>
           </AnimatePresence>
         </div>

@@ -55,7 +55,7 @@ export interface GameStore {
   profile: PlayerProfile
   role: Role
   connection: Connection
-  /** Human-readable (Italian) error for the current connection problem, if any. */
+  /** Error for the current connection problem, if any (a Msg: show it with tm()). */
   error: Msg | null
   room: RoomState | null
   /** Code of the room being hosted / joined (set while connecting, before `room` exists). */
@@ -80,7 +80,7 @@ export interface GameStore {
   // ---- session ----
   /** Create a room and become host. Resolves with the room code. */
   createRoom(): Promise<string>
-  /** Join a room as client. Rejects with a user-facing Italian message. */
+  /** Join a room as client. Rejects with an AppError whose Msg is user-facing (msgOf / tm). */
   joinRoom(code: string): Promise<void>
   /** On boot: resume this tab's previous room after a refresh. Resolves true if a session was resumed. */
   resumeSession(): Promise<boolean>
@@ -94,7 +94,7 @@ export interface GameStore {
   setArrangement(order: number[]): void
   submit(): void
   react(emoji: string): void
-  /** Local info toast (e.g. "Link copiato"); never sent to anyone. */
+  /** Local info toast (e.g. "link copied"), a Msg shown in this player's language; never sent to anyone. */
   notify(message: Msg): void
   dismissToast(id: number): void
 
@@ -963,7 +963,7 @@ async function openHost(s: Session, profile: PlayerProfile, reclaim?: { code: st
     }
     game = new HostGame({ server, hostProfile: { ...profile }, restore: reclaim?.restore ?? null })
   } catch (err) {
-    if (err instanceof Error && err.message === STORE_MESSAGES.cancelled) throw err
+    if (err instanceof AppError && err.msg === STORE_MESSAGES.cancelled) throw err
     console.error('[store] HostGame failed to start', err)
     failSession(s, STORE_MESSAGES.createFailed)
     throw new AppError(STORE_MESSAGES.createFailed)

@@ -3,9 +3,8 @@
 import { useEffect } from 'react'
 import { useGame } from '../../game/store'
 import type { PhaseKind } from '../../game/types'
+import { t } from '../../i18n'
 import { startResume } from './resume'
-
-const LEAVE_WARNING = 'Se esci la partita finisce per tutti'
 
 const IN_PROGRESS: ReadonlySet<PhaseKind> = new Set<PhaseKind>(['preparing', 'intro', 'playing', 'reveal'])
 
@@ -22,8 +21,9 @@ export function useLeaveGuard(): void {
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault()
       // Legacy browsers show (or at least require) returnValue; modern ones use their own text.
-      e.returnValue = LEAVE_WARNING
-      return LEAVE_WARNING
+      const warning = t('shell.leaveWarning')
+      e.returnValue = warning
+      return warning
     }
     window.addEventListener('beforeunload', onBeforeUnload)
     return () => window.removeEventListener('beforeunload', onBeforeUnload)

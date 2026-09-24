@@ -13,6 +13,8 @@ import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { audioEngine } from '../../audio/engine'
 import { useAudioUnlocked, usePlayback, useSfxEnabled, useVolume } from '../../audio/usePlayback'
 import { useGame } from '../../game/store'
+import { formatNumber } from '../../i18n'
+import { useT } from '../../i18n/react'
 import { Equalizer, Icon, IconButton, Kbd, cn, playSfx, useIsWide, useMediaQuery } from '../ui'
 import type { ScreenKey } from './routing'
 import { useScrolledAway } from './screenScroll'
@@ -139,21 +141,23 @@ interface SoundPanelProps {
 
 /** The popover body. */
 function SoundPanel({ volume, muted, sfxOn, onVolume, onToggleMute, onSfx, className }: SoundPanelProps) {
+  const t = useT()
   const sfxId = useId()
   const pct = Math.round((muted ? 0 : volume) * 100)
+  const pctText = formatNumber(pct / 100, { style: 'percent' })
   return (
     <div className={cn('flex flex-col gap-4', className)}>
       <div className="flex items-center justify-between">
-        <span className="eyebrow">Audio</span>
+        <span className="eyebrow">{t('shell.sound.heading')}</span>
         <span className="flex items-center gap-1.5 text-[11px] font-bold text-ink-400 pointer-coarse:hidden">
-          Muto <Kbd>M</Kbd>
+          {t('shell.sound.muteShortcut')} <Kbd>M</Kbd>
         </span>
       </div>
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onToggleMute}
-          aria-label={muted ? 'Riattiva audio' : 'Disattiva audio'}
+          aria-label={t(muted ? 'shell.sound.unmute' : 'shell.sound.mute')}
           aria-pressed={muted}
           className={cn(
             'grid size-10 shrink-0 place-items-center rounded-full transition-colors',
@@ -168,24 +172,24 @@ function SoundPanel({ volume, muted, sfxOn, onVolume, onToggleMute, onSfx, class
           max={100}
           step={1}
           value={pct}
-          aria-label="Volume"
-          aria-valuetext={`${pct}%`}
+          aria-label={t('shell.sound.volume')}
+          aria-valuetext={pctText}
           data-muted={muted}
           onChange={(e) => onVolume(Number(e.currentTarget.value) / 100)}
           className="ushf-range min-w-0 flex-1"
           style={{ ['--val' as string]: `${pct}%` }}
         />
-        <span className="num w-9 shrink-0 text-right text-xs font-bold text-ink-200">{pct}%</span>
+        <span className="num min-w-9 shrink-0 text-right text-xs font-bold whitespace-nowrap text-ink-200">{pctText}</span>
       </div>
       <div className="flex items-center gap-3 rounded-2xl bg-white/[0.04] py-2.5 pr-2.5 pl-3">
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-violet/20 text-violet-bright">
           <Icon name="sparkles" size={16} strokeWidth={2.3} />
         </span>
         <label htmlFor={sfxId} className="min-w-0 flex-1 cursor-pointer">
-          <span className="block text-sm leading-tight font-extrabold text-ink-50">Effetti sonori</span>
-          <span className="block text-xs leading-snug text-ink-400">Click, timer, reazioni</span>
+          <span className="block text-sm leading-tight font-extrabold text-ink-50">{t('shell.sound.sfx')}</span>
+          <span className="block text-xs leading-snug text-ink-400">{t('shell.sound.sfxDetail')}</span>
         </label>
-        <Switch id={sfxId} checked={sfxOn} onChange={onSfx} label="Effetti sonori" />
+        <Switch id={sfxId} checked={sfxOn} onChange={onSfx} label={t('shell.sound.sfx')} />
       </div>
     </div>
   )
@@ -304,6 +308,7 @@ interface Anchor {
 }
 
 function SoundControlsInner({ align, allowPill, low = false, hidden = false }: { align: 'start' | 'end'; allowPill: boolean; low?: boolean; hidden?: boolean }) {
+  const t = useT()
   const wide = useIsWide()
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState<Anchor | null>(null)
@@ -353,8 +358,8 @@ function SoundControlsInner({ align, allowPill, low = false, hidden = false }: {
   useEffect(() => {
     if (!open) return
     const onDown = (e: PointerEvent) => {
-      const t = e.target as Node
-      if (rootRef.current?.contains(t) || panelRef.current?.contains(t)) return
+      const target = e.target as Node
+      if (rootRef.current?.contains(target) || panelRef.current?.contains(target)) return
       setOpen(false)
     }
     const onKey = (e: KeyboardEvent) => {
@@ -416,7 +421,7 @@ function SoundControlsInner({ align, allowPill, low = false, hidden = false }: {
             exit={{ opacity: 0, x: 8, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 500, damping: 32 }}
             onClick={() => void safe(() => audioEngine.unlock(), Promise.resolve()).catch(() => undefined)}
-            title="Il browser blocca l’audio finché non tocchi la pagina"
+            title={t('shell.sound.unlockTitle')}
             className={cn(
               'glass-flat relative flex h-9 items-center gap-2 rounded-full border-lime/40! bg-ink-900/85! pr-3.5 pl-2.5 text-xs font-extrabold text-lime sm:h-10',
               align === 'start' ? 'order-last' : '',
@@ -424,15 +429,15 @@ function SoundControlsInner({ align, allowPill, low = false, hidden = false }: {
           >
             <span aria-hidden className="absolute inset-0 animate-glow rounded-full shadow-[0_0_22px_-2px_rgb(166_255_63/0.55)]" />
             <Icon name="headphones" size={16} strokeWidth={2.4} />
-            <span className="whitespace-nowrap">Attiva audio</span>
+            <span className="whitespace-nowrap">{t('shell.sound.unlock')}</span>
           </motion.button>
         )}
       </AnimatePresence>
       <span className="relative inline-flex">
         <IconButton
           ref={buttonRef}
-          label={needsUnlock ? 'Audio bloccato dal browser: tocca per attivarlo' : muted ? 'Audio disattivato' : 'Audio'}
-          tooltip="Audio"
+          label={t(needsUnlock ? 'shell.sound.buttonLocked' : muted ? 'shell.sound.buttonMuted' : 'shell.sound.button')}
+          tooltip={t('shell.sound.button')}
           tooltipSide={low ? 'top' : 'bottom'}
           shortcut="M"
           size={wide ? 'md' : 'sm'}
@@ -471,7 +476,7 @@ function SoundControlsInner({ align, allowPill, low = false, hidden = false }: {
                 ref={panelRef}
                 id={panelId}
                 role="dialog"
-                aria-label="Impostazioni audio"
+                aria-label={t('shell.sound.panel')}
                 onKeyDown={onPanelKey}
                 initial={{ opacity: 0, y: anchor.bottom !== undefined ? 8 : -8, scale: 0.94 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}

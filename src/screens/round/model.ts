@@ -1,6 +1,6 @@
 // Pure helpers shared by the round views (no React, no store): everything the
 // HUD derives from RoomState lives here so it can be unit-tested headless.
-import { t } from '../../i18n'
+import { formatList, t } from '../../i18n'
 import { SNIPPET_DIFFICULTY } from '../../game/constants'
 import { compareStanding } from '../../game/standing'
 import type { RankKey } from '../../game/standing'
@@ -20,7 +20,7 @@ export interface RoundInfo {
   roundTimeSec: number
   /** Final timer (after the first confirm) in seconds. */
   finalTimerSec: number
-  /** "Facile" / "Normale" / … ('' when unknown). */
+  /** Difficulty name in the current language ('' when unknown). */
   difficulty: string
   data: RoundPublic | null
   track: TrackInfo | null
@@ -135,12 +135,7 @@ export function sameOrder(a: readonly number[], b: readonly number[]): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i])
 }
 
-export function plural(n: number, one: string, many: string): string {
-  return n === 1 ? one : many
-}
-
-/** Italian list: "Giulia", "Giulia e Marco", "Giulia, Marco e Sofi". */
+/** A list of names in the current language: "Giulia", "Giulia e Marco", "Giulia, Marco e Sofi". */
 export function joinNames(names: readonly string[]): string {
-  if (names.length <= 1) return names[0] ?? ''
-  return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`
+  return formatList(names)
 }

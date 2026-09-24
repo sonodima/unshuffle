@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
-import { formatClock } from './hooks'
+import { formatClock, formatNumber } from './format'
 import { barTransform, shouldWriteArc, timerFraction } from './timerMath'
 
 export type TimerPhase = 'ok' | 'warn' | 'urgent' | 'done'
@@ -113,6 +114,7 @@ export function TimerRing({
   const stroke = Math.max(4, Math.round(size * 0.075))
   const r = (size - stroke) / 2 - 1
   const circ = 2 * Math.PI * r
+  const t = useT()
   const arcRef = useRef<SVGCircleElement>(null)
   const lastOffset = useRef(Number.NaN)
   const { secs, phase } = useCountdown({
@@ -134,14 +136,14 @@ export function TimerRing({
     },
   })
   const urgent = phase === 'urgent' || phase === 'done'
-  const text = secs >= 60 ? formatClock(secs * 1000) : String(secs)
+  const text = secs >= 60 ? formatClock(secs * 1000) : formatNumber(secs)
   const tickR = r - stroke * 0.9 - 2
   const tickCirc = 2 * Math.PI * tickR
 
   return (
     <div
       role="timer"
-      aria-label={`${secs} secondi rimasti`}
+      aria-label={t('ui.timer.secondsLeft', { count: secs })}
       className={cn('relative grid shrink-0 place-items-center', className)}
       style={{ width: size, height: size }}
     >
@@ -246,6 +248,7 @@ export function TimerBar({
   size = 'md',
   className,
 }: TimerBarProps) {
+  const t = useT()
   const fillRef = useRef<HTMLDivElement>(null)
   const glowRef = useRef<HTMLDivElement>(null)
   const { secs, phase } = useCountdown({
@@ -256,15 +259,15 @@ export function TimerBar({
     warnRatio,
     onSecond,
     onFrame: (ms) => {
-      const t = barTransform(timerFraction(ms, totalMs))
-      if (fillRef.current) fillRef.current.style.transform = t
-      if (glowRef.current) glowRef.current.style.transform = t
+      const transform = barTransform(timerFraction(ms, totalMs))
+      if (fillRef.current) fillRef.current.style.transform = transform
+      if (glowRef.current) glowRef.current.style.transform = transform
     },
   })
   const urgent = phase === 'urgent' || phase === 'done'
 
   return (
-    <div role="timer" aria-label={`${secs} secondi rimasti`} className={cn('flex w-full items-center gap-3', className)}>
+    <div role="timer" aria-label={t('ui.timer.secondsLeft', { count: secs })} className={cn('flex w-full items-center gap-3', className)}>
       <div
         className={cn(
           'relative flex-1 rounded-full bg-ink-950/60 shadow-[inset_0_1px_2px_rgb(0_0_0/0.6),0_0_0_1px_rgb(255_255_255/0.08)]',

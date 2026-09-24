@@ -3,6 +3,9 @@ import { useId, useState, type CSSProperties, type ReactNode } from 'react'
 import { Avatar, AvatarPicker, Badge, Button, Icon, IconButton, Input, Modal, Panel, cn, playerColor } from '../../components/ui'
 import { MAX_NAME_LENGTH, MAX_PLAYERS } from '../../game/constants'
 import type { Player, PlayerId, PlayerProfile } from '../../game/types'
+import { formatNumber } from '../../i18n'
+import { useT } from '../../i18n/react'
+import { withNum } from './num'
 
 export type ProfilePatch = Partial<Omit<PlayerProfile, 'id'>>
 
@@ -25,6 +28,7 @@ interface PlayerListProps {
 
 /** Player roster with free seats, kick (host) and profile editing (you). */
 export function PlayerList({ players, me, canKick, onKick, onInvite, onEditProfile, maxPlayers = MAX_PLAYERS, footer, className }: PlayerListProps) {
+  const t = useT()
   const reduce = useReducedMotion()
   const titleId = useId()
   const [kickId, setKickId] = useState<PlayerId | null>(null)
@@ -50,27 +54,24 @@ export function PlayerList({ players, me, canKick, onKick, onInvite, onEditProfi
     <Panel as="section" aria-labelledby={titleId} padding="lg" className={cn('flex flex-col', className)}>
       <header className="flex items-center justify-between gap-3">
         <h2 id={titleId} className="display display-skew text-lg text-ink-50 sm:text-xl">
-          Giocatori
+          {t('lobby.roster.title')}
         </h2>
         <div className="flex items-center gap-2">
           {online < players.length && (
-            <span className="text-xs font-semibold text-ink-400">
-              <span className="num text-ink-200">{online}</span> online
-            </span>
+            <span className="text-xs font-semibold text-ink-400">{withNum(t('lobby.roster.online', { count: online }), 'text-ink-200')}</span>
           )}
           <span className="num rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[13px] font-bold text-ink-100">
-            {players.length}
-            <span className="text-ink-400">
-              <span className="sr-only"> giocatori su </span>
-              <span aria-hidden>/</span>
-              {maxPlayers}
+            <span aria-hidden>
+              {formatNumber(players.length)}
+              <span className="text-ink-400">/{formatNumber(maxPlayers)}</span>
             </span>
+            <span className="sr-only">{t('lobby.roster.capacity', { count: players.length, max: maxPlayers })}</span>
           </span>
         </div>
       </header>
 
       {/* grid-cols-1 = minmax(0,1fr): a long (nowrap, truncated) name must not widen the track past the panel. */}
-      <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1" aria-label="Elenco giocatori">
+      <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1" aria-label={t('lobby.roster.listLabel')}>
         <AnimatePresence initial={false} mode="popLayout">
           {players.map((p) => (
             <motion.li key={p.id} layout={!reduce} {...item} transition={{ type: 'spring', stiffness: 520, damping: 34 }} className="min-w-0">
@@ -95,12 +96,12 @@ export function PlayerList({ players, me, canKick, onKick, onInvite, onEditProfi
         open={!!kickTarget}
         onClose={() => setKickId(null)}
         size="sm"
-        title={shownKick ? `Rimuovere ${shownKick.name}?` : 'Rimuovere il giocatore?'}
-        description="Esce subito dalla stanza e non potrà più rientrare."
+        title={shownKick ? t('lobby.roster.kick.title', { name: shownKick.name }) : t('lobby.roster.kick.titleFallback')}
+        description={t('lobby.roster.kick.body')}
         footer={
           <>
             <Button variant="ghost" onClick={() => setKickId(null)}>
-              Annulla
+              {t('lobby.cancel')}
             </Button>
             <Button
               variant="danger"
@@ -110,7 +111,7 @@ export function PlayerList({ players, me, canKick, onKick, onInvite, onEditProfi
                 setKickId(null)
               }}
             >
-              Rimuovi
+              {t('lobby.roster.kick.confirm')}
             </Button>
           </>
         }
@@ -137,6 +138,7 @@ interface PlayerRowProps {
 }
 
 function PlayerRow({ player, isMe, canKick, onKick, onEdit }: PlayerRowProps) {
+  const t = useT()
   const c = playerColor(player.color)
   const style: CSSProperties | undefined = isMe
     ? {
@@ -162,40 +164,39 @@ function PlayerRow({ player, isMe, canKick, onKick, onEdit }: PlayerRowProps) {
           <div className="mt-1 flex items-center gap-1.5">
             {isMe && (
               <Badge tone="violet" variant="solid">
-                Tu
+                {t('lobby.roster.you')}
               </Badge>
             )}
             {player.isHost && (
               <Badge tone="gold" icon="crown">
-                Host
+                {t('lobby.roster.host')}
               </Badge>
             )}
             {!player.connected && (
               <span className="flex min-w-0 items-center gap-1 text-[11px] font-bold text-coral">
                 <Icon name="wifi-off" size={12} strokeWidth={2.6} className="shrink-0" />
-                <span className="truncate">Riconnessione…</span>
+                <span className="truncate">{t('lobby.roster.reconnecting')}</span>
               </span>
             )}
           </div>
         )}
       </div>
-      {onEdit && <IconButton icon="pencil" label="Modifica profilo" size="sm" variant="ghost" onClick={onEdit} className="text-ink-300" />}
-      {canKick && <IconButton icon="x" label={`Rimuovi ${player.name}`} size="sm" variant="ghost" onClick={onKick} className="text-ink-400 hover:text-coral" />}
+      {onEdit && <IconButton icon="pencil" label={t('lobby.roster.editProfile')} size="sm" variant="ghost" onClick={onEdit} className="text-ink-300" />}
+      {canKick && <IconButton icon="x" label={t('lobby.roster.kickLabel', { name: player.name })} size="sm" variant="ghost" onClick={onKick} className="text-ink-400 hover:text-coral" />}
     </div>
   )
 }
 
 /** Empty seats as dashed avatar placeholders; any of them (or the button) copies the invite link. */
 function FreeSeats({ free, onInvite }: { free: number; onInvite(): void }) {
+  const t = useT()
   const reduce = useReducedMotion()
   return (
     <div className="mt-3 rounded-block border border-dashed border-white/[0.12] p-3">
       <div className="flex items-center justify-between gap-3 pl-1">
-        <p className="min-w-0 text-[13px] font-bold text-ink-300">
-          <span className="num text-ink-100">{free}</span> {free === 1 ? 'posto libero' : 'posti liberi'}
-        </p>
+        <p className="min-w-0 text-[13px] font-bold text-ink-300">{withNum(t('lobby.roster.freeSeats', { count: free }), 'text-ink-100')}</p>
         <Button variant="glass" size="sm" leftIcon="link" onClick={onInvite} className="-mb-[3px]">
-          Invita
+          {t('lobby.roster.invite')}
         </Button>
       </div>
       <ul className="mt-3 flex flex-wrap gap-2" aria-hidden>
@@ -226,6 +227,7 @@ function FreeSeats({ free, onInvite }: { free: number; onInvite(): void }) {
 }
 
 function ProfileEditor({ open, onClose, player, onSave }: { open: boolean; onClose(): void; player: Player; onSave(patch: ProfilePatch): void }) {
+  const t = useT()
   const [draft, setDraft] = useState({ name: player.name, avatar: player.avatar, color: player.color })
   const [wasOpen, setWasOpen] = useState(open)
   // Re-seed the draft each time the dialog opens.
@@ -243,15 +245,15 @@ function ProfileEditor({ open, onClose, player, onSave }: { open: boolean; onClo
     <Modal
       open={open}
       onClose={onClose}
-      title="Il tuo profilo"
+      title={t('lobby.profile.title')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Annulla
+            {t('lobby.cancel')}
           </Button>
           <Button leftIcon="check" disabled={!name} onClick={save}>
-            Salva
+            {t('lobby.profile.save')}
           </Button>
         </>
       }
@@ -266,13 +268,13 @@ function ProfileEditor({ open, onClose, player, onSave }: { open: boolean; onClo
         <div className="flex items-center gap-4">
           <Avatar avatar={draft.avatar} color={draft.color} size="lg" host={player.isHost} />
           <Input
-            label="Nome"
+            label={t('lobby.profile.name')}
             value={draft.name}
             maxLength={MAX_NAME_LENGTH}
             onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
             containerClassName="flex-1"
-            placeholder="Come ti chiami?"
-            error={name ? undefined : 'Scrivi almeno un carattere.'}
+            placeholder={t('lobby.profile.namePlaceholder')}
+            error={name ? undefined : t('lobby.profile.nameRequired')}
           />
         </div>
         <AvatarPicker avatar={draft.avatar} color={draft.color} onChange={(v) => setDraft((d) => ({ ...d, ...v }))} />

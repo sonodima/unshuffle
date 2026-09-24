@@ -2,6 +2,7 @@
 // everything here is unit-testable.
 
 import { MAX_ROUND_POINTS, POSITION_WEIGHT } from '../../../game/constants'
+import { formatNumber, formatOrdinal, localeTag, t } from '../../../i18n'
 import { computeRoundStandings } from '../../../game/selectors'
 import type { RoundStanding } from '../../../game/selectors'
 import type { PlayerId, RoomState, RoundPublic, RoundResult, TrackInfo } from '../../../game/types'
@@ -101,10 +102,10 @@ export function boardLabels(order: readonly number[], view: BoardView): (string 
     return Array.from({ length: n }, (_, p) => {
       if (order[p] === p) return null
       const was = order.indexOf(p)
-      return was >= 0 ? `era ${was + 1}º` : null
+      return was >= 0 ? t('reveal.board.was', { pos: formatOrdinal(was + 1) }) : null
     })
   }
-  return order.map((seg, p) => (seg === p || seg < 0 || seg >= n ? null : `→ ${seg + 1}º`))
+  return order.map((seg, p) => (seg === p || seg < 0 || seg >= n ? null : t('reveal.board.goes', { pos: formatOrdinal(seg + 1) })))
 }
 
 /** Per-POSITION segment index shown by `view` (the board's `order`). */
@@ -272,30 +273,27 @@ export function boardHeightFor(n: number, width: number): number {
 
 // ---- copy -----------------------------------------------------------------------
 
+// Translated at call time (current language); see the `reveal` catalog.
+
 export function verdictFor(b: ScoreBreakdown): string {
-  if (b.perfect) return 'Sequenza perfetta!'
+  if (b.perfect) return t('reveal.verdict.perfect')
   const share = b.points / MAX_ROUND_POINTS
-  if (share >= 0.8) return 'Quasi perfetta!'
-  if (share >= 0.55) return 'Bell’orecchio!'
-  if (share >= 0.3) return 'Ci sei quasi…'
-  if (b.points > 0) return 'Serve un altro ascolto'
-  return 'Nessuno spezzone al posto giusto'
+  if (share >= 0.8) return t('reveal.verdict.almost')
+  if (share >= 0.55) return t('reveal.verdict.good')
+  if (share >= 0.3) return t('reveal.verdict.close')
+  if (b.points > 0) return t('reveal.verdict.more')
+  return t('reveal.verdict.none')
 }
 
+/** Label under the pair count ("coppie in sequenza"); the number is shown apart. */
 export function pairsLabel(pairs: number): string {
-  return pairs === 1 ? 'coppia in sequenza' : 'coppie in sequenza'
+  return t('reveal.score.pairs', { count: pairs })
 }
 
-const secondsFmt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-
-/** 55800 → "55,8 s" */
+/** 55800 → "55,8 s" (one decimal, in the current language). */
 export function formatSeconds(ms: number): string {
-  return `${secondsFmt.format(Math.max(0, ms) / 1000)} s`
-}
-
-/** 1 → "1º" */
-export function ordinal(rank: number): string {
-  return `${rank}º`
+  const seconds = formatNumber(Math.max(0, ms) / 1000, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+  return t('reveal.seconds', { seconds })
 }
 
 /** Seconds (ceil) until the host's auto-advance, or null when there is none. */
@@ -313,17 +311,18 @@ export function shouldSkipChoreography(nextAt: number | null, now: number, autoA
   return nextAt - now < autoAdvanceMs - 9000
 }
 
-/** Points with a thousands dot even for 4 digits ("3.571", "10.000"), unlike it-IT's default. */
-export function formatPoints(n: number): string {
-  const v = Math.round(n)
-  const s = String(Math.abs(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return v < 0 ? `-${s}` : s
-}
+const pointsFormats = new Map<string, Intl.NumberFormat>()
 
-/** 72.4 → "1:12" */
-export function formatClockS(seconds: number): string {
-  const s = Math.max(0, Math.floor(seconds))
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+/**
+ * Whole points with thousands separators even for 4 digits ("3.571", "10.000"),
+ * unlike it-IT's default; separators follow the current language ("3,571"…).
+ * Cached per language: the count-ups call it every frame.
+ */
+export function formatPoints(n: number): string {
+  const tag = localeTag()
+  let fmt = pointsFormats.get(tag)
+  if (!fmt) pointsFormats.set(tag, (fmt = new Intl.NumberFormat(tag, { useGrouping: 'always', maximumFractionDigits: 0 })))
+  return fmt.format(Math.round(n) || 0)
 }
 
 export interface RoundStats {

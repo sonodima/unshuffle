@@ -2,6 +2,7 @@
 import { memo, useEffect, useState } from 'react'
 import { Button, Spinner, cn, useMediaQuery } from '../../../components/ui'
 import { REVEAL_AUTO_ADVANCE_MS } from '../../../game/constants'
+import { rich, useT } from '../../../i18n/react'
 
 interface RevealFooterProps {
   isHost: boolean
@@ -13,7 +14,8 @@ interface RevealFooterProps {
 }
 
 export const RevealFooter = memo(function RevealFooter({ isHost, isLast, secondsLeft, onNext, className }: RevealFooterProps) {
-  const next = isLast ? 'Classifica finale' : 'Prossimo round'
+  const t = useT()
+  const next = t(isLast ? 'reveal.footer.final' : 'reveal.footer.next')
   const total = Math.round(REVEAL_AUTO_ADVANCE_MS / 1000)
   const frac = secondsLeft == null ? 0 : Math.max(0, Math.min(1, secondsLeft / total))
   const wide = useMediaQuery('(min-width: 768px)')
@@ -28,8 +30,8 @@ export const RevealFooter = memo(function RevealFooter({ isHost, isLast, seconds
   const [pressed, setPressed] = useState(false)
   useEffect(() => {
     if (!pressed) return
-    const t = setTimeout(() => setPressed(false), 4000)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setPressed(false), 4000)
+    return () => clearTimeout(timer)
   }, [pressed])
 
   return (
@@ -55,7 +57,9 @@ export const RevealFooter = memo(function RevealFooter({ isHost, isLast, seconds
             <p className="flex items-center justify-center gap-2.5 text-[13px] font-bold text-ink-200 md:text-sm" aria-live="off">
               <CountdownRing frac={frac} seconds={secondsLeft} />
               <span>
-                {next} tra <span className="rv-tnum text-white">{secondsLeft}</span> s
+                {rich(t(isLast ? 'reveal.footer.finalIn' : 'reveal.footer.nextIn', { count: secondsLeft }), {
+                  num: (c) => <span className="rv-tnum text-white">{c}</span>,
+                })}
               </span>
             </p>
           )}
@@ -69,10 +73,9 @@ export const RevealFooter = memo(function RevealFooter({ isHost, isLast, seconds
         >
           <Spinner size={18} label={null} />
           <span>
-            In attesa dell’host…
-            {secondsLeft != null && (
-              <span className="rv-tnum ml-1.5 text-ink-300">({secondsLeft} s)</span>
-            )}
+            {secondsLeft != null
+              ? rich(t('reveal.footer.waitingIn', { count: secondsLeft }), { num: (c) => <span className="rv-tnum ml-1.5 text-ink-300">{c}</span> })
+              : t('reveal.footer.waiting')}
           </span>
         </div>
       )}

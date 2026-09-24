@@ -1,6 +1,7 @@
 import { Avatar, cn } from '../../components/ui'
 import type { AvatarSize } from '../../components/ui'
 import type { Player, PlayerId } from '../../game/types'
+import { useT } from '../../i18n/react'
 
 interface PlayersStripProps {
   players: readonly Player[]
@@ -22,6 +23,7 @@ const MORE: Partial<Record<AvatarSize, string>> = { xs: 'h-6 min-w-6 text-[10px]
 
 /** Row of player avatars with check badges; "me" gets a thin highlight ring. */
 export function PlayersStrip({ players, checked, me, size = 'sm', max = 8, overlap = false, className, label }: PlayersStripProps) {
+  const t = useT()
   const shown = players.length > max ? players.slice(0, max - 1) : players
   const hidden = players.length - shown.length
   return (
@@ -31,7 +33,7 @@ export function PlayersStrip({ players, checked, me, size = 'sm', max = 8, overl
           <Avatar
             avatar={p.avatar}
             color={p.color}
-            name={p.id === me ? `${p.name} (tu)` : p.name}
+            name={p.id === me ? t('round.players.me', { name: p.name }) : p.name}
             size={size}
             submitted={checked?.has(p.id)}
             connected={p.connected}
@@ -46,7 +48,7 @@ export function PlayersStrip({ players, checked, me, size = 'sm', max = 8, overl
             MORE[size],
             overlap ? OVERLAP[size] : '',
           )}
-          aria-label={`e altri ${hidden}`}
+          aria-label={t('round.players.more', { count: hidden })}
         >
           +{hidden}
         </li>

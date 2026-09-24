@@ -180,6 +180,10 @@
     bottom: 8%;
   }
 }
+/* CJK: the tiny-block tightening would crowd ideographs / hangul (see index.css). */
+.sb-chip:is(:lang(ja), :lang(ko), :lang(zh)) {
+  letter-spacing: 0;
+}
 @keyframes sb-chip-in {
   from {
     opacity: 0;
@@ -644,6 +648,10 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-ink-100);
+}
+/* CJK: no tracking on ideographs / hangul (see index.css). */
+.tb-label:is(:lang(ja), :lang(ko), :lang(zh)) {
+  letter-spacing: 0;
 }
 .tb-pos,
 .tb-time {

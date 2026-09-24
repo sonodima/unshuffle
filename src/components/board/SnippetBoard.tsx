@@ -36,6 +36,8 @@ import type {
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Segment } from '../../game/types'
+import { useT } from '../../i18n/react'
+import { joinFacts } from '../ui/format'
 import {
   PLAY_ALL_TAG,
   blockTag,
@@ -85,7 +87,6 @@ export interface BoardHighlight {
 }
 
 const TRANSITION = { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' }
-const SORTABLE_ATTRIBUTES = { roleDescription: 'spezzone' }
 const SWAP_THROTTLE_MS = 70
 
 // Drag activation distance per pointer type. A mouse is precise; a finger rolls
@@ -222,21 +223,23 @@ const SortableSnippet = memo(function SortableSnippet({
   press,
   registerFlip,
 }: ItemProps) {
+  const t = useT()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: idOf(seg),
     disabled: locked,
     transition: TRANSITION,
-    attributes: SORTABLE_ATTRIBUTES,
+    attributes: { roleDescription: t('board.item.roleDescription') },
   })
   const flipRef = useCallback((el: HTMLDivElement | null) => registerFlip(seg, el), [registerFlip, seg])
   const keyDown = listeners?.onKeyDown as ((e: ReactKeyboardEvent) => void) | undefined
   const pointerDown = listeners?.onPointerDown as ((e: ReactPointerEvent<HTMLElement>) => void) | undefined
-  const label =
-    `Spezzone ${letter}, posizione ${position + 1} di ${total}` +
-    (playing ? ', in riproduzione' : '') +
-    (mark === 'correct' ? ', corretto' : mark === 'wrong' ? ', sbagliato' : '') +
-    (chip ? `, ${chip}` : '') +
-    (locked ? ', bloccato' : '')
+  const label = joinFacts([
+    t('board.item.label', { letter, position: position + 1, total }),
+    playing && t('board.item.playing'),
+    mark === 'correct' ? t('board.item.correct') : mark === 'wrong' && t('board.item.wrong'),
+    chip,
+    locked && t('board.item.locked'),
+  ])
   return (
     <div
       ref={setNodeRef}
@@ -310,6 +313,7 @@ export function SnippetBoard({
   onTapSegment,
   className,
 }: SnippetBoardProps) {
+  const t = useT()
   const audio = useBoardAudio()
   const engine = audio.engine
   const n = segments.length
@@ -634,32 +638,26 @@ export function SnippetBoard({
   )
   const overlayModifiers = useMemo(() => [restrictToBoard], [restrictToBoard])
 
+  // Announcements are read at event time (current language); the instructions are
+  // rendered text, so the memo follows them.
+  const instructions = t('board.announce.instructions')
   const accessibility = useMemo(() => {
-    const letterOf = (id: UniqueIdentifier) => lettersRef.current[segOf(id)] ?? '?'
-    const posOf = (id: UniqueIdentifier) => shownRef.current.indexOf(segOf(id)) + 1
-    const total = () => shownRef.current.length
+    const at = (id: UniqueIdentifier, pos: UniqueIdentifier = id) => ({
+      letter: lettersRef.current[segOf(id)] ?? '?',
+      position: shownRef.current.indexOf(segOf(pos)) + 1,
+      total: shownRef.current.length,
+    })
     const announcements: Announcements = {
-      onDragStart: ({ active }) =>
-        `Hai sollevato lo spezzone ${letterOf(active.id)}, in posizione ${posOf(active.id)} di ${total()}.`,
+      onDragStart: ({ active }) => t('board.announce.dragStart', at(active.id)),
       onDragOver: ({ active, over }) =>
-        over
-          ? `Spezzone ${letterOf(active.id)} sopra la posizione ${posOf(over.id)} di ${total()}.`
-          : `Spezzone ${letterOf(active.id)} fuori dalla griglia.`,
+        over ? t('board.announce.dragOver', at(active.id, over.id)) : t('board.announce.dragOutside', at(active.id)),
       onDragEnd: ({ active, over }) =>
-        over
-          ? `Spezzone ${letterOf(active.id)} rilasciato in posizione ${posOf(over.id)} di ${total()}.`
-          : `Spezzone ${letterOf(active.id)} rilasciato.`,
-      onDragCancel: ({ active }) =>
-        `Spostamento annullato. Lo spezzone ${letterOf(active.id)} torna in posizione ${posOf(active.id)} di ${total()}.`,
+        over ? t('board.announce.drop', at(active.id, over.id)) : t('board.announce.dropOutside', at(active.id)),
+      onDragCancel: ({ active }) => t('board.announce.cancel', at(active.id)),
     }
-    const screenReaderInstructions: ScreenReaderInstructions = {
-      draggable:
-        'Premi Invio per ascoltare lo spezzone, Maiusc+Invio per ascoltare la sequenza da qui. ' +
-        'Premi la barra spaziatrice per sollevarlo, usa le frecce per spostarlo, ' +
-        'poi premi di nuovo la barra spaziatrice per rilasciarlo, oppure Esc per annullare.',
-    }
+    const screenReaderInstructions: ScreenReaderInstructions = { draggable: instructions }
     return { announcements, screenReaderInstructions }
-  }, [])
+  }, [t, instructions])
 
   // --- programmatic reorder animation (FLIP) ------------------------------------------
   const flipEls = useRef(new Map<number, HTMLElement>())
@@ -755,7 +753,7 @@ export function SnippetBoard({
           onDragCancel={finishDrag}
         >
           <SortableContext items={ids} strategy={rectSortingStrategy} disabled={locked}>
-            <div ref={gridRef} className="sb-grid" style={gridStyle} role="group" aria-label="Spezzoni da riordinare">
+            <div ref={gridRef} className="sb-grid" style={gridStyle} role="group" aria-label={t('board.grid')}>
               {shown.map((seg, pos) => (
                 <SortableSnippet
                   key={seg}

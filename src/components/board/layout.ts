@@ -1,4 +1,5 @@
 // Pure helpers for the snippet board: grid fitting, order-safe labels, time formatting.
+import { formatSeconds } from '../ui/format'
 
 export interface GridLayout {
   cols: number
@@ -129,8 +130,7 @@ export function snippetLetters(hues: readonly number[]): string[] {
   return letters
 }
 
-/** 7.4 → "0:07" */
+/** 7.4 → "0:07" (digits of the current language). */
 export function formatTime(seconds: number): string {
-  const s = Math.max(0, Math.floor(seconds + 1e-6))
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+  return formatSeconds(seconds + 1e-6)
 }

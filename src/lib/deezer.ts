@@ -4,6 +4,7 @@
 // covers (cdn-images.dzcdn.net) DO send `Access-Control-Allow-Origin: *`, so
 // they can be fetched / decoded / drawn to canvas normally.
 
+import { t as translate } from '../i18n'
 import type { MessageKey } from '../i18n'
 import type { PlaylistRef, TrackInfo } from '../game/types'
 import { FEATURED_PLAYLIST_IDS } from './playlistCategories'
@@ -32,7 +33,7 @@ type DeezerErrorKind =
   /** Any other API error payload. */
   | 'api'
 
-/** Every failure of this module. `message` is Italian and safe to show to users. */
+/** Every failure of this module. `message` is a game.deezer catalog key: show it with t(). */
 export class DeezerError extends Error {
   readonly kind: DeezerErrorKind
   /** Deezer API error code, when the error came from an `{error}` payload. */
@@ -298,7 +299,7 @@ function withPlaylistMessage(err: unknown): unknown {
 function toPlaylistRef(p: DzPlaylist): PlaylistRef {
   const ref: PlaylistRef = {
     id: p.id,
-    title: p.title?.trim() || 'Playlist senza titolo',
+    title: p.title?.trim() || translate('game.deezer.fallback.playlist'),
     picture: p.picture_big || p.picture_medium || p.picture_xl || '',
     nbTracks: p.nb_tracks ?? 0,
   }
@@ -322,8 +323,8 @@ function toTrackInfo(t: DzTrack): TrackInfo {
   const cover = album.cover_xl || album.cover_big || album.cover_medium || ''
   return {
     id: t.id,
-    title: (t.title_short || t.title || '').trim() || 'Senza titolo',
-    artist: t.artist?.name?.trim() || 'Artista sconosciuto',
+    title: (t.title_short || t.title || '').trim() || translate('game.deezer.fallback.track'),
+    artist: t.artist?.name?.trim() || translate('game.deezer.fallback.artist'),
     album: album.title?.trim() || '',
     cover,
     coverSmall: album.cover_medium || cover,
@@ -419,16 +420,17 @@ export async function getPlaylist(id: number): Promise<PlaylistRef> {
 }
 
 /**
- * Featured playlists for the picker's "Top" shelf: the curated
- * FEATURED_PLAYLIST_IDS (in order) followed by Deezer's chart playlists for
- * the visitor's country, deduped, minus ambient/instrumental moods.
+ * Featured playlists for the picker's "Top" shelf: the curated `ids` (in order;
+ * default FEATURED_PLAYLIST_IDS, the lobby passes its language's shelf) followed by
+ * Deezer's chart playlists for the visitor's country, deduped, minus
+ * ambient/instrumental moods.
  * Individual failures are skipped; rejects only if nothing could be loaded.
  */
-export async function getFeaturedPlaylists(limit = 24): Promise<PlaylistRef[]> {
+export async function getFeaturedPlaylists(limit = 24, ids: readonly number[] = FEATURED_PLAYLIST_IDS): Promise<PlaylistRef[]> {
   if (limit <= 0) return []
   let firstError: unknown = null
   const [featured, chart] = await Promise.all([
-    mapLimit(FEATURED_PLAYLIST_IDS.slice(0, limit), 4, (id) =>
+    mapLimit(ids.slice(0, limit), 4, (id) =>
       getPlaylist(id).catch((err: unknown) => {
         firstError ??= err
         return null

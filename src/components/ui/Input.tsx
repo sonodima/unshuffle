@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type InputHTMLAttributes, type ReactNode, type Ref } from 'react'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
 import { shakeElement } from './hooks'
 import { Icon, type IconName } from './Icon'
@@ -44,6 +45,7 @@ export function Input({
   disabled,
   ...rest
 }: InputProps) {
+  const t = useT()
   const autoId = useId()
   const inputId = id ?? autoId
   const hintId = `${inputId}-hint`
@@ -71,7 +73,7 @@ export function Input({
               className={cn('num text-[11px] font-medium', length >= maxLength ? 'text-gold' : 'text-ink-400')}
               aria-hidden
             >
-              {length}/{maxLength}
+              {t('ui.input.counter', { count: length, max: maxLength })}
             </span>
           )}
         </div>

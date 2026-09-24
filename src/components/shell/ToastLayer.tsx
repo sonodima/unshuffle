@@ -1,4 +1,4 @@
-// Maps store toasts (GameEvent) to the UI-kit ToastViewport with Italian copy.
+// Maps store toasts (GameEvent) to the UI-kit ToastViewport, with copy from the catalog.
 // Reactions are not toasts: FloatingReactions renders those.
 // Also shows a persistent "tap to enable audio" cue while the browser keeps the
 // AudioContext suspended in a room (e.g. after a reload, which rejoins with no gesture).
@@ -10,6 +10,7 @@ import { useAudioUnlocked } from '../../audio/usePlayback'
 import { hostNow } from '../../game/clock'
 import { useGame } from '../../game/store'
 import type { Player, PlayerId } from '../../game/types'
+import { useLocale, useT } from '../../i18n/react'
 import { ToastViewport, useIsWide, useMediaQuery } from '../ui'
 import type { ToastViewItem } from '../ui'
 import { cn } from '../ui'
@@ -59,6 +60,8 @@ function unlockNow(): void {
 
 /** The cue item while in a room with the AudioContext still locked (null otherwise). */
 function useAudioUnlockCue(): { item: ToastViewItem | null; dismiss(): void } {
+  const t = useT()
+  const locale = useLocale()
   const unlocked = useAudioUnlocked()
   // Not over the connection dialogs / while the link is down: one thing at a time.
   const inRoom = useGame((s) => s.role !== 'none' && s.room !== null && s.connection === 'open')
@@ -96,15 +99,17 @@ function useAudioUnlockCue(): { item: ToastViewItem | null; dismiss(): void } {
 
   const item = useMemo<ToastViewItem | null>(() => {
     if (!wanted || !ready || dismissed) return null
-    const verb = coarse ? 'Tocca' : 'Clicca'
+    const title = reveal ? (coarse ? 'shell.audioCue.tapToListen' : 'shell.audioCue.clickToListen') : coarse ? 'shell.audioCue.tapToEnable' : 'shell.audioCue.clickToEnable'
     return {
       id: CUE_ID,
       tone: 'accent',
       icon: 'headphones',
-      title: reveal ? `${verb} per ascoltare la canzone` : `${verb} per attivare l’audio`,
-      body: coarse ? 'Il browser tiene l’audio in pausa finché non tocchi lo schermo.' : 'Il browser tiene l’audio in pausa finché non interagisci con la pagina.',
+      title: t(title),
+      body: t(coarse ? 'shell.audioCue.tapBody' : 'shell.audioCue.clickBody'),
     }
-  }, [wanted, ready, dismissed, coarse, reveal])
+    // `locale`: the copy follows a language change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t, locale, wanted, ready, dismissed, coarse, reveal])
 
   return {
     item,

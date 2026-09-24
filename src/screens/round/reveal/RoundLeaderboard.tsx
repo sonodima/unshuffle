@@ -8,7 +8,9 @@ import type { CSSProperties } from 'react'
 import { SnippetStrip } from '../../../components/board'
 import { AnimatedNumber, Avatar, Icon, cn, playerColor } from '../../../components/ui'
 import type { PlayerId, Segment } from '../../../game/types'
+import { useT } from '../../../i18n/react'
 import type { LeaderRow } from './model'
+import { formatNumber, formatOrdinal } from '../../../i18n'
 import { formatPoints, formatSeconds, roundStats } from './model'
 import { RankDelta } from './ScorePanel'
 
@@ -42,6 +44,7 @@ export const RoundLeaderboard = memo(function RoundLeaderboard({
   ranked,
   className,
 }: RoundLeaderboardProps) {
+  const t = useT()
   const primed = primedProp ?? entered
   const reduce = useReducedMotion()
   const byId = useMemo(() => new Map(rows.map((r) => [r.player.id, r])), [rows])
@@ -53,13 +56,13 @@ export const RoundLeaderboard = memo(function RoundLeaderboard({
   const stats = useMemo(() => roundStats(rows), [rows])
 
   return (
-    <section aria-label="Classifica" className={cn('rv-lead glass-flat flex min-h-0 flex-col rounded-panel', className)}>
+    <section aria-label={t('reveal.lead.title')} className={cn('rv-lead glass-flat flex min-h-0 flex-col rounded-panel', className)}>
       <header className="flex items-center justify-between gap-3 px-4 pt-4 pb-2 md:px-5 md:pt-5">
         <h3 className="display display-skew flex items-center gap-2 text-[15px] text-white md:text-base">
           <Icon name="trophy" size={17} strokeWidth={2.4} className="text-gold" />
-          Classifica
+          {t('reveal.lead.title')}
         </h3>
-        <span className="eyebrow">dopo il round {round + 1}</span>
+        <span className="eyebrow">{t('reveal.lead.after', { round: round + 1 })}</span>
       </header>
       <LayoutGroup>
         <ol className="rv-lead-list min-h-0 flex-1 overflow-y-auto px-2 pb-2 md:px-3 md:pb-3" aria-live="polite">
@@ -86,9 +89,9 @@ export const RoundLeaderboard = memo(function RoundLeaderboard({
           animate={{ opacity: ranked ? 1 : 0 }}
           transition={{ duration: 0.5, delay: ranked && !reduce ? 0.6 : 0 }}
         >
-          <MiniStat label="Media" value={formatPoints(stats.average)} mono />
-          <MiniStat label="Perfetti" value={String(stats.perfect)} gold={stats.perfect > 0} mono />
-          <MiniStat label="Più veloce" value={stats.fastest?.name ?? '—'} sub={stats.fastest ? formatSeconds(stats.fastest.timeMs) : undefined} />
+          <MiniStat label={t('reveal.lead.stats.average')} value={formatPoints(stats.average)} mono />
+          <MiniStat label={t('reveal.lead.stats.perfect')} value={formatNumber(stats.perfect)} gold={stats.perfect > 0} mono />
+          <MiniStat label={t('reveal.lead.stats.fastest')} value={stats.fastest?.name ?? '—'} sub={stats.fastest ? formatSeconds(stats.fastest.timeMs) : undefined} />
         </motion.footer>
       )}
     </section>
@@ -108,15 +111,16 @@ interface RowProps {
 }
 
 function Row({ row, index, me, ranked, primed, entered, reduce, segments, hues }: RowProps) {
+  const t = useT()
   const { player, result } = row
   const rank = ranked ? row.rank : row.prevRank
   const color = playerColor(player.color)
   const style = { '--pc': color } as CSSProperties
   const n = segments?.length ?? 0
-  const label =
-    `${rank}º, ${player.name}${me ? ' (tu)' : ''}: ` +
-    (result ? `${formatPoints(result.points)} punti in questo round, ${result.correct} su ${n} al posto giusto` : row.spectator ? 'spettatore' : 'nessuna risposta') +
-    `, totale ${formatPoints(ranked ? row.totalAfter : row.totalBefore)}`
+  const who = { rank: formatOrdinal(rank), name: me ? t('reveal.lead.row.me', { name: player.name }) : player.name, total: formatPoints(ranked ? row.totalAfter : row.totalBefore) }
+  const label = result
+    ? t('reveal.lead.row.played', { ...who, count: result.points, points: formatPoints(result.points), correct: result.correct, n })
+    : t(row.spectator ? 'reveal.lead.row.spectator' : 'reveal.lead.row.noAnswer', who)
 
   return (
     <motion.li
@@ -141,8 +145,8 @@ function Row({ row, index, me, ranked, primed, entered, reduce, segments, hues }
       <div aria-hidden className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1.5">
           <span className={cn('truncate text-sm font-extrabold md:text-[15px]', me ? 'text-white' : 'text-ink-50')}>{player.name}</span>
-          {me && <span className="rv-you shrink-0 rounded-full px-1.5 py-px text-[9px] font-black tracking-wider">TU</span>}
-          {row.top && <Icon name="bolt" filled size={13} className="shrink-0 text-gold" label="Miglior punteggio del round" />}
+          {me && <span className="rv-you shrink-0 rounded-full px-1.5 py-px text-[9px] font-black tracking-wider uppercase">{t('reveal.lead.you')}</span>}
+          {row.top && <Icon name="bolt" filled size={13} className="shrink-0 text-gold" label={t('reveal.lead.top')} />}
         </div>
         <div className="mt-1 flex min-w-0 items-center gap-2">
           {result && row.order && segments && hues ? (
@@ -151,11 +155,15 @@ function Row({ row, index, me, ranked, primed, entered, reduce, segments, hues }
               <span className={cn('rv-tnum shrink-0 text-[11px] font-bold', result.perfect ? 'text-gold' : 'text-ink-200')}>
                 {result.correct}/{n}
               </span>
-              {result.timedOut && <Icon name="clock" size={12} strokeWidth={2.6} className="shrink-0 text-coral" label="Tempo scaduto" />}
+              {result.timedOut && <Icon name="clock" size={12} strokeWidth={2.6} className="shrink-0 text-coral" label={t('reveal.score.timedOut')} />}
             </>
           ) : (
             <span className="truncate text-[11px] font-bold text-ink-400">
-              {row.spectator ? (me ? 'Spettatore' : `Spettatore · gioca dal round ${player.activeFromRound + 1}`) : 'Nessuna risposta'}
+              {row.spectator
+                ? me
+                  ? t('reveal.lead.spectator')
+                  : t('reveal.lead.spectatorFrom', { round: player.activeFromRound + 1 })
+                : t('reveal.lead.noAnswer')}
             </span>
           )}
         </div>

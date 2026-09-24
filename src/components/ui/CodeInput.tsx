@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ClipboardEvent, type KeyboardEvent, type Ref } from 'react'
 import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from '../../game/constants'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
 import { shakeElement } from './hooks'
 import { playSfx } from './sound'
@@ -38,7 +39,7 @@ export interface CodeInputProps {
   autoFocus?: boolean
   /** md = 52–60px boxes, lg = up to 68px. Default lg. */
   size?: 'md' | 'lg'
-  /** Accessible group label. Default "Codice stanza". */
+  /** Accessible group label. Default "Codice stanza" (ui.codeInput.label). */
   label?: string
   className?: string
 }
@@ -57,9 +58,11 @@ export function CodeInput({
   disabled = false,
   autoFocus = false,
   size = 'lg',
-  label = 'Codice stanza',
+  label,
   className,
 }: CodeInputProps) {
+  const t = useT()
+  const name = label ?? t('ui.codeInput.label')
   const n = ROOM_CODE_LENGTH
   const groupId = useId()
   const inputs = useRef<Array<HTMLInputElement | null>>([])
@@ -218,7 +221,7 @@ export function CodeInput({
       className={cn('flex w-full flex-col items-center', className)}
     >
       <span id={groupId} className="sr-only">
-        {label}
+        {name}
       </span>
       <div ref={rowRef} className={cn('grid w-full grid-cols-5', size === 'lg' ? 'max-w-[372px] gap-2 sm:gap-2.5' : 'max-w-[312px] gap-2')}>
         {chars.map((c, i) => {
@@ -237,7 +240,7 @@ export function CodeInput({
                 autoCorrect="off"
                 spellCheck={false}
                 enterKeyHint={i === n - 1 ? 'go' : 'next'}
-                aria-label={`${label}: lettera ${i + 1} di ${n}`}
+                aria-label={t('ui.codeInput.letter', { label: name, index: i + 1, count: n })}
                 aria-invalid={invalid || undefined}
                 onChange={(e) => handleInput(i, e.target.value)}
                 onPaste={(e) => handlePaste(i, e)}

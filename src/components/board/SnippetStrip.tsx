@@ -3,6 +3,8 @@
 import { memo, useMemo } from 'react'
 import type { CSSProperties } from 'react'
 import type { Segment } from '../../game/types'
+import { useT } from '../../i18n/react'
+import { joinFacts } from '../ui/format'
 import type { SnippetMark } from './SnippetBlock'
 import { Waveform } from './Waveform'
 import { snippetLetters } from './layout'
@@ -34,12 +36,15 @@ export const SnippetStrip = memo(function SnippetStrip({
   letters,
   className,
 }: SnippetStripProps) {
+  const t = useT()
   const labels = useMemo(() => snippetLetters(segments.map((_, i) => hues[i] ?? 0)), [segments, hues])
   const showLetters = letters ?? size === 'md'
   const correct = marks ? marks.filter((m) => m === 'correct').length : null
+  const sequence = joinFacts(order.map((s) => labels[s] ?? '?'))
   const aria =
-    `Ordine: ${order.map((s) => labels[s] ?? '?').join(', ')}` +
-    (correct != null ? ` — ${correct} su ${order.length} al posto giusto` : '')
+    correct != null
+      ? t('board.strip.orderScored', { letters: sequence, count: correct, total: order.length })
+      : t('board.strip.order', { letters: sequence })
   return (
     <div className={className ? `ss ${className}` : 'ss'} data-size={size} role="img" aria-label={aria}>
       {order.map((seg, pos) => {

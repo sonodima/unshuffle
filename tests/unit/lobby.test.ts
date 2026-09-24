@@ -1,16 +1,26 @@
 import { describe, expect, test } from 'bun:test'
 import type { PlaylistRef } from '../../src/game/types'
+import { t } from '../../src/i18n'
+import { FEATURED_PLAYLIST_IDS, categoryChips, featuredPlaylistIds } from '../../src/lib/playlistCategories'
 import { prettyUrl, splitDisplayUrl } from '../../src/screens/lobby/invite'
-import { MIN_ROUNDS, estimateMinutes, playlistShortfall, tracksWord } from '../../src/screens/lobby/rules'
+import { MIN_ROUNDS, estimateMinutes, playlistShortfall } from '../../src/screens/lobby/rules'
 
 const pl = (nbTracks: number): PlaylistRef => ({ id: 1, title: 'x', picture: '', nbTracks })
 
-describe('tracksWord', () => {
+describe('track count', () => {
   test('singular only for exactly one', () => {
-    expect(tracksWord(1)).toBe('brano')
-    expect(tracksWord(0)).toBe('brani')
-    expect(tracksWord(2)).toBe('brani')
-    expect(tracksWord(100)).toBe('brani')
+    expect(t('lobby.tracks', { count: 1 })).toBe('<num>1</num> brano')
+    expect(t('lobby.tracks', { count: 0 })).toBe('<num>0</num> brani')
+    expect(t('lobby.tracks', { count: 2 })).toBe('<num>2</num> brani')
+    expect(t('lobby.tracks', { count: 100 })).toBe('<num>100</num> brani')
+  })
+})
+
+describe('picker entry points', () => {
+  test('per-language chips and featured shelf (Italian)', () => {
+    expect(categoryChips()[0]).toEqual({ label: 'Hit del momento', query: 'hit del momento', emoji: '🔥' })
+    expect(new Set(categoryChips().map((c) => c.query)).size).toBe(categoryChips().length)
+    expect(featuredPlaylistIds()).toEqual(FEATURED_PLAYLIST_IDS)
   })
 })
 

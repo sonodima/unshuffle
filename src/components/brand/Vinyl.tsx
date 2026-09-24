@@ -54,6 +54,7 @@ export function Vinyl({ cover, size = 180, spin = true, period = 1.8, arm = fals
           ) : (
             <div className="grid size-full place-items-center">
               <span className="display text-white/90" style={{ fontSize: size * 0.07 }}>
+                {/* i18n-ignore: brand mark on the record label (UNSHUFFLE), never translated */}
                 UN
               </span>
             </div>

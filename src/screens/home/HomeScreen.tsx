@@ -1,8 +1,8 @@
 // Home — connected. Reads the store, unlocks audio on every CTA (the gesture
-// iOS needs; other taps only soft-unlock, see useSoftAudioUnlock), maps async failures to inline Italian errors, pre-fills the code
+// iOS needs; other taps only soft-unlock, see useSoftAudioUnlock), maps async failures to inline errors, pre-fills the code
 // from an invite link (#/r/CODE) and shows "Come si gioca" on the first visit.
 // Screen switching is the shell's job: once the store has a room, we're gone.
-import { msgKey, msgOf, tm } from '../../i18n'
+import { msgKey, msgOf } from '../../i18n'
 import type { Msg } from '../../i18n'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { audioEngine } from '../../audio/engine'
@@ -71,8 +71,9 @@ export function HomeScreen() {
   const [code, setCode] = useState(() => inviteCodeFromHash() ?? '')
   const [invited, setInvited] = useState(() => inviteCodeFromHash() !== null)
   const [action, setAction] = useState<HomePending>(null)
-  const [joinError, setJoinError] = useState<string | null>(null)
-  const [createError, setCreateError] = useState<string | null>(null)
+  // Messages, not text: they are shown in the current language (also after a switch).
+  const [joinError, setJoinError] = useState<Msg | null>(null)
+  const [createError, setCreateError] = useState<Msg | null>(null)
   const [howToOpen, setHowToOpen] = useState(false)
   const offline = useOffline()
   const alive = useRef(true)
@@ -146,7 +147,7 @@ export function HomeScreen() {
         setAction(null)
         const message = messageOf(err, STORE_MESSAGES.createFailed)
         if (msgKey(message) === STORE_MESSAGES.cancelled) return
-        setCreateError(tm(message))
+        setCreateError(message)
         clearError()
       },
     )
@@ -168,7 +169,7 @@ export function HomeScreen() {
         setAction(null)
         const message = messageOf(err, STORE_MESSAGES.joinFailed)
         if (msgKey(message) === STORE_MESSAGES.cancelled) return
-        setJoinError(tm(message))
+        setJoinError(message)
         clearError()
       },
     )
@@ -194,7 +195,7 @@ export function HomeScreen() {
       pending={pending}
       joinError={joinError}
       createError={createError}
-      notice={pending || !error ? null : tm(error)}
+      notice={pending || !error ? null : error}
       onDismissNotice={clearError}
       invited={invited}
       offline={offline}

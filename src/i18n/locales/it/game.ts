@@ -16,6 +16,8 @@ export default {
     notEnoughTracks: 'Questa playlist non ha abbastanza brani con anteprima (servono almeno {count}).',
     /** Name given to a player whose nickname is empty. */
     defaultPlayer: 'Giocatore',
+    /** Name of a playlist whose title is missing. {id}: Deezer playlist number, printed as is. */
+    untitledPlaylist: 'Playlist {id}',
   },
   store: {
     invalidCode: 'Codice stanza non valido.',
@@ -75,6 +77,15 @@ export default {
     noPreview: 'Anteprima non disponibile per questo brano.',
     trackNotFound: 'Brano non più disponibile su Deezer.',
     featured: 'Impossibile caricare le playlist in evidenza.',
+    /**
+     * Stand-ins for empty Deezer fields, written into the song / playlist data (in the
+     * host's language, like a player's default name) and shown as a title / artist.
+     */
+    fallback: {
+      playlist: 'Playlist senza titolo',
+      track: 'Senza titolo',
+      artist: 'Artista sconosciuto',
+    },
   },
   /** Difficulty by snippet count (6 / 8 / 12 / 16). */
   difficulty: {

@@ -7,11 +7,6 @@ export function estimateMinutes(s: Pick<GameSettings, 'rounds' | 'roundTime'>): 
   return Math.max(1, Math.round((s.rounds * perRound) / 60000))
 }
 
-/** Italian noun for a track count: 1 → "brano", anything else → "brani". */
-export function tracksWord(n: number): string {
-  return n === 1 ? 'brano' : 'brani'
-}
-
 /** Fewest rounds a game can have: a playlist shorter than this can never be played. */
 export const MIN_ROUNDS: number = Math.min(...SETTINGS_OPTIONS.rounds)
 

@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
 
 export type DotState = 'done' | 'current' | 'upcoming'
@@ -10,7 +11,7 @@ export interface ProgressDotsProps {
   /** Optional per-step color for done dots, e.g. perfect rounds in gold. */
   doneTone?: (index: number) => 'lime' | 'gold' | 'coral' | 'violet' | undefined
   size?: 'sm' | 'md' | 'lg'
-  /** Accessible text. Default "Round {current+1} di {total}". */
+  /** Accessible text. Default "Round {current+1} di {total}" (ui.progressDots.label). */
   label?: string
   className?: string
 }
@@ -30,12 +31,13 @@ const TONE = {
 
 /** Round progress: done (filled) · current (wide glowing pill) · upcoming (faint). */
 export function ProgressDots({ total, current, doneTone, size = 'md', label, className }: ProgressDotsProps) {
+  const t = useT()
   const d = DIM[size]
   const reduce = useReducedMotion()
   return (
     <div
       role="img"
-      aria-label={label ?? `Round ${Math.min(current + 1, total)} di ${total}`}
+      aria-label={label ?? t('ui.progressDots.label', { current: Math.min(current + 1, total), total })}
       className={cn('flex items-center', d.gap, className)}
     >
       {Array.from({ length: total }, (_, i) => {

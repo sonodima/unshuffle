@@ -5,13 +5,14 @@ import { useRevealDelay, type Cue } from './reveal'
 export function SectionHeading({ id, icon, title, aside }: { id: string; icon: IconName; title: string; aside?: ReactNode }) {
   return (
     <div className="mb-3 flex items-end justify-between gap-3 px-1 sm:mb-4">
-      <h2 id={id} className="display display-skew flex items-center gap-2.5 text-[17px] text-ink-50 sm:text-xl">
-        <span className="grid size-7 place-items-center rounded-full bg-white/[0.07] text-ink-200 ring-1 ring-white/10 sm:size-8">
+      <h2 id={id} className="display display-skew flex min-w-0 items-center gap-2.5 text-[17px] text-ink-50 sm:text-xl">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/[0.07] text-ink-200 ring-1 ring-white/10 sm:size-8">
           <Icon name={icon} size={15} strokeWidth={2.4} />
         </span>
         {title}
       </h2>
-      {aside != null && <div className="eyebrow shrink-0 pb-0.5 text-right">{aside}</div>}
+      {/* Longer languages: the title and the aside share the row, the aside wraps under itself. */}
+      {aside != null && <div className="eyebrow min-w-0 pb-0.5 text-right">{aside}</div>}
     </div>
   )
 }

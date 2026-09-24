@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../game/store'
 import type { Player, PlayerId } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { playerColor } from '../ui'
 
 interface Floater {
@@ -140,24 +141,25 @@ function senderOf(players: readonly Player[] | undefined, id: PlayerId): Player 
 
 /** Connected layer: turns new 'reaction' toasts into floaters. Mount once. */
 export function FloatingReactions() {
+  const t = useT()
   const toasts = useGame((s) => s.toasts)
   const [floaters, setFloaters] = useState<Floater[]>([])
   const lastId = useRef(0)
 
   useEffect(() => {
-    const fresh = toasts.filter((t) => t.id > lastId.current && t.event.type === 'reaction')
-    if (toasts.length) lastId.current = Math.max(lastId.current, ...toasts.map((t) => t.id))
+    const fresh = toasts.filter((x) => x.id > lastId.current && x.event.type === 'reaction')
+    if (toasts.length) lastId.current = Math.max(lastId.current, ...toasts.map((x) => x.id))
     if (!fresh.length) return
     const { room, me } = useGame.getState()
     const add: Floater[] = []
-    for (const t of fresh) {
-      if (t.event.type !== 'reaction') continue
-      const p = senderOf(room?.players, t.event.playerId)
-      const name = p ? (p.id === me ? 'Tu' : p.name) : undefined
-      add.push(makeFloater(t.id, t.event.emoji, p ? playerColor(p.color) : 'var(--color-magenta)', name))
+    for (const toast of fresh) {
+      if (toast.event.type !== 'reaction') continue
+      const p = senderOf(room?.players, toast.event.playerId)
+      const name = p ? (p.id === me ? t('shell.reactions.you') : p.name) : undefined
+      add.push(makeFloater(toast.id, toast.event.emoji, p ? playerColor(p.color) : 'var(--color-magenta)', name))
     }
     setFloaters((cur) => [...cur, ...add].slice(-MAX_FLOATERS))
-  }, [toasts])
+  }, [toasts, t])
 
   const done = (id: number) => setFloaters((cur) => cur.filter((f) => f.id !== id))
 

@@ -3,6 +3,9 @@
 
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import type { Msg } from '../../i18n'
+import { rich, useT } from '../../i18n/react'
 import { Button, Equalizer, Modal, Vinyl } from '../ui'
 import { exitNoticeCopy, isRoomGoneMessage } from './connectionCopy'
 import { cancelResume, dismissResumeFailure, useResumeState } from './resume'
@@ -19,8 +22,13 @@ interface ResumeCardProps {
   onCancel(): void
 }
 
+/** The room code inside a sentence. */
+const roomCode = (className: string) => ({ b: (c: string): ReactNode => <span className={className}>{c}</span> })
+
 /** Presentational overlay (render inside AnimatePresence). */
 function ResumeCard({ code, role, canCancel, onCancel }: ResumeCardProps) {
+  const t = useT()
+  const host = role === 'host'
   return (
     <motion.div
       key="resume"
@@ -42,24 +50,20 @@ function ResumeCard({ code, role, canCancel, onCancel }: ResumeCardProps) {
         <span aria-hidden className="absolute -top-16 left-1/2 size-48 -translate-x-1/2 rounded-full bg-violet/35 blur-3xl" />
         <Vinyl size={112} period={1.6} glow="var(--color-violet)" className="relative" />
         <p className="display display-skew relative mt-6 inline-flex items-center gap-2.5 text-xl">
-          Riconnessione
+          {t('shell.resume.title')}
           <Equalizer bars={3} size={16} tone="lime" label={null} />
         </p>
         <p className="relative mt-2 text-sm text-ink-300">
-          {role === 'host' ? 'Riapro la tua stanza' : 'Rientro nella stanza'}
-          {code && (
-            <>
-              {' '}
-              <span className="num font-bold tracking-[0.12em] text-ink-50">{code}</span>
-            </>
-          )}
+          {code
+            ? rich(t(host ? 'shell.resume.hostRoom' : 'shell.resume.clientRoom', { code }), roomCode('num font-bold tracking-[0.12em] text-ink-50'))
+            : t(host ? 'shell.resume.host' : 'shell.resume.client')}
         </p>
         <div className="relative mt-6 h-12">
           <AnimatePresence>
             {canCancel && (
               <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <Button variant="ghost" size="sm" onClick={onCancel}>
-                  Annulla
+                  {t('shell.action.cancel')}
                 </Button>
               </motion.div>
             )}
@@ -71,6 +75,7 @@ function ResumeCard({ code, role, canCancel, onCancel }: ResumeCardProps) {
 }
 
 export function ResumeOverlay() {
+  const t = useT()
   const st = useResumeState()
   const running = st.phase === 'running'
   const [visible, setVisible] = useState(false)
@@ -92,7 +97,7 @@ export function ResumeOverlay() {
   }, [running, st.startedAt])
 
   // Keep the last failure while the modal animates out.
-  const [lastFailure, setLastFailure] = useState<string | null>(null)
+  const [lastFailure, setLastFailure] = useState<Msg | null>(null)
   if (st.failure && st.failure !== lastFailure) setLastFailure(st.failure)
   const failure = st.failure ?? lastFailure
   // After ~15 s of "room not found" the room is gone: say so (the player never typed a code).
@@ -110,28 +115,18 @@ export function ResumeOverlay() {
         description={shown.description || undefined}
         footer={
           <Button variant="primary" onClick={dismissResumeFailure}>
-            Ok
+            {t('shell.action.ok')}
           </Button>
         }
       >
         <p className="text-sm leading-relaxed text-pretty text-ink-300">
-          {gone ? (
-            <>
-              {st.code && (
-                <>
-                  La stanza <span className="num font-bold text-ink-100">{st.code}</span> non c’è più.{' '}
-                </>
-              )}
-              {shown.hint}
-            </>
-          ) : st.code ? (
-            <>
-              Non sono riuscito a riportarti nella stanza <span className="num font-bold text-ink-100">{st.code}</span>. Se la partita è
-              ancora in corso, rientra col codice dalla home.
-            </>
-          ) : (
-            'Se la partita è ancora in corso, rientra col codice dalla home.'
-          )}
+          {gone
+            ? st.code
+              ? rich(t('shell.resume.goneRoom', { code: st.code, hint: shown.hint }), roomCode('num font-bold text-ink-100'))
+              : shown.hint
+            : st.code
+              ? rich(t('shell.resume.failedRoom', { code: st.code }), roomCode('num font-bold text-ink-100'))
+              : t('shell.resume.failed')}
         </p>
       </Modal>
     </>

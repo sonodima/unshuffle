@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useDragControls, useReducedMotion } from 'motion/react'
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
 import { useIsWide } from './hooks'
 import { Icon } from './Icon'
@@ -69,6 +70,7 @@ export function Modal({
   hideCloseButton = false,
   className,
 }: ModalProps) {
+  const t = useT()
   const wide = useIsWide()
   const reduce = useReducedMotion()
   const asSheet = presentation === 'sheet' || (presentation === 'auto' && !wide)
@@ -106,7 +108,10 @@ export function Modal({
         return
       }
       if (e.key !== 'Tab' || !panelRef.current) return
-      const nodes = [...panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((n) => n.offsetParent !== null || n === document.activeElement)
+      // Tabbable only: roving-tabindex groups (radio lists) keep their inactive items at -1.
+      const nodes = [...panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+        (n) => n.tabIndex >= 0 && (n.offsetParent !== null || n === document.activeElement),
+      )
       if (nodes.length === 0) {
         e.preventDefault()
         panelRef.current.focus()
@@ -212,7 +217,7 @@ export function Modal({
                 {!hideCloseButton && dismissible && (
                   <button
                     type="button"
-                    aria-label="Chiudi"
+                    aria-label={t('ui.modal.close')}
                     onClick={onClose}
                     onPointerDown={(e) => e.stopPropagation()}
                     className={cn(

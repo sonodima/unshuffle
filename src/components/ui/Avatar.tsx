@@ -1,7 +1,10 @@
 import { motion } from 'motion/react'
 import { useRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import { AVATARS, PLAYER_COLORS } from '../../game/constants'
+import { formatOrdinal } from '../../i18n'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
+import { formatNumber, joinFacts } from './format'
 import { Icon } from './Icon'
 import { playSfx } from './sound'
 
@@ -66,17 +69,23 @@ export function Avatar({
   className,
   style,
 }: AvatarProps) {
+  const t = useT()
   const px = AVATAR_PX[size]
   const c = playerColor(color)
   const badge = Math.max(12, Math.round(px * 0.38))
   const small = px <= 32
-  const labelParts = [name, host && 'host', submitted && 'ha confermato', !connected && 'disconnesso', rank ? `${rank}º posto` : null]
-  const label = labelParts.filter(Boolean).join(', ')
+  const label = joinFacts([
+    name,
+    host && t('ui.avatar.host'),
+    submitted && t('ui.avatar.submitted'),
+    !connected && t('ui.avatar.disconnected'),
+    rank ? t('ui.avatar.rank', { rank: formatOrdinal(rank) }) : null,
+  ])
 
   return (
     <span
       role="img"
-      aria-label={label || 'Avatar'}
+      aria-label={label || t('ui.avatar.fallback')}
       title={name}
       className={cn('relative inline-grid shrink-0 select-none place-items-center', className)}
       style={{ width: px, height: px, ...style }}
@@ -185,6 +194,7 @@ export interface AvatarGroupProps {
 
 /** Overlapping stack of avatars with a "+N" overflow counter. */
 export function AvatarGroup({ players, size = 'sm', max = 5, className }: AvatarGroupProps) {
+  const t = useT()
   const px = AVATAR_PX[size]
   const shown = players.slice(0, max)
   const rest = players.length - shown.length
@@ -205,9 +215,9 @@ export function AvatarGroup({ players, size = 'sm', max = 5, className }: Avatar
         <span
           className="num relative grid shrink-0 place-items-center rounded-full bg-ink-700 font-bold text-ink-100 shadow-[0_0_0_2px_var(--color-ink-950)]"
           style={{ width: px, height: px, marginLeft: -px * 0.28, fontSize: Math.max(10, px * 0.34) }}
-          aria-label={`e altri ${rest}`}
+          aria-label={t('ui.avatar.more', { count: rest })}
         >
-          +{rest}
+          +{formatNumber(rest)}
         </span>
       )}
     </div>
@@ -225,12 +235,13 @@ export interface AvatarPickerProps {
 
 /** Emoji grid + color swatches. Both are keyboard-navigable radio groups. */
 export function AvatarPicker({ avatar, color, onChange, showRandom = true, className }: AvatarPickerProps) {
+  const t = useT()
   const selectedColor = playerColor(color)
   return (
     <div className={cn('flex flex-col gap-5', className)}>
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between px-1">
-          <span className="eyebrow">Avatar</span>
+          <span className="eyebrow">{t('ui.avatarPicker.avatar')}</span>
           {showRandom && (
             <button
               type="button"
@@ -245,12 +256,12 @@ export function AvatarPicker({ avatar, color, onChange, showRandom = true, class
               className="hit-slop relative -my-2 -mr-2 flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-bold text-ink-200 transition-colors hover:bg-white/8 hover:text-white active:scale-95"
             >
               <Icon name="dice" size={16} />
-              Casuale
+              {t('ui.avatarPicker.random')}
             </button>
           )}
         </div>
         <RadioGrid
-          label="Scegli avatar"
+          label={t('ui.avatarPicker.avatarGroup')}
           count={AVATARS.length}
           selected={avatar}
           onSelect={(i) => onChange({ avatar: i, color })}
@@ -273,13 +284,13 @@ export function AvatarPicker({ avatar, color, onChange, showRandom = true, class
               <span className={cn('emoji text-[26px] transition-transform duration-200 sm:text-[28px]', isSel && 'scale-110')}>{AVATARS[i]}</span>
             </span>
           )}
-          itemLabel={(i) => `Avatar ${AVATARS[i]}`}
+          itemLabel={(i) => t('ui.avatarPicker.avatarOption', { emoji: AVATARS[i] })}
         />
       </div>
       <div className="flex flex-col gap-2.5">
-        <span className="eyebrow px-1">Colore</span>
+        <span className="eyebrow px-1">{t('ui.avatarPicker.color')}</span>
         <RadioGrid
-          label="Scegli colore"
+          label={t('ui.avatarPicker.colorGroup')}
           count={PLAYER_COLORS.length}
           selected={color}
           onSelect={(i) => onChange({ avatar, color: i })}
@@ -304,7 +315,7 @@ export function AvatarPicker({ avatar, color, onChange, showRandom = true, class
               )}
             </span>
           )}
-          itemLabel={(i) => `Colore ${i + 1}`}
+          itemLabel={(i) => t('ui.avatarPicker.colorOption', { number: i + 1 })}
         />
       </div>
     </div>

@@ -100,7 +100,7 @@ export interface AudioEngine {
   getLevels(): AudioLevels
 }
 
-/** Rejection reason of `audioEngine.load` once every retry failed. `message` is Italian, user-facing. */
+/** Rejection reason of `audioEngine.load` once every retry failed. `message` is an English diagnostic (logs only). */
 class AudioLoadError extends Error {
   readonly key: string
   /** Last HTTP status seen (0 = network/decode failure). */
@@ -541,18 +541,18 @@ async function fetchBytes(url: string): Promise<ArrayBuffer> {
     try {
       res = await fetch(url, { mode: 'cors', credentials: 'omit', signal: ctrl?.signal })
     } catch {
-      throw new AttemptError(ctrl?.signal.aborted ? 'download troppo lento' : 'rete non raggiungibile', 0, true)
+      throw new AttemptError(ctrl?.signal.aborted ? 'download too slow' : 'network unreachable', 0, true)
     }
     if (!res.ok) {
       const s = res.status
       const retrySame = s === 408 || s === 429 || s >= 500
-      const reason = s === 403 || s === 404 || s === 410 ? 'link audio scaduto o non valido' : `errore del server (HTTP ${s})`
+      const reason = s === 403 || s === 404 || s === 410 ? 'audio link expired or invalid' : `server error (HTTP ${s})`
       throw new AttemptError(reason, s, !retrySame)
     }
     try {
       return await res.arrayBuffer()
     } catch {
-      throw new AttemptError('download interrotto', 0, true)
+      throw new AttemptError('download interrupted', 0, true)
     }
   } finally {
     if (timer) clearTimeout(timer)
@@ -573,7 +573,7 @@ function decode(ctx: BaseAudioContext, data: ArrayBuffer): Promise<AudioBuffer> 
 
 async function loadWithRetry(key: string, url: string, refresh?: () => Promise<string>): Promise<AudioBuffer> {
   let href = url
-  let reason = 'errore sconosciuto'
+  let reason = 'unknown error'
   let status = 0
   const renew = async () => {
     if (!refresh) return false
@@ -589,26 +589,26 @@ async function loadWithRetry(key: string, url: string, refresh?: () => Promise<s
     if (attempt > 0) await sleep(RETRY_DELAYS_MS[attempt - 1])
     try {
       const g = ensureGraph()
-      if (!g) throw new AttemptError('Web Audio non supportato da questo browser', 0, false, true)
-      if (!href && !(await renew())) throw new AttemptError('link audio mancante', 0, false, !refresh)
+      if (!g) throw new AttemptError('Web Audio not supported by this browser', 0, false, true)
+      if (!href && !(await renew())) throw new AttemptError('audio link missing', 0, false, !refresh)
       const data = await fetchSlot(() => fetchBytes(href))
       let buf: AudioBuffer
       try {
         buf = await decodeSlot(() => decode(g.ctx, data))
       } catch {
-        throw new AttemptError('formato audio non valido', 0, true)
+        throw new AttemptError('invalid audio format', 0, true)
       }
       await analyseLoudness(buf)
       return buf
     } catch (err) {
-      const e = err instanceof AttemptError ? err : new AttemptError('errore imprevisto', 0, true)
+      const e = err instanceof AttemptError ? err : new AttemptError('unexpected error', 0, true)
       reason = e.message
       status = e.status || status
       if (e.fatal) break
       if (e.refresh && attempt < RETRY_DELAYS_MS.length) await renew()
     }
   }
-  throw new AudioLoadError(`Impossibile caricare l'audio del brano: ${reason}.`, key, status)
+  throw new AudioLoadError(`Could not load the track audio: ${reason}.`, key, status)
 }
 
 /* ------------------------------------------------------------------ playback state */
@@ -1036,7 +1036,7 @@ function begin(
   const g = ensureGraph()
   const buffer = buffers.get(key)
   if (!g || !buffer) {
-    if (!buffer) console.warn(`[audio] "${key}" non è ancora caricato`)
+    if (!buffer) console.warn(`[audio] "${key}" is not loaded yet`)
     setState(IDLE)
     return
   }

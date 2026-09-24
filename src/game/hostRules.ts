@@ -92,7 +92,7 @@ function sanitizePlaylist(raw: unknown): PlaylistRef | null | undefined {
   if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0) return undefined
   const playlist: PlaylistRef = {
     id,
-    title: cleanText(raw.title, 120) || `Playlist ${id}`,
+    title: cleanText(raw.title, 120) || t('game.host.untitledPlaylist', { id: String(id) }),
     picture: typeof raw.picture === 'string' && raw.picture.length <= 2048 ? raw.picture : '',
     nbTracks: isNonNegInt(raw.nbTracks) ? raw.nbTracks : 0,
   }

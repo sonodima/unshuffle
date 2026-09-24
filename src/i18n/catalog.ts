@@ -72,7 +72,7 @@ export type PathValue<T, K extends string> = K extends `${infer H}.${infer R}`
     ? T[K]
     : never
 
-/** A translatable string (text or plural), e.g. 'home.createRoom'. */
+/** A translatable string (text or plural), e.g. 'home.create.button'. */
 export type MessageKey = MessageKeysOf<Catalog>
 /** A list of strings, e.g. 'names.nouns'. */
 export type ListKey = ListKeysOf<Catalog>

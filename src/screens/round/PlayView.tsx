@@ -8,6 +8,7 @@ import { Icon, cn, useCanHover, useMediaQuery } from '../../components/ui'
 import { useBackground } from '../../components/background/useBackground'
 import type { AudioStatus } from '../../game/store'
 import type { Phase, PlayerId, RoomState } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { useClock, useStepsLeft } from './clock'
 import { useOnChange, useStable } from './hooks'
 import type { Clock } from './clock'
@@ -66,9 +67,10 @@ export function PlayView(props: PlayViewProps) {
 }
 
 function MissingRound() {
+  const t = useT()
   return (
     <div className="grid h-full place-items-center p-6 text-center">
-      <p className="rs-breathe display display-skew text-lg text-ink-200">Sincronizzo il round…</p>
+      <p className="rs-breathe display display-skew text-lg text-ink-200">{t('round.syncing')}</p>
     </div>
   )
 }
@@ -306,6 +308,7 @@ function PlayStage({ room, me, now, clock: clockProp, arrangement, submitted, au
 }
 
 function SpectatorCard({ compact }: { compact: boolean }) {
+  const t = useT()
   const reduce = useReducedMotion()
   const canHover = useCanHover()
   return (
@@ -329,9 +332,9 @@ function SpectatorCard({ compact }: { compact: boolean }) {
         >
           <Icon name="eye" size={compact ? 22 : 28} strokeWidth={2.2} />
         </span>
-        <h2 className={cn('display display-skew text-white', compact ? 'text-base' : 'text-xl')}>Stai guardando</h2>
+        <h2 className={cn('display display-skew text-white', compact ? 'text-base' : 'text-xl')}>{t('round.spectator.title')}</h2>
         <p className={cn('leading-relaxed font-semibold text-ink-200', compact ? 'text-[13px]' : 'text-sm')}>
-          Giocherai dal prossimo round. Intanto {canHover ? 'clicca' : 'tocca'} i blocchi per ascoltare gli spezzoni.
+          {canHover ? t('round.spectator.bodyHover') : t('round.spectator.bodyTouch')}
         </p>
       </motion.div>
     </div>

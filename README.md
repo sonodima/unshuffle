@@ -8,7 +8,8 @@ A browser-only, peer-to-peer multiplayer music game. A famous song's 30 s Deezer
 preview is cut on beats / bar lines into 6–16 snippets, shuffled, and every player
 races to drag them back into the right order. GeoGuessr-style rounds: a time
 limit, and as soon as the first player confirms, a short final timer starts for
-everyone else. Italian UI, phone and desktop.
+everyone else. Phone and desktop; the interface is translatable (Italian is the
+source language) and follows the browser's language.
 
 - 100 % static SPA (Vite + React 19 + TypeScript) — no backend. Networking is
   WebRTC (PeerJS, rooms brokered by the public PeerJS cloud); music metadata comes
@@ -16,6 +17,7 @@ everyone else. Italian UI, phone and desktop.
   for players on mobile data: see [Deploy](#deploy).
 - How the code fits together (modules, protocol, host state machine, audio
   pipeline, networking): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- Translations (catalogs, rules, adding a language): [`docs/I18N.md`](docs/I18N.md).
 
 ## Features
 
@@ -48,6 +50,12 @@ everyone else. Italian UI, phone and desktop.
 - **Phone first**: touch drag with no scroll conflicts, safe areas, landscape
   layouts, 44–48 px touch targets, and an installable home-screen app with icons
   and a manifest.
+- **In your language**: every text comes from a typed catalog
+  (`src/i18n/`, no dependency). The language is picked from the browser, can be
+  changed from the globe button on Home and in the lobby, and is remembered. Each
+  player reads the game in their own language, even in the same room: peers
+  exchange message keys, never text. Numbers, lists and ordinals follow the
+  language (`Intl`).
 - **Light on the device**: no persistent `backdrop-filter`, a shader that drops to
   30 fps when nothing plays, and an idle Home screen that parks its demo.
 
@@ -246,6 +254,17 @@ several suites mock shared modules with `mock.module`, which leaks across files 
 one bun process. Shared helpers live in `tests/support/` (a headless `HostGame`
 harness with fake server, clock and deps; a synthetic drum loop for the analysis)
 and `tests/fixtures/` (realistic `RoomState`s for every phase).
+
+Translations have three suites of their own ([`docs/I18N.md`](docs/I18N.md)):
+`i18n.test.ts` (lookup, plurals, number / list / ordinal formatting, language
+detection and switching, on fake catalogs), `i18n-catalog.test.ts` (the catalog is
+plain data with balanced `<tag>`s, and every key is read from the current
+language) and `i18n-hardcoded.test.ts`, a guard that fails on any user-facing
+string in `src/` outside the catalog. The guard's report also runs on its own:
+
+```sh
+bun tests/support/i18n-scan.ts          # hardcoded strings, grouped by file (exit code 1 if any)
+```
 
 The end-to-end suites in `tests/e2e/` drive the real app through its UI with
 Playwright and the installed Google Chrome, over the public PeerJS cloud and the

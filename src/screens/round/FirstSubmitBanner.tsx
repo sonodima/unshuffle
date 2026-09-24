@@ -3,8 +3,11 @@
 // phones it takes over the HUD card's first row (the timer bar stays visible
 // right below), on wide screens it covers the left stat panel next to the ring.
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { Children } from 'react'
+import type { ReactNode } from 'react'
 import { Avatar, Icon, cn } from '../../components/ui'
 import type { Player } from '../../game/types'
+import { rich, useT } from '../../i18n/react'
 
 export interface FirstSubmitInfo {
   key: string
@@ -54,25 +57,21 @@ export function FirstSubmitBanner({ info, compact, className }: FirstSubmitBanne
 }
 
 function Content({ player, mine, playing, secondsLeft, compact }: Omit<FirstSubmitInfo, 'key'> & { compact: boolean }) {
-  const name = player?.name ?? 'Qualcuno'
+  const t = useT()
+  const name = player?.name ?? t('round.banner.someone')
   const tone = mine ? 'var(--color-lime)' : 'var(--color-gold)'
   const s = Math.max(0, secondsLeft)
-  const secs = (
+  // The live count pops on every change (keyed by the value).
+  const secs = (c: string) => (
     <span key={s} className="rs-pop num inline-block font-bold">
-      {s}
+      {c}
     </span>
   )
-  const body = mine ? (
-    <>Gli altri hanno ancora {secs} s</>
-  ) : playing ? (
-    s === 1 ? (
-      <>Ti resta {secs} secondo!</>
-    ) : (
-      <>Ti restano {secs} secondi</>
-    )
-  ) : (
-    <>Timer finale: {secs} s</>
+  const body = rich(
+    mine ? t('round.banner.othersLeft', { seconds: s }) : playing ? t('round.banner.youLeft', { count: s }) : t('round.banner.finalTimer', { seconds: s }),
+    { n: secs },
   )
+  const confirmedBy = t('round.banner.confirmedBy', { name })
   return (
     <div
       className="relative overflow-hidden rounded-[22px] p-[1.5px]"
@@ -109,18 +108,15 @@ function Content({ player, mine, playing, secondsLeft, compact }: Omit<FirstSubm
             // One line, so the timer bar below stays visible: only the name gives way.
             <p className="display display-skew flex min-w-0 text-[13.5px] leading-tight text-white">
               {mine ? (
-                <span className="truncate pr-1">Hai confermato per primo!</span>
+                <span className="truncate pr-1">{t('round.banner.mine')}</span>
               ) : (
-                <>
-                  <span className="min-w-0 truncate pr-[0.28em]">{name}</span>
-                  <span className="shrink-0 pr-1">ha confermato!</span>
-                </>
+                oneLine(confirmedBy)
               )}
             </p>
           ) : (
             // Wide HUD slot: a long name wraps to a second line instead of vanishing.
             <p className="display display-skew line-clamp-2 pr-1 text-[15px] leading-[1.15] text-white xl:text-[17px]">
-              {mine ? 'Hai confermato per primo!' : `${name} ha confermato!`}
+              {mine ? t('round.banner.mine') : rich(confirmedBy, { name: (c) => c })}
             </p>
           )}
           <p className={cn('mt-1 flex items-center gap-1.5 truncate font-extrabold', compact ? 'text-[12.5px]' : 'text-[15px]')} style={{ color: tone }}>
@@ -131,4 +127,14 @@ function Content({ player, mine, playing, secondsLeft, compact }: Omit<FirstSubm
       </div>
     </div>
   )
+}
+
+/** Phones: the whole message on one line, where only the player's name (<name>) gives way. */
+function oneLine(text: string): ReactNode {
+  const parts = rich(text, { name: (c) => <span className="min-w-0 truncate pr-[0.28em]">{c}</span> })
+  return Children.map(parts, (part) => {
+    if (typeof part !== 'string') return part
+    const words = part.trim()
+    return words ? <span className="shrink-0 pr-1">{words}</span> : null
+  })
 }

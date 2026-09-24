@@ -1,10 +1,10 @@
 // Boot-time session resume: after a refresh the tab re-enters its previous
 // room (store.resumeSession). A tiny external store drives ResumeOverlay.
 
-import { tm } from '../../i18n'
 import { useSyncExternalStore } from 'react'
 import { loadSession } from '../../game/persist'
 import { useGame } from '../../game/store'
+import type { Msg } from '../../i18n'
 
 interface ResumeState {
   /** idle = never started · running = resumeSession pending · done = settled (or skipped). */
@@ -14,8 +14,8 @@ interface ResumeState {
   /** Host or client session being resumed. */
   role: 'host' | 'client' | null
   startedAt: number
-  /** Italian message when resuming failed with a store error (shown once, then dismissed). */
-  failure: string | null
+  /** The store error when resuming failed (shown once, then dismissed; translated where shown). */
+  failure: Msg | null
 }
 
 let state: ResumeState = { phase: 'idle', code: null, role: null, startedAt: 0, failure: null }
@@ -75,7 +75,7 @@ export function startResume(): void {
 function settle(resumed: boolean): void {
   if (cancelled) return
   const st = useGame.getState()
-  const failure = !resumed && state.code && st.connection === 'error' && st.error ? tm(st.error) : null
+  const failure = !resumed && state.code && st.connection === 'error' && st.error ? st.error : null
   patch({ phase: 'done', failure })
 }
 

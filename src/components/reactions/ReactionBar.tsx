@@ -7,25 +7,24 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useRef, useState } from 'react'
 import { REACTION_BAR } from '../../game/constants'
 import { useGame } from '../../game/store'
+import type { MessageKey } from '../../i18n'
+import { useT } from '../../i18n/react'
 import { cn, useIsWide } from '../ui'
 
 /** Same spacing the host enforces per player. */
 const REACTION_THROTTLE_MS = 400
 
-const REACTION_LABELS: Record<string, string> = {
-  '🔥': 'Fuoco',
-  '😂': 'Risata',
-  '😱': 'Shock',
-  '👏': 'Applausi',
-  '💀': 'Morto dal ridere',
-  '🎉': 'Festa',
-  '🤯': 'Mente esplosa',
-  '😎': 'Troppo forte',
-  '🔁': 'Rivincita',
-}
-
-function reactionLabel(emoji: string): string {
-  return REACTION_LABELS[emoji] ?? emoji
+/** Accessible name of each emoji (resolved at render). */
+const REACTION_NAMES: Record<string, MessageKey> = {
+  '🔥': 'shell.reactions.names.fire',
+  '😂': 'shell.reactions.names.laugh',
+  '😱': 'shell.reactions.names.shock',
+  '👏': 'shell.reactions.names.clap',
+  '💀': 'shell.reactions.names.dead',
+  '🎉': 'shell.reactions.names.party',
+  '🤯': 'shell.reactions.names.mindBlown',
+  '😎': 'shell.reactions.names.cool',
+  '🔁': 'shell.reactions.names.rematch',
 }
 
 export interface ReactionBarProps {
@@ -35,7 +34,7 @@ export interface ReactionBarProps {
   /** Emojis to show. Default REACTION_BAR (every relayed emoji except the rematch request). */
   emojis?: readonly string[]
   disabled?: boolean
-  /** Accessible group name. Default "Reazioni". */
+  /** Accessible group name. Default: shell.reactions.group ("Reazioni"). */
   label?: string
 }
 
@@ -49,7 +48,9 @@ interface Ghost {
 
 let ghostSeq = 0
 
-export function ReactionBar({ compact: compactProp = 'auto', className, emojis = REACTION_BAR, disabled = false, label = 'Reazioni' }: ReactionBarProps) {
+export function ReactionBar({ compact: compactProp = 'auto', className, emojis = REACTION_BAR, disabled = false, label }: ReactionBarProps) {
+  const t = useT()
+  const reactionName = (emoji: string) => (REACTION_NAMES[emoji] ? t(REACTION_NAMES[emoji]) : emoji)
   const reduce = useReducedMotion()
   const wide = useIsWide()
   const compact = compactProp === 'auto' ? !wide : compactProp
@@ -88,7 +89,7 @@ export function ReactionBar({ compact: compactProp = 'auto', className, emojis =
     <div
       ref={barRef}
       role="group"
-      aria-label={label}
+      aria-label={label ?? t('shell.reactions.group')}
       className={cn(
         'glass-subtle relative inline-flex max-w-full items-center rounded-full',
         compact ? 'gap-0.5 p-1' : 'gap-1 p-1.5',
@@ -102,8 +103,8 @@ export function ReactionBar({ compact: compactProp = 'auto', className, emojis =
             key={emoji}
             type="button"
             disabled={disabled}
-            aria-label={`Reazione: ${reactionLabel(emoji)}`}
-            title={reactionLabel(emoji)}
+            aria-label={t('shell.reactions.button', { name: reactionName(emoji) })}
+            title={reactionName(emoji)}
             onClick={(e) => send(emoji, i, e.currentTarget)}
             whileHover={reduce || disabled ? undefined : { scale: 1.14, y: -2 }}
             whileTap={reduce || disabled ? undefined : { scale: 0.86 }}

@@ -2,6 +2,7 @@
 // origins such as a LAN IP during a party), native share sheet.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { t } from '../../i18n'
 
 /** Link that opens the game straight on this room's join form. */
 export function buildJoinUrl(code: string): string {
@@ -81,7 +82,7 @@ export async function nativeShare(code: string, url: string): Promise<ShareResul
   try {
     await navigator.share({
       title: 'UNSHUFFLE',
-      text: `Sfidami a UNSHUFFLE! Entra nella stanza ${code}:`,
+      text: t('lobby.invite.shareText', { code }),
       url,
     })
     return 'shared'

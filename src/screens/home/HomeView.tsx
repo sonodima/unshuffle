@@ -6,7 +6,9 @@ import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useRef, useState, type ReactNode } from 'react'
 import { MAX_PLAYERS, ROOM_CODE_LENGTH } from '../../game/constants'
 import type { PlayerProfile } from '../../game/types'
-import { Button, CodeInput, Icon, Logo, Panel, cn, shakeElement, useCanHover, useMediaQuery, type IconName } from '../../components/ui'
+import { tm, type Msg } from '../../i18n'
+import { rich, useT } from '../../i18n/react'
+import { Button, CodeInput, Icon, LanguagePicker, Logo, Panel, cn, shakeElement, useCanHover, useMediaQuery, type IconName } from '../../components/ui'
 import { HowToPlay } from './HowToPlay'
 import { ProfileCard, type ProfilePatch } from './ProfileCard'
 import { DemoStrip, ShuffleDemo } from './ShuffleDemo'
@@ -29,11 +31,11 @@ interface HomeViewProps {
   /** Which action is in flight (spinner on its button, the other one disabled). */
   pending: HomePending
   /** Inline error under the code boxes (boxes turn coral and shake). */
-  joinError?: string | null
+  joinError?: Msg | null
   /** Inline error under "Crea stanza". */
-  createError?: string | null
+  createError?: Msg | null
   /** Problem not caused by a Home action (kicked, host gone…): dismissible banner. */
-  notice?: string | null
+  notice?: Msg | null
   onDismissNotice?(): void
   /** Opened from an invite link: the join box leads and "Entra" is the primary CTA. */
   invited?: boolean
@@ -47,7 +49,7 @@ interface HomeViewProps {
   onIntent?(): void
 }
 
-const INCOMPLETE_CODE = `Inserisci tutte e ${ROOM_CODE_LENGTH} le lettere del codice.`
+const INCOMPLETE_CODE: Msg = { key: 'home.join.incomplete', params: { count: ROOM_CODE_LENGTH } }
 
 /** Phone on its side: hero and action card side by side (same query as home.css). */
 const LANDSCAPE_PHONE = '(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px)'
@@ -80,12 +82,13 @@ export function HomeView({
   onHowToOpenChange,
   onIntent,
 }: HomeViewProps) {
+  const t = useT()
   const wide = useMediaQuery('(min-width: 1024px)')
   const landscape = useMediaQuery(LANDSCAPE_PHONE)
   // Nobody around: the decorative loops (demo, glows) come to rest; any input wakes them.
   const idle = useUserIdle()
   const intent = onIntent ? { onPointerEnter: onIntent, onPointerDown: onIntent, onFocus: onIntent } : undefined
-  const [localError, setLocalError] = useState<string | null>(null)
+  const [localError, setLocalError] = useState<Msg | null>(null)
   const joinRef = useRef<HTMLButtonElement>(null)
   const joinBoxRef = useRef<HTMLDivElement>(null)
   // Code that already moved focus to "Entra": a second completion (Enter) joins.
@@ -121,9 +124,9 @@ export function HomeView({
       className={cn('flex flex-col', invited && 'hm-invite -mx-2 bg-lime/[0.05] px-2 pt-3 pb-1 sm:-mx-3 sm:px-3')}
     >
       {invited ? (
-        <SectionLabel icon="sparkles">Hai un invito!</SectionLabel>
+        <SectionLabel icon="sparkles">{t('home.join.invited')}</SectionLabel>
       ) : (
-        <LabelDivider>Hai un codice?</LabelDivider>
+        <LabelDivider>{t('home.join.divider')}</LabelDivider>
       )}
       <CodeInput
         value={code}
@@ -157,10 +160,10 @@ export function HomeView({
         onClick={join}
         className="mt-3"
       >
-        {invited && complete ? `Entra in ${code}` : 'Entra'}
+        {invited && complete ? t('home.join.buttonCode', { code }) : t('home.join.button')}
       </Button>
       <PendingLine show={pending === 'join'} onCancel={onCancel}>
-        Mi collego alla stanza…
+        {t('home.join.pending')}
       </PendingLine>
     </div>
   )
@@ -176,34 +179,32 @@ export function HomeView({
         disabled={pending === 'join'}
         onClick={() => !busy && onCreate()}
       >
-        {invited ? 'Crea una stanza' : 'Crea stanza'}
+        {invited ? t('home.create.buttonInvited') : t('home.create.button')}
       </Button>
       <InlineError message={createError} className="mt-2" />
       <PendingLine show={pending === 'create'} onCancel={onCancel}>
-        Apro la stanza…
+        {t('home.create.pending')}
       </PendingLine>
       {!invited && pending !== 'create' && (
         <p className="mt-1 flex items-center justify-center gap-1.5 text-center text-xs text-ink-400">
           <Icon name="user" size={13} strokeWidth={2.4} className="shrink-0" />
-          <span>
-            <strong className="font-bold text-ink-200">Gioca da solo:</strong> crea la stanza e avvia subito.
-          </span>
+          <span>{rich(t('home.create.solo'), { b: (c) => <strong className="font-bold text-ink-200">{c}</strong> })}</span>
         </p>
       )}
     </div>
   )
 
   const card = (
-    <Panel as="section" aria-label="Gioca" padding="none" className="hm-card flex flex-1 flex-col p-4 sm:p-5 lg:p-6">
+    <Panel as="section" aria-label={t('home.cardLabel')} padding="none" className="hm-card flex flex-1 flex-col p-4 sm:p-5 lg:p-6">
       <AnimatePresence initial={false}>
         {offline && (
           <Banner key="offline" icon="wifi-off" tone="gold">
-            Sei offline: serve una connessione per giocare.
+            {t('home.offline')}
           </Banner>
         )}
         {notice && (
           <Banner key="notice" icon="alert" tone="coral" onDismiss={onDismissNotice}>
-            {notice}
+            {tm(notice)}
           </Banner>
         )}
       </AnimatePresence>
@@ -212,7 +213,7 @@ export function HomeView({
       {invited ? (
         <>
           {joinSection}
-          <LabelDivider>oppure</LabelDivider>
+          <LabelDivider>{t('home.or')}</LabelDivider>
           {createSection}
         </>
       ) : (
@@ -236,14 +237,18 @@ export function HomeView({
 
   const helpButton = (
     <Button variant="glass" size="sm" leftIcon="help" onClick={() => onHowToOpenChange(true)}>
-      Come si gioca
+      {t('home.help')}
     </Button>
   )
 
   return (
     <div className="hm-root h-dvh overflow-x-hidden overflow-y-auto overscroll-contain" data-idle={idle || undefined}>
       <div className="relative mx-auto flex min-h-full w-full max-w-[1180px] flex-col px-safe-4 pt-safe-3 pb-safe-3 sm:px-safe-6 lg:px-safe-10 lg:pt-safe-6 lg:pb-safe-5">
-        <header className="flex h-11 shrink-0 items-center lg:absolute lg:top-6 lg:left-10 lg:z-10">{helpButton}</header>
+        {/* Top left: the sound button floats in the top-right corner. */}
+        <header className="flex h-11 shrink-0 items-center gap-2 lg:absolute lg:top-6 lg:left-10 lg:z-10">
+          {helpButton}
+          <LanguagePicker />
+        </header>
 
         <main className="hm-main flex flex-1 flex-col sm:justify-center">
           <section
@@ -255,7 +260,7 @@ export function HomeView({
               className="hm-eyebrow eyebrow mb-3 flex items-center gap-2 text-ink-300 lg:mb-5 lg:[@media(max-height:780px)]:hidden"
             >
               <span className="h-px w-6 bg-linear-to-r from-transparent to-ink-400/60" />
-              Party game musicale
+              {t('home.hero.eyebrow')}
               <span className="h-px w-6 bg-linear-to-l from-transparent to-ink-400/60" />
             </motion.p>
             <div className="relative">
@@ -268,7 +273,7 @@ export function HomeView({
               {...rise(0.5)}
               className="hm-tagline mt-4 max-w-[22rem] text-[15px] leading-snug text-balance text-ink-200 sm:text-base lg:mt-5 lg:max-w-none lg:text-xl"
             >
-              La hit è stata fatta a pezzi. <span className="font-bold text-white">Rimettila in ordine.</span>
+              {rich(t('home.hero.tagline'), { b: (c) => <span className="font-bold text-white">{c}</span> })}
             </motion.p>
             {landscape && demoStrip}
           </section>
@@ -278,7 +283,7 @@ export function HomeView({
           <div className="hm-actions mx-auto w-full max-w-[440px] lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_minmax(360px,408px)] lg:items-stretch lg:gap-7">
             {wide && (
               <motion.div {...rise(0.42)} className="flex min-w-0 flex-col">
-                <Panel as="aside" aria-label="Anteprima di un round" padding="none" className="flex flex-1 flex-col p-6 xl:p-7">
+                <Panel as="aside" aria-label={t('home.demoLabel')} padding="none" className="flex flex-1 flex-col p-6 xl:p-7">
                   <ShuffleDemo paused={howToOpen} idle={idle} className="flex-1" />
                 </Panel>
               </motion.div>
@@ -291,12 +296,12 @@ export function HomeView({
 
         <footer className="flex shrink-0 items-center justify-center gap-x-5 pt-4 text-[11px] font-semibold text-ink-400 lg:pt-6">
           <FooterItem icon="users" desktopOnly>
-            Da 1 a {MAX_PLAYERS} giocatori
+            {t('home.footer.players', { count: MAX_PLAYERS })}
           </FooterItem>
           <FooterItem icon="bolt" desktopOnly>
-            Nessun account, si gioca nel browser
+            {t('home.footer.noAccount')}
           </FooterItem>
-          <FooterItem icon="music">Anteprime musicali da Deezer</FooterItem>
+          <FooterItem icon="music">{t('home.footer.deezer')}</FooterItem>
         </footer>
       </div>
 
@@ -344,12 +349,14 @@ function FooterItem({ icon, desktopOnly = false, children }: { icon: IconName; d
   )
 }
 
-function InlineError({ message, className }: { message: string | null; className?: string }) {
+function InlineError({ message, className }: { message: Msg | null; className?: string }) {
+  useT()
+  const text = tm(message)
   return (
     <AnimatePresence initial={false}>
-      {message && (
+      {text ? (
         <motion.p
-          key={message}
+          key={text}
           role="alert"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
@@ -359,15 +366,16 @@ function InlineError({ message, className }: { message: string | null; className
         >
           <span className={cn('flex items-start justify-center gap-1.5 text-center text-[13px] leading-snug font-semibold text-coral', className)}>
             <Icon name="alert" size={15} strokeWidth={2.4} className="mt-px shrink-0" />
-            <span>{message}</span>
+            <span>{text}</span>
           </span>
         </motion.p>
-      )}
+      ) : null}
     </AnimatePresence>
   )
 }
 
 function PendingLine({ show, onCancel, children }: { show: boolean; onCancel?: () => void; children: ReactNode }) {
+  const t = useT()
   return (
     <AnimatePresence initial={false}>
       {show && (
@@ -386,7 +394,7 @@ function PendingLine({ show, onCancel, children }: { show: boolean; onCancel?: (
                 onClick={onCancel}
                 className="-my-2 rounded-full px-2 py-2 font-bold text-ink-100 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60"
               >
-                Annulla
+                {t('home.cancel')}
               </button>
             )}
           </p>
@@ -407,6 +415,7 @@ function Banner({
   onDismiss?: () => void
   children: ReactNode
 }) {
+  const t = useT()
   return (
     <motion.div
       role={tone === 'coral' ? 'alert' : 'status'}
@@ -427,7 +436,7 @@ function Banner({
         {onDismiss && (
           <button
             type="button"
-            aria-label="Chiudi avviso"
+            aria-label={t('home.dismissNotice')}
             onClick={onDismiss}
             className="grid size-9 shrink-0 place-items-center rounded-full text-ink-300 transition-colors hover:bg-white/10 hover:text-white"
           >

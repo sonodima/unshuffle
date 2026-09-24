@@ -1,7 +1,10 @@
-// Italian copy for the connection dialogs (pure: no React, no store), chosen by
-// where the player was (lobby / game / final) and by why the link is gone.
-// Used by ConnectionOverlay; exported for tests.
+// Copy for the connection dialogs (pure: no React, no store), chosen by where the
+// player was (lobby / game / final) and by why the link is gone. Reasons are read
+// from message keys, never from translated text; strings come from the catalog at
+// call time. Used by ConnectionOverlay and ResumeOverlay; exported for tests.
 
+import { msgKey, t, tm } from '../../i18n'
+import type { MessageKey, Msg } from '../../i18n'
 import type { Connection } from '../../game/store'
 import type { Phase } from '../../game/types'
 import { REJECT_MESSAGES } from '../../net/protocol'
@@ -28,40 +31,53 @@ export interface DialogCopy {
   canRetry: boolean
 }
 
+/** Store errors meaning the host left for good (STORE_MESSAGES.hostGone): no "Riprova". */
+const HOST_GONE: ReadonlySet<MessageKey> = new Set<MessageKey>(['game.store.hostGone'])
+
+/** "Room not found" (full and short NetError message): after a rejoin, the room is gone. */
+const ROOM_NOT_FOUND: ReadonlySet<MessageKey> = new Set<MessageKey>(['game.net.roomNotFound', 'game.net.short.roomNotFound'])
+
 export function lostContextFor(phase: Pick<Phase, 'kind'> | null | undefined): LostContext {
   if (!phase || phase.kind === 'lobby') return 'lobby'
   return phase.kind === 'final' ? 'final' : 'game'
 }
 
-const ROOM_NOT_FOUND_RE = /stanza non trovata/i
-
-/** "Stanza non trovata. Controlla il codice." after a rejoin means the room is gone, not a typo. */
-export function isRoomGoneMessage(message: string | null | undefined): boolean {
-  return !!message && ROOM_NOT_FOUND_RE.test(message)
+/** The store error says the host left for good. */
+export function isHostGoneMessage(msg: Msg | null | undefined): boolean {
+  const key = msgKey(msg)
+  return key !== null && HOST_GONE.has(key)
 }
 
-/**
- * @param hostGone store messages that mean the host left for good (see ConnectionOverlay).
- */
-export function exitReasonFor(message: string, connection: Connection, hostGone: ReadonlySet<string> = new Set()): ExitReason {
-  if (message === REJECT_MESSAGES.kicked) return 'kicked'
-  if (message === REJECT_MESSAGES.closed) return 'closed'
-  if (message === REJECT_MESSAGES.duplicate) return 'duplicate'
-  if (hostGone.has(message) || isRoomGoneMessage(message)) return 'gone'
+/** "Room not found" after a rejoin means the room is gone, not a typo in the code. */
+export function isRoomGoneMessage(msg: Msg | null | undefined): boolean {
+  const key = msgKey(msg)
+  return key !== null && ROOM_NOT_FOUND.has(key)
+}
+
+/** Why we were dropped out of a room, from the store error that came with it. */
+export function exitReasonFor(msg: Msg | null | undefined, connection: Connection): ExitReason {
+  const key = msgKey(msg)
+  if (key === REJECT_MESSAGES.kicked) return 'kicked'
+  if (key === REJECT_MESSAGES.closed) return 'closed'
+  if (key === REJECT_MESSAGES.duplicate) return 'duplicate'
+  if (isHostGoneMessage(msg) || isRoomGoneMessage(msg)) return 'gone'
   if (connection === 'error') return 'failed'
   return 'other'
+}
+
+const LOST_HINT: Record<LostContext, MessageKey> = {
+  lobby: 'shell.lost.hintLobby',
+  game: 'shell.lost.hintGame',
+  final: 'shell.lost.hintFinal',
 }
 
 /** Blocking dialog while the link to the host is down for good (the transport gave up). */
 export function lostDialogCopy(context: LostContext, cause: LostCause, canRetry: boolean): DialogCopy {
   if (cause === 'host-gone') {
     return {
-      title: context === 'lobby' ? 'L’host ha chiuso la stanza' : 'L’host ha lasciato la partita',
-      description: 'La stanza non è più disponibile.',
-      hint:
-        context === 'final'
-          ? 'La partita era finita: crea una nuova stanza per la rivincita.'
-          : 'Crea una nuova stanza dalla home o entra con un altro codice.',
+      title: t(context === 'lobby' ? 'shell.lost.hostClosedTitle' : 'shell.lost.hostLeftTitle'),
+      description: t('shell.lost.hostGoneDescription'),
+      hint: t(context === 'final' ? 'shell.lost.hostGoneHintFinal' : 'shell.exit.gone.hint'),
       icon: 'logout',
       tone: 'coral',
       canRetry: false,
@@ -69,42 +85,44 @@ export function lostDialogCopy(context: LostContext, cause: LostCause, canRetry:
   }
   if (!canRetry) {
     return {
-      title: 'Connessione persa',
-      description: 'La connessione con la stanza si è interrotta.',
-      hint: 'Controlla la connessione, poi riprova dalla home.',
+      title: t('shell.lost.title'),
+      description: t('shell.lost.noRetryDescription'),
+      hint: t('shell.lost.noRetryHint'),
       icon: 'wifi-off',
       tone: 'coral',
       canRetry: false,
     }
   }
-  const hint: Record<LostContext, string> = {
-    lobby: 'Riprova tra un attimo, oppure torna alla home e creane una tua.',
-    game: 'Se l’host è ancora in partita, rientrando riprendi da dove eri, con il tuo punteggio.',
-    final: 'Se l’host è ancora collegato, rientrando potrai giocare la rivincita.',
-  }
   return {
-    title: 'Connessione persa',
-    description: context === 'lobby' ? 'L’host non risponde: forse ha chiuso la stanza.' : 'L’host non risponde da un po’.',
-    hint: hint[context],
+    title: t('shell.lost.title'),
+    description: t(context === 'lobby' ? 'shell.lost.descriptionLobby' : 'shell.lost.description'),
+    hint: t(LOST_HINT[context]),
     icon: 'wifi-off',
     tone: 'coral',
     canRetry: true,
   }
 }
 
-const EXIT_COPY: Record<ExitReason, Omit<DialogCopy, 'description' | 'canRetry'>> = {
-  kicked: { title: 'Fuori dalla stanza', icon: 'kick', tone: 'coral', hint: 'Puoi sempre crearne una tua, o entrare con un altro codice.' },
-  closed: { title: 'Stanza chiusa', icon: 'lock', tone: 'violet', hint: 'La partita è finita per tutti. Crea una nuova stanza o entra con un altro codice.' },
-  duplicate: { title: 'Già in partita', icon: 'users', tone: 'violet', hint: 'Chiudi l’altra scheda per giocare da qui.' },
-  gone: { title: 'Stanza non più disponibile', icon: 'logout', tone: 'coral', hint: 'Crea una nuova stanza dalla home o entra con un altro codice.' },
-  failed: { title: 'Impossibile rientrare', icon: 'wifi-off', tone: 'coral', hint: 'Controlla la connessione, poi riprova col codice dalla home.' },
-  other: { title: 'Sei fuori dalla stanza', icon: 'logout', tone: 'violet', hint: 'Puoi rientrare con lo stesso codice dalla home.' },
+interface ExitStyle {
+  title: MessageKey
+  hint: MessageKey
+  icon: CopyIcon
+  tone: DialogCopy['tone']
 }
 
-/** After being dropped out of a room (kicked, room closed, a rejoin that failed). */
-export function exitNoticeCopy(reason: ExitReason, message: string | null | undefined): DialogCopy {
-  const base = EXIT_COPY[reason] ?? EXIT_COPY.other
+const EXIT_COPY: Record<ExitReason, ExitStyle> = {
+  kicked: { title: 'shell.exit.kicked.title', hint: 'shell.exit.kicked.hint', icon: 'kick', tone: 'coral' },
+  closed: { title: 'shell.exit.closed.title', hint: 'shell.exit.closed.hint', icon: 'lock', tone: 'violet' },
+  duplicate: { title: 'shell.exit.duplicate.title', hint: 'shell.exit.duplicate.hint', icon: 'users', tone: 'violet' },
+  gone: { title: 'shell.exit.gone.title', hint: 'shell.exit.gone.hint', icon: 'logout', tone: 'coral' },
+  failed: { title: 'shell.exit.failed.title', hint: 'shell.exit.failed.hint', icon: 'wifi-off', tone: 'coral' },
+  other: { title: 'shell.exit.generic.title', hint: 'shell.exit.generic.hint', icon: 'logout', tone: 'violet' },
+}
+
+/** After being dropped out of a room (kicked, room closed, a rejoin that failed). `message`: the store error. */
+export function exitNoticeCopy(reason: ExitReason, message: Msg | null | undefined): DialogCopy {
+  const style = EXIT_COPY[reason] ?? EXIT_COPY.other
   // "Controlla il codice" makes no sense when the player never typed one.
-  const description = reason === 'gone' && (!message || isRoomGoneMessage(message)) ? 'L’host ha chiuso la stanza o ha perso la connessione.' : (message ?? '')
-  return { ...base, description, canRetry: false }
+  const description = reason === 'gone' && (!message || isRoomGoneMessage(message)) ? t('shell.exit.gone.description') : tm(message)
+  return { title: t(style.title), hint: t(style.hint), icon: style.icon, tone: style.tone, description, canRetry: false }
 }

@@ -1,10 +1,13 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useEffectEvent, useRef, useState, type ReactNode, type Ref } from 'react'
-import { Button, Chip, Icon, IconButton, Input, Spinner, cn, formatNumber, playSfx, useCanHover, type IconName } from '../../components/ui'
+import { Button, Chip, Icon, IconButton, Input, Spinner, cn, playSfx, useCanHover, type IconName } from '../../components/ui'
 import type { PlaylistRef } from '../../game/types'
-import { CATEGORY_CHIPS, type CategoryChip } from '../../lib/playlistCategories'
-import { catalogErrorMessage, deezerCatalog, type PlaylistCatalog } from './catalog'
-import { MIN_ROUNDS, tracksWord } from './rules'
+import { msgKey, tm, type Msg } from '../../i18n'
+import { useLocale, useT } from '../../i18n/react'
+import { categoryChips, type CategoryChip } from '../../lib/playlistCategories'
+import { catalogError, deezerCatalog, type PlaylistCatalog } from './catalog'
+import { withNum } from './num'
+import { MIN_ROUNDS } from './rules'
 
 const SEARCH_DEBOUNCE_MS = 350
 const MIN_QUERY = 2
@@ -48,7 +51,7 @@ interface Outcome {
   key: string
   attempt: number
   items?: PlaylistRef[]
-  error?: string
+  error?: Msg
 }
 
 function useDebounced<T>(value: T, ms: number): T {
@@ -62,8 +65,13 @@ function useDebounced<T>(value: T, ms: number): T {
 
 /** Search box + category chips + featured shelf + results grid. Paste a Deezer link to pick it directly. */
 export function PlaylistPicker({ selected, onSelect, inputRef, className }: PlaylistPickerProps) {
+  const t = useT()
+  const locale = useLocale()
   const [input, setInput] = useState('')
-  const [chip, setChip] = useState<CategoryChip | null>(null)
+  // By query: the chip survives a language change only if the new language has it too.
+  const [chipQuery, setChipQuery] = useState<string | null>(null)
+  const chips = categoryChips()
+  const chip = chips.find((c) => c.query === chipQuery) ?? null
   const [attempt, setAttempt] = useState(0)
   const [outcome, setOutcome] = useState<Outcome | null>(null)
   // Results per request key for this picker's lifetime (going back to a chip / the shelf is instant).
@@ -76,16 +84,17 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
   let req: Request | null = null
   if (link.kind === 'id') {
     const id = link.id
-    req = { key: `id:${id}`, run: () => deezerCatalog.getPlaylist(id).then((p) => [p]), heading: 'Dal tuo link', icon: 'link', autoSelect: true }
+    req = { key: `id:${id}`, run: () => deezerCatalog.getPlaylist(id).then((p) => [p]), heading: t('lobby.picker.fromLink'), icon: 'link', autoSelect: true }
   } else if (link.kind === 'none') {
     if (trimmed.length >= MIN_QUERY) {
       const q = debounced.length >= MIN_QUERY ? debounced : null
-      if (q) req = { key: `q:${q.toLowerCase()}`, run: () => deezerCatalog.search(q), heading: <>Risultati per “{q}”</>, icon: 'search', query: q }
+      if (q) req = { key: `q:${q.toLowerCase()}`, run: () => deezerCatalog.search(q), heading: t('lobby.picker.resultsFor', { query: q }), icon: 'search', query: q }
     } else if (chip) {
       const c = chip
       req = { key: `c:${c.query}`, run: () => deezerCatalog.search(c.query), heading: c.label, icon: c.emoji ?? 'music' }
     } else {
-      req = { key: 'featured', run: () => deezerCatalog.featured(), heading: 'In evidenza', icon: 'star' }
+      // Per language: each one has its own featured list.
+      req = { key: `featured:${locale}`, run: () => deezerCatalog.featured(), heading: t('lobby.picker.featured'), icon: 'star' }
     }
   }
   const reqKey = req?.key ?? null
@@ -117,7 +126,7 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
         if (r.autoSelect) pickFromLink(items[0], true)
       },
       (err: unknown) => {
-        if (alive) setOutcome({ key: r.key, attempt, error: catalogErrorMessage(err) })
+        if (alive) setOutcome({ key: r.key, attempt, error: catalogError(err) })
       },
     )
     return () => {
@@ -136,18 +145,24 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
   // Short screen-reader summary instead of announcing the whole grid.
   const status =
     link.kind === 'short' || link.kind === 'foreign'
-      ? 'Link non valido'
+      ? t('lobby.picker.invalidLink')
       : loading
-        ? 'Caricamento…'
+        ? t('lobby.picker.loading')
         : current?.error
-          ? current.error
+          ? tm(current.error)
           : current?.items
-            ? `${current.items.length} playlist`
+            ? t('lobby.picker.count', { count: current.items.length })
             : ''
+  // A pasted link that doesn't resolve: the notice's title already says "Playlist non trovata".
+  const errorBody = current?.error
+    ? link.kind === 'id' && msgKey(current.error) === 'game.deezer.playlistNotFound'
+      ? t('lobby.picker.notFound.body')
+      : tm(current.error)
+    : ''
 
   const setQuery = (v: string) => {
     setInput(v)
-    if (chip && v.trim()) setChip(null)
+    if (chipQuery && v.trim()) setChipQuery(null)
   }
 
   return (
@@ -161,8 +176,8 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
         spellCheck={false}
         icon="search"
         size="lg"
-        aria-label="Cerca playlist"
-        placeholder="Cerca o incolla un link Deezer"
+        aria-label={t('lobby.picker.searchLabel')}
+        placeholder={t('lobby.picker.searchPlaceholder')}
         value={input}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => {
@@ -175,17 +190,17 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
         rightSlot={
           loading || waiting ? (
             <span className="grid size-9 place-items-center text-violet-bright">
-              <Spinner size={18} label="Ricerca in corso" />
+              <Spinner size={18} label={t('lobby.picker.searching')} />
             </span>
           ) : input ? (
-            <IconButton icon="x" label="Svuota ricerca" size="sm" variant="ghost" tooltip={false} onClick={() => setQuery('')} />
+            <IconButton icon="x" label={t('lobby.picker.clear')} size="sm" variant="ghost" tooltip={false} onClick={() => setQuery('')} />
           ) : null
         }
       />
 
-      <ChipRow active={link.kind === 'none' && trimmed.length < MIN_QUERY ? chip : null} onPick={(c) => {
+      <ChipRow chips={chips} active={link.kind === 'none' && trimmed.length < MIN_QUERY ? chip : null} onPick={(c) => {
         setInput('')
-        setChip((cur) => (cur?.query === c.query ? null : c))
+        setChipQuery((cur) => (cur === c.query ? null : c.query))
       }} />
 
       <p className="sr-only" aria-live="polite">
@@ -196,15 +211,15 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
           <Notice
             tone="gold"
             icon="link"
-            title="Incolla il link completo della playlist"
-            body="I link brevi (link.deezer.com) non si possono aprire da qui. Aprilo nel browser o nell’app Deezer e copia l’indirizzo completo: deezer.com/…/playlist/123456."
+            title={t('lobby.picker.shortLink.title')}
+            body={t('lobby.picker.shortLink.body')}
           />
         ) : link.kind === 'foreign' ? (
           <Notice
             tone="gold"
             icon="alert"
-            title="Questo link non è una playlist"
-            body="Incolla il link di una playlist pubblica di Deezer, tipo deezer.com/it/playlist/123456 — oppure cerca per nome, artista o genere."
+            title={t('lobby.picker.foreignLink.title')}
+            body={t('lobby.picker.foreignLink.body')}
           />
         ) : !req ? (
           waiting ? <SkeletonGrid count={10} /> : null
@@ -216,19 +231,19 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
                 <span className="truncate">{req.heading}</span>
               </h3>
               {current?.items && current.items.length > 0 && link.kind === 'none' && (
-                <span className="num shrink-0 text-xs text-ink-400">{current.items.length} playlist</span>
+                <span className="num shrink-0 text-xs text-ink-400">{t('lobby.picker.count', { count: current.items.length })}</span>
               )}
             </div>
             {current?.error ? (
               <Notice
                 tone="coral"
                 icon={link.kind === 'id' ? 'alert' : 'wifi-off'}
-                title={link.kind === 'id' ? 'Playlist non trovata' : 'Deezer non risponde'}
-                body={dropLead(current.error, link.kind === 'id' ? 'Playlist non trovata' : '')}
+                title={t(link.kind === 'id' ? 'lobby.picker.notFound.title' : 'lobby.picker.offline')}
+                body={errorBody}
                 action={
                   link.kind === 'id' ? undefined : (
                     <Button variant="glass" size="sm" leftIcon="refresh" onClick={() => setAttempt((a) => a + 1)}>
-                      Riprova
+                      {t('lobby.picker.retry')}
                     </Button>
                   )
                 }
@@ -239,15 +254,15 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
               <Notice
                 tone="neutral"
                 icon="search"
-                title={req.query ? `Nessuna playlist per “${req.query}”` : 'Nessuna playlist'}
-                body="Prova con un artista, un genere o un decennio, oppure incolla il link di una playlist Deezer."
+                title={req.query ? t('lobby.picker.empty.titleFor', { query: req.query }) : t('lobby.picker.empty.title')}
+                body={t('lobby.picker.empty.body')}
               />
             ) : (
               <>
                 {link.kind === 'id' && current?.items?.[0] && selected?.id === current.items[0].id && (
                   <p className="mb-3 flex items-center gap-2 px-1 text-sm font-bold text-lime">
                     <Icon name="check" size={16} strokeWidth={3} />
-                    Playlist scelta dal link
+                    {t('lobby.picker.pickedFromLink')}
                   </p>
                 )}
                 <Grid items={current?.items ?? []} selectedId={selected?.id ?? null} onSelect={onSelect} gridKey={reqKey ?? ''} />
@@ -258,13 +273,6 @@ export function PlaylistPicker({ selected, onSelect, inputRef, className }: Play
       </div>
     </div>
   )
-}
-
-/** "Playlist non trovata: controlla il link" under the title "Playlist non trovata" → "Controlla il link". */
-function dropLead(message: string, title: string): string {
-  if (!title || !message.toLowerCase().startsWith(title.toLowerCase())) return message
-  const rest = message.slice(title.length).replace(/^[\s:.–—-]+/, '')
-  return rest ? rest[0].toUpperCase() + rest.slice(1) : message
 }
 
 function HeadingIcon({ icon }: { icon: IconName | string }) {
@@ -278,7 +286,8 @@ function HeadingIcon({ icon }: { icon: IconName | string }) {
 
 // ─── Chips ──────────────────────────────────────────────────────────────────
 
-function ChipRow({ active, onPick }: { active: CategoryChip | null; onPick(c: CategoryChip): void }) {
+function ChipRow({ chips, active, onPick }: { chips: readonly CategoryChip[]; active: CategoryChip | null; onPick(c: CategoryChip): void }) {
+  const t = useT()
   const ref = useRef<HTMLDivElement>(null)
   const canHover = useCanHover()
   const [edges, setEdges] = useState({ start: false, end: true })
@@ -312,11 +321,11 @@ function ChipRow({ active, onPick }: { active: CategoryChip | null; onPick(c: Ca
         ref={ref}
         onScroll={measure}
         role="group"
-        aria-label="Categorie"
+        aria-label={t('lobby.picker.chips')}
         className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth px-1 py-1.5 [overscroll-behavior-x:contain]"
         style={{ maskImage: mask, WebkitMaskImage: mask }}
       >
-        {CATEGORY_CHIPS.map((c) => (
+        {chips.map((c) => (
           <Chip
             key={c.query}
             leading={c.emoji}
@@ -332,10 +341,10 @@ function ChipRow({ active, onPick }: { active: CategoryChip | null; onPick(c: Ca
         ))}
       </div>
       {canHover && edges.start && (
-        <IconButton icon="chevron-left" label="Categorie precedenti" size="sm" tooltip={false} onClick={() => scrollBy(-1)} className="absolute top-1/2 left-0 -translate-y-1/2" />
+        <IconButton icon="chevron-left" label={t('lobby.picker.chipsPrev')} size="sm" tooltip={false} onClick={() => scrollBy(-1)} className="absolute top-1/2 left-0 -translate-y-1/2" />
       )}
       {canHover && edges.end && (
-        <IconButton icon="chevron-right" label="Altre categorie" size="sm" tooltip={false} onClick={() => scrollBy(1)} className="absolute top-1/2 right-0 -translate-y-1/2" />
+        <IconButton icon="chevron-right" label={t('lobby.picker.chipsNext')} size="sm" tooltip={false} onClick={() => scrollBy(1)} className="absolute top-1/2 right-0 -translate-y-1/2" />
       )}
     </div>
   )
@@ -364,8 +373,15 @@ function Grid({ items, selectedId, onSelect, gridKey }: { items: PlaylistRef[]; 
 }
 
 function PlaylistCard({ playlist, selected, onSelect }: { playlist: PlaylistRef; selected: boolean; onSelect(): void }) {
+  const t = useT()
   // Fewer tracks than the shortest game: still pickable, but say so before the host gets attached to it.
   const tooShort = playlist.nbTracks > 0 && playlist.nbTracks < MIN_ROUNDS
+  const count = playlist.nbTracks
+  const subtitle = tooShort
+    ? t('lobby.picker.tracksTooShort', { count })
+    : playlist.creator
+      ? t('lobby.picker.tracksBy', { count, creator: playlist.creator })
+      : t('lobby.tracks', { count })
   return (
     <button
       type="button"
@@ -404,7 +420,7 @@ function PlaylistCard({ playlist, selected, onSelect }: { playlist: PlaylistRef;
         {!selected && (
           <span className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100 translate-y-1 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
             <span className="btn-label rounded-full bg-ink-950/80 px-3 py-1.5 font-display text-[10px] font-bold tracking-wider text-white uppercase">
-              Scegli
+              {t('lobby.picker.pick')}
             </span>
           </span>
         )}
@@ -413,8 +429,7 @@ function PlaylistCard({ playlist, selected, onSelect }: { playlist: PlaylistRef;
         {playlist.title}
       </span>
       <span className={cn('mt-0.5 truncate px-0.5 text-[11px] font-semibold @md:text-xs', tooShort ? 'text-gold' : 'text-ink-400')}>
-        <span className="num">{formatNumber(playlist.nbTracks)}</span> {tracksWord(playlist.nbTracks)}
-        {tooShort ? ' · troppo corta' : playlist.creator ? ` · ${playlist.creator}` : ''}
+        {withNum(subtitle)}
       </span>
     </button>
   )

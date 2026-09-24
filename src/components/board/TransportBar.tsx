@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import type { Segment } from '../../game/types'
 import type { PlaybackPosition } from '../../audio/engine'
+import { rich, useT } from '../../i18n/react'
 import { PLAY_ALL_TAG, scheduledSegmentAt, useBoardAudio } from './boardAudio'
 import { usePlayAll } from './usePlayAll'
 import { PlayGlyph, StopGlyph } from './icons'
@@ -33,6 +34,7 @@ function isTypingTarget(t: EventTarget | null): boolean {
 }
 
 export function TransportBar({ trackKey, segments, order, hues, disabled = false, hotkey = true, className }: TransportBarProps) {
+  const t = useT()
   const { engine } = useBoardAudio()
   const { playing, position, ready, toggle, play } = usePlayAll(trackKey, segments, order)
   const n = order.length
@@ -136,9 +138,9 @@ export function TransportBar({ trackKey, segments, order, hues, disabled = false
     return () => cancelAnimationFrame(raf)
   }, [playing, engine, trackKey, durations, total])
 
-  const label = !ready ? 'Caricamento…' : playing ? 'In riproduzione' : 'Ascolta tutto'
+  const label = !ready ? t('ui.loading') : playing ? t('board.transport.playing') : t('board.transport.playAll')
   // Narrow bars (phones) swap in a shorter label so it never ends in an ellipsis.
-  const shortLabel = ready && playing ? 'In ascolto' : label
+  const shortLabel = ready && playing ? t('board.transport.playingShort') : label
   const shownPos = playing ? position + 1 : 0
 
   return (
@@ -149,8 +151,8 @@ export function TransportBar({ trackKey, segments, order, hues, disabled = false
         onClick={toggle}
         disabled={!canPlay && !playing}
         aria-pressed={playing}
-        aria-label={playing ? 'Ferma la riproduzione' : 'Ascolta tutti gli spezzoni in ordine'}
-        title={playing ? 'Ferma (Spazio)' : 'Ascolta tutto (Spazio)'}
+        aria-label={playing ? t('board.transport.stopAction') : t('board.transport.playAllAction')}
+        title={playing ? t('board.transport.stopTitle') : t('board.transport.playAllTitle')}
       >
         <svg className="tb-ring" viewBox="0 0 72 72" aria-hidden="true">
           <circle className="tb-ring-track" cx="36" cy="36" r={RING_R} />
@@ -175,21 +177,19 @@ export function TransportBar({ trackKey, segments, order, hues, disabled = false
             </span>
           </span>
           {playing && (
-            <span className="tb-pos">
-              <b>{shownPos}</b>/{n}
-            </span>
+            <span className="tb-pos">{rich(t('board.transport.position', { position: shownPos, total: n }), { b: (c) => <b>{c}</b> })}</span>
           )}
           <span className="tb-time">
             {playing && (
               <>
-                <span ref={timeRef}>0:00</span>
+                <span ref={timeRef}>{formatTime(0)}</span>
                 <span className="tb-time-total"> / </span>
               </>
             )}
             <span className={playing ? 'tb-time-total' : undefined}>{formatTime(total)}</span>
           </span>
         </div>
-        <div className="tb-map" role="group" aria-label="Posizioni">
+        <div className="tb-map" role="group" aria-label={t('board.transport.positions')}>
           {order.map((seg, pos) => {
             const hue = hues?.[seg]
             const style = (hue != null ? { '--h': Math.round(hue) } : undefined) as CSSProperties | undefined
@@ -203,7 +203,7 @@ export function TransportBar({ trackKey, segments, order, hues, disabled = false
                 style={style}
                 disabled={!canPlay}
                 onClick={() => play(pos)}
-                aria-label={`Ascolta dalla posizione ${pos + 1}`}
+                aria-label={t('board.transport.playFrom', { position: pos + 1 })}
               >
                 <span className="tb-cell-bar">
                   <span

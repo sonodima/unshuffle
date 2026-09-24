@@ -8,6 +8,7 @@ import type { ReactNode } from 'react'
 import { Button, Icon, IconButton, Modal, cn, playSfx } from '../../components/ui'
 import type { IconName } from '../../components/ui'
 import type { PlayerId, RoomState } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { RoundMenuContext, useRoundMenu } from './menuContext'
 import type { RoundMenuApi } from './menuContext'
 
@@ -22,6 +23,7 @@ interface RoundMenuProviderProps {
 }
 
 export function RoundMenuProvider({ room, me, onLeave, onEndGame, children }: RoundMenuProviderProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const isHost = room.hostId === me
   const available = !!onLeave
@@ -47,26 +49,20 @@ export function RoundMenuProvider({ room, me, onLeave, onEndGame, children }: Ro
           open={open}
           onClose={() => setOpen(false)}
           size="sm"
-          title={isHost ? 'Terminare la partita?' : 'Uscire dalla partita?'}
-          description={
-            isHost
-              ? others > 0
-                ? 'Sei l’host: la partita si ferma per tutti.'
-                : 'La partita si ferma qui.'
-              : 'La partita continua senza di te. Finché è in corso puoi rientrare e ritrovare il tuo punteggio.'
-          }
+          title={isHost ? t('round.menu.hostTitle') : t('round.menu.guestTitle')}
+          description={isHost ? (others > 0 ? t('round.menu.hostBody') : t('round.menu.hostAloneBody')) : t('round.menu.guestBody')}
           footer={
             isHost ? (
               <Button variant="glass" onClick={() => setOpen(false)}>
-                Continua a giocare
+                {t('round.menu.keepPlaying')}
               </Button>
             ) : (
               <>
                 <Button variant="glass" onClick={() => setOpen(false)}>
-                  Resta
+                  {t('round.menu.stay')}
                 </Button>
                 <Button variant="danger" leftIcon="logout" onClick={() => act(onLeave)}>
-                  Esci dalla partita
+                  {t('round.menu.leave')}
                 </Button>
               </>
             )
@@ -78,16 +74,16 @@ export function RoundMenuProvider({ room, me, onLeave, onEndGame, children }: Ro
                 <MenuOption
                   icon="home"
                   tone="violet"
-                  title="Torna alla lobby"
-                  body={others > 0 ? 'Punteggi azzerati, stessi giocatori: cambiate playlist e ripartite.' : 'Punteggio azzerato: cambia playlist e riparti.'}
+                  title={t('round.menu.toLobby')}
+                  body={others > 0 ? t('round.menu.toLobbyBody') : t('round.menu.toLobbyAloneBody')}
                   onClick={() => act(onEndGame)}
                 />
               )}
               <MenuOption
                 icon="logout"
                 tone="coral"
-                title="Chiudi la stanza"
-                body={others > 0 ? `${others === 1 ? 'L’altro giocatore viene disconnesso' : 'Tutti gli altri giocatori vengono disconnessi'}.` : 'Torni alla home.'}
+                title={t('round.menu.close')}
+                body={others === 0 ? t('round.menu.closeAloneBody') : others === 1 ? t('round.menu.closeBodyOne') : t('round.menu.closeBodyMany')}
                 onClick={() => act(onLeave)}
               />
             </div>
@@ -96,7 +92,7 @@ export function RoundMenuProvider({ room, me, onLeave, onEndGame, children }: Ro
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-cyan/12 text-cyan shadow-[inset_0_0_0_1px_rgb(46_230_255/0.3)]">
                 <Icon name="link" size={17} strokeWidth={2.4} />
               </span>
-              <span className="min-w-0 flex-1 text-[13px] leading-snug font-semibold text-ink-300">Codice per rientrare</span>
+              <span className="min-w-0 flex-1 text-[13px] leading-snug font-semibold text-ink-300">{t('round.menu.rejoinCode')}</span>
               <span className="num text-[18px] font-bold tracking-[0.18em] text-ink-50">{room.code}</span>
             </div>
           )}
@@ -112,7 +108,7 @@ const OPTION_TONES = {
 } as const
 
 function MenuOption({ icon, tone, title, body, onClick }: { icon: IconName; tone: keyof typeof OPTION_TONES; title: string; body: string; onClick(): void }) {
-  const t = OPTION_TONES[tone]
+  const tones = OPTION_TONES[tone]
   return (
     <button
       type="button"
@@ -122,10 +118,10 @@ function MenuOption({ icon, tone, title, body, onClick }: { icon: IconName; tone
       }}
       className={cn(
         'group glass-subtle flex min-h-[72px] w-full items-center gap-3.5 rounded-[20px] px-3.5 py-3 text-left transition-[background-color,border-color,transform] duration-150 active:scale-[0.985]',
-        t.hover,
+        tones.hover,
       )}
     >
-      <span className={cn('grid size-11 shrink-0 place-items-center rounded-full', t.disc)}>
+      <span className={cn('grid size-11 shrink-0 place-items-center rounded-full', tones.disc)}>
         <Icon name={icon} size={21} strokeWidth={2.4} />
       </span>
       <span className="min-w-0 flex-1">
@@ -144,12 +140,13 @@ interface GameMenuButtonProps {
 
 /** Round glass button that opens the exit menu. Nothing without a RoundMenuProvider. */
 export function GameMenuButton({ size = 'sm', className }: GameMenuButtonProps) {
+  const t = useT()
   const menu = useRoundMenu()
   if (!menu) return null
   return (
     <IconButton
       icon="logout"
-      label={menu.isHost ? 'Termina partita' : 'Esci dalla partita'}
+      label={menu.isHost ? t('round.menu.endButton') : t('round.menu.leaveButton')}
       size={size}
       variant="glass"
       onClick={menu.open}

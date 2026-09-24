@@ -1,8 +1,10 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { SoundControls } from '../../components/shell/SoundControls'
 import { LogoMark, cn, playSfx, playerColor, useMediaQuery } from '../../components/ui'
 import type { PlayerId, RoomState } from '../../game/types'
+import type { MessageKey } from '../../i18n'
+import { useLocale, useT } from '../../i18n/react'
 import { ActionDock } from './ActionDock'
 import { Awards } from './Awards'
 import { createCelebration, type Celebration } from './celebration'
@@ -38,7 +40,10 @@ interface FinalViewProps {
 /** Final results: podium, standings, awards, per-round breakdown and the songs of the game. */
 export function FinalView({ room, me, isHost = room.hostId === me, onPlayAgain, onLeave, onWinnerLanded, onRematch, rematchFrom }: FinalViewProps) {
   const reduced = !!useReducedMotion()
-  const summary = useMemo(() => computeFinalSummary(room), [room])
+  // The summary carries text (awards, headline): recomputed on a language change.
+  const locale = useLocale()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const summary = useMemo(() => computeFinalSummary(room), [room, locale])
   const headline = useMemo(() => computeHeadline(summary, me), [summary, me])
   // Someone who never played a round (a late joiner who only watched) never gets a podium
   // step, even with 0 points against 0 (the standings list them as "Non ha giocato").
@@ -177,6 +182,7 @@ export function FinalView({ room, me, isHost = room.hostId === me, onPlayAgain, 
 }
 
 function TopBar({ playlistTitle, playlistCover, rounds, reduced }: { playlistTitle?: string; playlistCover?: string; rounds: number; reduced: boolean }) {
+  const t = useT()
   const phone = useMediaQuery('(max-width: 639px)')
   return (
     <motion.header
@@ -187,7 +193,7 @@ function TopBar({ playlistTitle, playlistCover, rounds, reduced }: { playlistTit
     >
       <div className="flex shrink-0 items-center gap-2.5">
         <LogoMark size={30} animate={!reduced} />
-        <span className="eyebrow whitespace-nowrap text-ink-200">Partita finita</span>
+        <span className="eyebrow whitespace-nowrap text-ink-200">{t('final.topBar.gameOver')}</span>
       </div>
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <div className="glass-subtle flex min-w-0 items-center gap-2 rounded-full py-1 pr-3 pl-1">
@@ -196,7 +202,7 @@ function TopBar({ playlistTitle, playlistCover, rounds, reduced }: { playlistTit
           {/* Phones: the playlist title gets the room (the round count is in the standings anyway). */}
           <span className={cn('num shrink-0 text-[12px] font-bold text-ink-400', playlistTitle && phone && 'hidden')}>
             {playlistTitle ? '· ' : ''}
-            {rounds} round
+            {t('final.roundCount', { count: rounds })}
           </span>
         </div>
         {/* The header hosts the sound control at every width (it hides the shell's floating one,
@@ -216,10 +222,10 @@ const TITLE_CLASS: Record<Headline['tone'], string> = {
 }
 
 /** Suspense line shown until the winner lands (the headline would otherwise give it away). */
-const TEASER: Partial<Record<Headline['tone'], string>> = {
-  win: 'E il vincitore è',
-  lose: 'E il vincitore è',
-  tie: 'E il vincitore è',
+const TEASER: Partial<Record<Headline['tone'], MessageKey>> = {
+  win: 'final.hero.teaser',
+  lose: 'final.hero.teaser',
+  tie: 'final.hero.teaser',
 }
 
 const FLASH: Record<Headline['tone'], string> = {
@@ -243,18 +249,20 @@ interface HeroProps {
 }
 
 function Hero({ headline, summary, reduced, revealAt, compact, short }: HeroProps) {
+  const t = useT()
   const winner = summary.winners[0]?.player
   const titleRef = useRef<HTMLHeadingElement>(null)
   useFitWords(titleRef, headline.title, { min: 24, widen: true })
-  const teaser = reduced ? undefined : TEASER[headline.tone]
+  const teaserKey = reduced ? undefined : TEASER[headline.tone]
+  const teaser = teaserKey && t(teaserKey)
   // Everything keys off this one timer; without a teaser the title shows right away.
-  const [revealed, setRevealed] = useState(!teaser)
+  const [revealed, setRevealed] = useState(!teaserKey)
   const [flashed, setFlashed] = useState(false)
   useEffect(() => {
-    if (!teaser) return
-    const t = setTimeout(() => setRevealed(true), revealAt * 1000)
-    return () => clearTimeout(t)
-  }, [teaser, revealAt])
+    if (!teaserKey) return
+    const timer = setTimeout(() => setRevealed(true), revealAt * 1000)
+    return () => clearTimeout(timer)
+  }, [teaserKey, revealAt])
   const titleDelay = teaser ? 0 : 0.08
 
   const long = headline.title.length > 16
@@ -269,16 +277,9 @@ function Hero({ headline, summary, reduced, revealAt, compact, short }: HeroProp
     : long
       ? 'text-[36px] sm:text-6xl lg:text-7xl'
       : 'text-[46px] sm:text-7xl lg:text-[88px]'
-  // "Giulia vince!": the winner's name in their color.
-  const named = headline.tone === 'lose' && winner && headline.title.startsWith(winner.name)
-  const title = named ? (
-    <>
-      <span style={{ color: playerColor(winner.color) }}>{winner.name}</span>
-      {headline.title.slice(winner.name.length)}
-    </>
-  ) : (
-    headline.title
-  )
+  // "Giulia vince!" (final.headline.theyWin, the 'lose' tone): the winner's name in their color.
+  const named = headline.tone === 'lose' && winner
+  const title = named ? withName(t('final.headline.theyWin'), <span style={{ color: playerColor(winner.color) }}>{winner.name}</span>) : headline.title
   const flash = named ? playerColor(winner.color) : FLASH[headline.tone]
 
   return (
@@ -339,6 +340,19 @@ function Hero({ headline, summary, reduced, revealAt, compact, short }: HeroProp
         {headline.subtitle}
       </motion.p>
     </div>
+  )
+}
+
+/** A message template (not interpolated) with its {name} placeholder replaced by a node. */
+function withName(template: string, name: ReactNode): ReactNode {
+  const at = template.indexOf('{name}')
+  if (at < 0) return template
+  return (
+    <>
+      {template.slice(0, at)}
+      {name}
+      {template.slice(at + '{name}'.length)}
+    </>
   )
 }
 

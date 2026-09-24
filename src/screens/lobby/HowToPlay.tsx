@@ -1,8 +1,11 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { useId } from 'react'
-import { Icon, Panel, cn, formatNumber, useCanHover, type IconName } from '../../components/ui'
+import { Icon, Panel, cn, useCanHover, type IconName } from '../../components/ui'
 import { MAX_ROUND_POINTS } from '../../game/constants'
 import type { GameSettings } from '../../game/types'
+import { t } from '../../i18n'
+import { useT } from '../../i18n/react'
+import { withNum } from './num'
 
 interface Step {
   icon: IconName
@@ -11,24 +14,25 @@ interface Step {
   tone: string
 }
 
+/** The three steps, translated (call at render). */
 function steps(s: Pick<GameSettings, 'snippets' | 'finalTimer'>, canHover: boolean): Step[] {
   return [
     {
       icon: 'headphones',
-      title: 'Ascolta',
-      body: `Ogni canzone è tagliata in ${s.snippets} spezzoni mescolati. ${canHover ? 'Clicca' : 'Tocca'} un blocco per ascoltarlo.`,
+      title: t('lobby.howTo.listen.title'),
+      body: t(canHover ? 'lobby.howTo.listen.bodyClick' : 'lobby.howTo.listen.bodyTap', { count: s.snippets }),
       tone: 'var(--color-cyan)',
     },
     {
       icon: 'shuffle',
-      title: 'Riordina',
-      body: 'Trascina i blocchi finché la canzone torna a suonare giusta. Con ▶ la senti tutta in fila.',
+      title: t('lobby.howTo.reorder.title'),
+      body: t('lobby.howTo.reorder.body'),
       tone: 'var(--color-magenta)',
     },
     {
       icon: 'bolt',
-      title: 'Conferma',
-      body: `Chi conferma per primo fa partire il timer finale: agli altri restano ${s.finalTimer} secondi.`,
+      title: t('lobby.howTo.confirm.title'),
+      body: t('lobby.howTo.confirm.body', { count: s.finalTimer }),
       tone: 'var(--color-lime)',
     },
   ]
@@ -36,6 +40,7 @@ function steps(s: Pick<GameSettings, 'snippets' | 'finalTimer'>, canHover: boole
 
 /** "Mentre aspetti" card for guests: the three rules of the game, using the room's settings. */
 export function HowToPlay({ settings, className }: { settings: Pick<GameSettings, 'snippets' | 'finalTimer'>; className?: string }) {
+  const t = useT()
   const reduce = useReducedMotion()
   const titleId = useId()
   const canHover = useCanHover()
@@ -43,16 +48,14 @@ export function HowToPlay({ settings, className }: { settings: Pick<GameSettings
     <Panel as="section" aria-labelledby={titleId} padding="lg" className={className}>
       <header className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 id={titleId} className="display display-skew text-lg text-ink-50 sm:text-xl">
-          Come si gioca
+          {t('lobby.howTo.title')}
         </h2>
-        <p className="text-xs font-semibold text-ink-400">
-          Ordine perfetto = <span className="num font-bold text-gold">{formatNumber(MAX_ROUND_POINTS)}</span> punti
-        </p>
+        <p className="text-xs font-semibold text-ink-400">{withNum(t('lobby.howTo.perfect', { points: MAX_ROUND_POINTS }), 'font-bold text-gold')}</p>
       </header>
       <ol className="mt-5 grid gap-3 sm:grid-cols-3">
         {steps(settings, canHover).map((step, i) => (
           <motion.li
-            key={step.title}
+            key={step.icon}
             initial={reduce ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28, delay: 0.25 + i * 0.08 }}

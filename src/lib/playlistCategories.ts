@@ -1,10 +1,15 @@
-// Curated entry points for the lobby playlist picker.
-// Every id and query below was checked against the live Deezer API: each
-// featured playlist has ≥ 40 tracks with a playable preview, and each chip
-// query returns relevant, sizeable playlists as its first results.
+// Curated entry points for the lobby playlist picker. The category chips and the
+// featured shelf are per-language data in the catalog (lobby.chips, lobby.featured),
+// so each language can list its own genres, searches and country tops.
+// Every id and query was checked against the live Deezer API: each featured
+// playlist has ≥ 40 tracks with a playable preview, and each chip query returns
+// relevant, sizeable playlists as its first results.
 
+import { td } from '../i18n'
+
+/** A category chip (an entry of lobby.chips): a shortcut to a playlist search. */
 export interface CategoryChip {
-  /** Italian UI label. */
+  /** UI label, in the chip's language. */
   label: string
   /** Deezer playlist search query. */
   query: string
@@ -12,32 +17,17 @@ export interface CategoryChip {
   emoji?: string
 }
 
-export const CATEGORY_CHIPS: CategoryChip[] = [
-  { label: 'Hit del momento', query: 'hit del momento', emoji: '🔥' },
-  { label: 'Hit 2000', query: '00s hits', emoji: '💿' },
-  { label: 'Anni 90', query: '90s hits', emoji: '📼' },
-  { label: 'Anni 80', query: '80s hits', emoji: '🕺' },
-  { label: 'Anni 70', query: '70s hits', emoji: '🪩' },
-  { label: 'Rap italiano', query: 'rap italiano', emoji: '🎤' },
-  { label: 'Pop italiano', query: 'pop italiano', emoji: '🇮🇹' },
-  { label: 'Cantautori', query: 'cantautori italiani', emoji: '✍️' },
-  { label: 'Sanremo', query: 'sanremo', emoji: '🌺' },
-  { label: 'Tormentoni', query: 'tormentoni estivi', emoji: '🏖️' },
-  { label: 'Rock classics', query: 'rock classics', emoji: '🎸' },
-  { label: 'Dance / EDM', query: 'dance hits', emoji: '🎧' },
-  { label: 'Indie', query: 'indie italiano', emoji: '🌙' },
-  { label: 'Reggaeton', query: 'reggaeton', emoji: '💃' },
-  { label: 'Party', query: 'party hits', emoji: '🎉' },
-  { label: 'Disney', query: 'disney hits', emoji: '🏰' },
-  { label: 'Colonne sonore', query: 'film soundtrack', emoji: '🎬' },
-]
+/** The category chips of the current language. */
+export function categoryChips(): readonly CategoryChip[] {
+  return td('lobby.chips')
+}
 
 /**
- * Curated, verified Deezer playlist ids shown in the featured shelf, in shelf
- * order. Editorial playlists (Deezer Charts / Deezer editors / label
- * curators) whose ids have been stable for years.
+ * Default featured shelf: curated, verified Deezer playlist ids in shelf order,
+ * for a language whose lobby.featured is empty. Editorial playlists (Deezer
+ * Charts / Deezer editors / label curators) whose ids have been stable for years.
  */
-export const FEATURED_PLAYLIST_IDS: number[] = [
+export const FEATURED_PLAYLIST_IDS: readonly number[] = [
   1116187241, // Top Italy — Deezer Charts
   3155776842, // Top Worldwide — Deezer Charts
   579513551, // Top Hits Italy (hit del momento) — Filtr Italy
@@ -60,3 +50,9 @@ export const FEATURED_PLAYLIST_IDS: number[] = [
   7624119742, // Disney Hits Italia
   754776991, // Film Classics
 ]
+
+/** The featured shelf of the current language (lobby.featured), else the default one. */
+export function featuredPlaylistIds(): readonly number[] {
+  const ids = td('lobby.featured')
+  return ids.length > 0 ? ids : FEATURED_PLAYLIST_IDS
+}

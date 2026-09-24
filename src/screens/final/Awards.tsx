@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { useRef } from 'react'
 import { Avatar, Badge, Panel, cn } from '../../components/ui'
 import type { PlayerId } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { useRevealDelay, type Cue } from './reveal'
 import { SectionHeading } from './SectionHeading'
 import { joinNames, type Award, type AwardTone } from './stats'
@@ -39,10 +40,11 @@ interface AwardsProps {
 }
 
 export function Awards({ awards, me, reduced, cue, className }: AwardsProps) {
+  const t = useT()
   if (!awards.length) return null
   return (
     <section className={cn(className, 'lg:sticky lg:top-6 lg:self-start')} aria-labelledby="fp-awards">
-      <SectionHeading id="fp-awards" icon="sparkles" title="Premi" aside="Menzioni speciali" />
+      <SectionHeading id="fp-awards" icon="sparkles" title={t('final.awards.title')} aside={t('final.awards.aside')} />
       <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-1">
         {awards.map((a, i) => (
           <AwardItem key={a.id} award={a} me={me} index={i} reduced={reduced} cue={cue} />
@@ -69,25 +71,30 @@ function AwardItem({ award, me, index, reduced, cue }: { award: Award; me: Playe
 }
 
 function AwardCard({ award, me }: { award: Award; me: PlayerId }) {
-  const t = TONE[award.tone]
+  const t = useT()
+  const tone = TONE[award.tone]
   const mine = award.winners.some((w) => w.id === me)
   const shown = award.winners.slice(0, 3)
   const extra = award.winners.length - shown.length
-  const names = award.winners.length > 2 ? `${award.winners[0].name} e altri ${award.winners.length - 1}` : joinNames(award.winners.map((w) => w.name))
+  const names =
+    award.winners.length > 2
+      ? t('final.awards.nameAndOthers', { name: award.winners[0].name, count: award.winners.length - 1 })
+      : joinNames(award.winners.map((w) => w.name))
 
   return (
-    <Panel padding="none" radius="block" glow={t.glow} className="flex h-full flex-col gap-3 p-3 sm:p-4 lg:flex-row lg:items-center lg:gap-4 lg:py-3.5">
+    <Panel padding="none" radius="block" glow={tone.glow} className="flex h-full flex-col gap-3 p-3 sm:p-4 lg:flex-row lg:items-center lg:gap-4 lg:py-3.5">
       <div className="flex items-start gap-2.5 lg:min-w-0 lg:flex-1 lg:items-center lg:gap-3">
         <span
           aria-hidden
-          className={cn('emoji grid size-10 shrink-0 place-items-center rounded-full bg-linear-to-b text-[20px] ring-1 sm:size-11 sm:text-[22px]', t.medal)}
-          style={{ boxShadow: `0 0 18px -4px ${t.glow}, inset 0 1px 0 rgb(255 255 255 / 0.3)` }}
+          className={cn('emoji grid size-10 shrink-0 place-items-center rounded-full bg-linear-to-b text-[20px] ring-1 sm:size-11 sm:text-[22px]', tone.medal)}
+          style={{ boxShadow: `0 0 18px -4px ${tone.glow}, inset 0 1px 0 rgb(255 255 255 / 0.3)` }}
         >
           {award.emoji}
         </span>
         <div className="min-w-0 pt-0.5">
-          <h3 className={cn('display display-skew text-[12px] leading-[1.1] sm:text-[13px] lg:text-sm', t.text)}>{award.title}</h3>
-          <p className="mt-1 text-[12px] leading-snug font-semibold text-ink-300 sm:text-[13px]">{award.description}</p>
+          {/* A word too long for the half-width card (longer languages) breaks instead of spilling into the next one. */}
+          <h3 className={cn('display display-skew text-[12px] leading-[1.1] wrap-break-word sm:text-[13px] lg:text-sm', tone.text)}>{award.title}</h3>
+          <p className="mt-1 text-[12px] leading-snug font-semibold wrap-break-word text-ink-300 sm:text-[13px]">{award.description}</p>
         </div>
       </div>
       <div className="mt-auto flex items-center gap-2 lg:mt-0 lg:w-[168px] lg:shrink-0 xl:w-[200px]">
@@ -106,11 +113,11 @@ function AwardCard({ award, me }: { award: Award; me: PlayerId }) {
             <span className="truncate text-[13px] font-extrabold text-ink-50">{names}</span>
             {mine && (
               <Badge tone="violet" variant="solid" size="md" className="max-[360px]:hidden">
-                Tu
+                {t('final.you')}
               </Badge>
             )}
           </div>
-          <div className={cn('num text-[12px] leading-snug font-bold', t.text)}>{award.value}</div>
+          <div className={cn('num text-[12px] leading-snug font-bold', tone.text)}>{award.value}</div>
         </div>
       </div>
     </Panel>

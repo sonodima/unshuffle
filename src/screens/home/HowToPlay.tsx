@@ -3,6 +3,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { MAX_ROUND_POINTS } from '../../game/constants'
 import { Button, Icon, Modal, cn, formatNumber, useCanHover } from '../../components/ui'
+import { rich, useT } from '../../i18n/react'
 import { DemoBlock } from './ShuffleDemo'
 import { DEMO_HUES, songEnvelope } from './demoScript'
 import './home.css'
@@ -61,6 +62,7 @@ function DragArt() {
 }
 
 function ConfirmArt() {
+  const t = useT()
   return (
     <div className="ht-stage flex h-full w-full flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
       <svg viewBox="0 0 40 40" className="size-7 -rotate-90 sm:size-9" aria-hidden>
@@ -69,7 +71,7 @@ function ConfirmArt() {
       </svg>
       <div className="relative">
         <span className="ht-press flex h-7 items-center rounded-full bg-linear-to-b from-[color-mix(in_oklab,var(--color-lime)_62%,white)] to-lime px-2 font-display text-[9px] font-extrabold tracking-wide text-ink-950 uppercase sm:h-8 sm:px-3 sm:text-[10px]">
-          <span className="-skew-x-[7deg]">Conferma</span>
+          <span className="-skew-x-[7deg] whitespace-nowrap">{t('home.howTo.confirmButton')}</span>
         </span>
         <span className="ht-done absolute -top-2 -right-2 grid size-5 place-items-center rounded-full bg-lime text-ink-950 shadow-[0_0_0_2px_var(--color-ink-900),0_0_14px_rgb(166_255_63/0.7)]">
           <Icon name="check" size={12} strokeWidth={3.8} />
@@ -87,51 +89,49 @@ interface Step {
   tone: string
 }
 
-const stepsFor = (canHover: boolean): Step[] => [
+const stepsFor = (t: ReturnType<typeof useT>, canHover: boolean): Step[] => [
   {
-    title: 'Ascolta gli spezzoni',
-    body: `Una hit famosa viene tagliata a tempo di musica e mescolata. ${canHover ? 'Clicca' : 'Tocca'} un blocco per ascoltarlo.`,
+    title: t('home.howTo.steps.listen.title'),
+    body: canHover ? t('home.howTo.steps.listen.bodyMouse') : t('home.howTo.steps.listen.bodyTouch'),
     art: <ListenArt />,
     tone: 'bg-cyan text-ink-950',
   },
   {
-    title: 'Trascinali nell’ordine giusto',
-    body: (
-      <>
-        Sposta i blocchi finché la canzone non suona come l’originale. Con{' '}
-        <Icon name="play" size={11} className="inline align-[-1px]" aria-hidden /> senti il tuo ordine.
-      </>
-    ),
+    title: t('home.howTo.steps.sort.title'),
+    body: rich(t('home.howTo.steps.sort.body'), {
+      play: () => <Icon name="play" size={11} className="inline align-[-1px]" aria-hidden />,
+    }),
     art: <DragArt />,
     tone: 'bg-magenta text-white',
   },
   {
-    title: 'Conferma prima degli altri',
-    body: 'Chi conferma per primo fa scattare il conto alla rovescia finale per tutti.',
+    title: t('home.howTo.steps.confirm.title'),
+    body: t('home.howTo.steps.confirm.body'),
     art: <ConfirmArt />,
     tone: 'bg-lime text-ink-950',
   },
 ]
 
 export function HowToPlay({ open, onClose }: HowToPlayProps) {
+  const t = useT()
   const canHover = useCanHover()
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title="Come si gioca"
-      description="Una hit per round, fatta a pezzi. Vince chi la rimette in ordine meglio e più in fretta."
+      title={t('home.howTo.title')}
+      description={t('home.howTo.description')}
       size="lg"
       footer={
         <Button variant="primary" size="lg" rightIcon="arrow-right" onClick={onClose}>
-          Ho capito, si gioca!
+          {t('home.howTo.gotIt')}
         </Button>
       }
     >
       <ol className="ht-art grid gap-2.5 sm:grid-cols-3 sm:gap-3.5">
-        {stepsFor(canHover).map((step, i) => (
+        {stepsFor(t, canHover).map((step, i) => (
           <li
-            key={step.title}
+            key={i}
             className="flex items-center gap-3.5 rounded-3xl border border-white/[0.07] bg-white/[0.035] p-2.5 sm:flex-col sm:items-stretch sm:gap-3 sm:p-3"
           >
             <div className="relative h-[84px] w-[112px] shrink-0 sm:h-[112px] sm:w-full">
@@ -158,8 +158,9 @@ export function HowToPlay({ open, onClose }: HowToPlayProps) {
           <Icon name="trophy" size={18} strokeWidth={2.2} />
         </span>
         <p className="text-[12.5px] leading-snug text-ink-200 sm:text-[13px]">
-          Fino a <strong className="num font-bold text-gold">{formatNumber(MAX_ROUND_POINTS)}</strong> punti a round: contano gli spezzoni
-          al posto giusto e le coppie in sequenza. Si gioca anche da soli.
+          {rich(t('home.howTo.scoring', { count: MAX_ROUND_POINTS, points: formatNumber(MAX_ROUND_POINTS) }), {
+            b: (c) => <strong className="num font-bold text-gold">{c}</strong>,
+          })}
         </p>
       </div>
     </Modal>

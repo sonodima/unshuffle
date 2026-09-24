@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, MouseEvent, PointerEvent, ReactNode, Ref } from 'react'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
 import { Icon, ICON_NAMES, type IconName } from './Icon'
 import { playSfx, type SfxName } from './sound'
@@ -69,6 +70,7 @@ export function Button({
   onPointerDown,
   ...rest
 }: ButtonProps) {
+  const t = useT()
   const blocked = !!disabled || loading
   const press = usePressSound(sound, blocked)
   const iconPx = ICON_PX[size]
@@ -102,7 +104,7 @@ export function Button({
       </span>
       {loading && (
         <span className="absolute inset-0 grid place-items-center">
-          <Spinner size={iconPx + 2} label="Attendere…" />
+          <Spinner size={iconPx + 2} label={t('ui.wait')} />
         </span>
       )}
     </button>

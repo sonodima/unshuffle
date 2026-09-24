@@ -1,8 +1,10 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { SoundControls } from '../../components/shell/SoundControls'
-import { Button, Icon, IconButton, Logo, Modal, cn, useCanHover, useMediaQuery, type IconName } from '../../components/ui'
+import { Button, Icon, IconButton, LanguagePicker, Logo, Modal, cn, useCanHover, useMediaQuery, type IconName } from '../../components/ui'
 import type { GameSettings, PlayerId, PlaylistRef, RoomState } from '../../game/types'
+import { formatNumber, type MessageKey, type Msg } from '../../i18n'
+import { useT } from '../../i18n/react'
 import { HowToPlay } from './HowToPlay'
 import { buildJoinUrl, copyText } from './invite'
 import { PlayerList, type ProfilePatch } from './PlayerList'
@@ -22,12 +24,12 @@ interface LobbyViewProps {
   /** Default: room.hostId === me. */
   isHost?: boolean
   onUpdateSettings(patch: Partial<GameSettings>): void
-  /** Rejects with an Italian, user-facing message (shown inline). */
+  /** Rejects with an AppError whose message is shown inline. */
   onStart(): Promise<void>
   onKick(playerId: PlayerId): void
   onLeave(): void
-  /** Short local toast (e.g. "Link copiato!"). */
-  onNotify?(message: string): void
+  /** Short local toast (e.g. "Link della stanza copiato!"). */
+  onNotify?(message: Msg): void
   /** Enables editing your own name / avatar from the player list. */
   onEditProfile?(patch: ProfilePatch): void
   /** Emoji reactions row (the shell's ReactionBar), placed under the player list. */
@@ -47,6 +49,7 @@ export function LobbyView({
   onEditProfile,
   reactions,
 }: LobbyViewProps) {
+  const t = useT()
   const wide = useMediaQuery('(min-width: 1024px)')
   const xl = useMediaQuery('(min-width: 1280px)')
   // Laptops at 1280×720 / 1366×768: slimmer header, dock and rules, compact code card, so the controls clear the dock.
@@ -73,7 +76,7 @@ export function LobbyView({
 
   const selectPlaylist = (playlist: PlaylistRef) => onUpdateSettings({ playlist })
   const invite = () => {
-    void copyText(joinUrl).then((ok) => onNotify?.(ok ? 'Link della stanza copiato!' : 'Copia non riuscita: usa il pulsante QR per vedere il link.'))
+    void copyText(joinUrl).then((ok) => onNotify?.(ok ? 'lobby.invite.linkCopied' : 'lobby.invite.copyFailed'))
   }
 
   const playerList = (
@@ -91,10 +94,10 @@ export function LobbyView({
   const settingsPanel = <SettingsPanel settings={settings} editable={isHost} onChange={onUpdateSettings} density={dense ? 'compact' : 'regular'} />
   // The chosen playlist is shown by the start bar's record (and the ✓ in the grid): no separate hero for the host.
   const picker = isHost && (
-    <section aria-label="Scegli la playlist" className="glass-flat @container rounded-panel p-4 sm:p-6">
+    <section aria-label={t('lobby.picker.title')} className="glass-flat @container rounded-panel p-4 sm:p-6">
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h2 className="display display-skew text-lg whitespace-nowrap text-ink-50 sm:text-xl">Scegli la playlist</h2>
-        <span className="hidden min-w-0 truncate text-xs font-semibold text-ink-400 @min-[34rem]:block">Brani da Deezer · anteprime di 30 secondi</span>
+        <h2 className="display display-skew text-lg whitespace-nowrap text-ink-50 sm:text-xl">{t('lobby.picker.title')}</h2>
+        <span className="hidden min-w-0 truncate text-xs font-semibold text-ink-400 @min-[34rem]:block">{t('lobby.picker.source')}</span>
       </div>
       <PlaylistPicker selected={settings.playlist} onSelect={selectPlaylist} />
     </section>
@@ -211,18 +214,16 @@ export function LobbyView({
         open={leaveOpen}
         onClose={() => setLeaveOpen(false)}
         size="sm"
-        title={isHost ? 'Chiudere la stanza?' : 'Uscire dalla stanza?'}
+        title={t(isHost ? 'lobby.leave.hostTitle' : 'lobby.leave.guestTitle')}
         description={
           isHost
-            ? players.length > 1
-              ? 'Sei l’host: se esci la stanza si chiude e tutti gli altri giocatori verranno disconnessi.'
-              : 'La stanza verrà chiusa.'
-            : `Potrai rientrare con il codice ${room.code}, finché la partita non inizia.`
+            ? t(players.length > 1 ? 'lobby.leave.hostBody' : 'lobby.leave.hostAloneBody')
+            : t('lobby.leave.guestBody', { code: room.code })
         }
         footer={
           <>
             <Button variant="ghost" onClick={() => setLeaveOpen(false)}>
-              Resta
+              {t('lobby.leave.stay')}
             </Button>
             <Button
               variant="danger"
@@ -232,7 +233,7 @@ export function LobbyView({
                 onLeave()
               }}
             >
-              {isHost ? 'Chiudi stanza' : 'Esci'}
+              {t(isHost ? 'lobby.leave.closeRoom' : 'lobby.leave.exit')}
             </Button>
           </>
         }
@@ -318,43 +319,48 @@ function useTypingInLobby(enabled: boolean): boolean {
 }
 
 function Header({ isHost, wide, dense, maxW, onLeave }: { isHost: boolean; wide: boolean; dense: boolean; maxW: string; onLeave(): void }) {
+  const t = useT()
   return (
     <header className={cn('shrink-0', wide ? cn('mx-auto w-full px-8', maxW) : 'px-safe-4 pt-safe sm:px-safe-6')}>
       <div className={cn('relative flex items-center', wide && !dense ? 'h-20' : 'h-16')}>
         {wide ? (
           <Button variant="glass" size="sm" leftIcon="logout" onClick={onLeave} className="relative z-10">
-            {isHost ? 'Chiudi stanza' : 'Esci'}
+            {t(isHost ? 'lobby.leave.closeRoom' : 'lobby.leave.exit')}
           </Button>
         ) : (
-          <IconButton icon="arrow-left" label={isHost ? 'Chiudi stanza' : 'Esci dalla stanza'} size="sm" onClick={onLeave} tooltip={false} className="relative z-10" />
+          <IconButton icon="arrow-left" label={t(isHost ? 'lobby.leave.closeRoom' : 'lobby.leave.exitRoom')} size="sm" onClick={onLeave} tooltip={false} className="relative z-10" />
         )}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="pointer-events-auto flex items-center gap-3">
             <Logo size={wide ? 'md' : 'sm'} />
             <span className="hidden rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-extrabold tracking-[0.16em] text-ink-200 uppercase sm:inline">
-              Lobby
+              {t('lobby.header.badge')}
             </span>
           </div>
         </div>
-        {/* In the header (not floating): it scrolls away with it instead of covering sticky columns / tabs. */}
-        <SoundControls placement="inline" className="relative z-10 ml-auto" />
+        {/* In the header (not floating): they scroll away with it instead of covering sticky columns / tabs. */}
+        <div className="relative z-10 ml-auto flex items-center gap-2">
+          <LanguagePicker compact={!wide} />
+          <SoundControls placement="inline" />
+        </div>
       </div>
     </header>
   )
 }
 
-const TABS: { id: LobbyTab; label: string; icon: IconName }[] = [
-  { id: 'players', label: 'Giocatori', icon: 'users' },
-  { id: 'playlist', label: 'Playlist', icon: 'music' },
-  { id: 'rules', label: 'Regole', icon: 'settings' },
+const TABS: { id: LobbyTab; label: MessageKey; icon: IconName }[] = [
+  { id: 'players', label: 'lobby.tabs.players', icon: 'users' },
+  { id: 'playlist', label: 'lobby.tabs.playlist', icon: 'music' },
+  { id: 'rules', label: 'lobby.tabs.rules', icon: 'settings' },
 ]
 
 function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab(t: LobbyTab): void; playerCount: number; needsPlaylist: boolean }) {
+  const t = useT()
   const reduce = useReducedMotion()
   const layoutId = useId()
   const refs = useRef<Record<string, HTMLButtonElement | null>>({})
   const move = (dir: number) => {
-    const i = TABS.findIndex((t) => t.id === tab)
+    const i = TABS.findIndex((x) => x.id === tab)
     const next = TABS[(i + dir + TABS.length) % TABS.length]
     onTab(next.id)
     refs.current[next.id]?.focus()
@@ -382,7 +388,7 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
       />
       <div
         role="tablist"
-        aria-label="Sezioni della lobby"
+        aria-label={t('lobby.tabs.label')}
         className="relative flex rounded-[20px] border border-white/[0.08] bg-ink-950/80 p-1 shadow-well"
         onKeyDown={(e) => {
           if (e.key === 'ArrowRight') move(1)
@@ -391,22 +397,22 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
           e.preventDefault()
         }}
       >
-        {TABS.map((t) => {
-          const selected = t.id === tab
-          const badge = t.id === 'players' ? String(playerCount) : t.id === 'playlist' && needsPlaylist ? '!' : null
+        {TABS.map((item) => {
+          const selected = item.id === tab
+          const badge = item.id === 'players' ? formatNumber(playerCount) : item.id === 'playlist' && needsPlaylist ? '!' : null
           return (
             <button
-              key={t.id}
+              key={item.id}
               ref={(el) => {
-                refs.current[t.id] = el
+                refs.current[item.id] = el
               }}
               type="button"
               role="tab"
-              id={`lobby-tab-${t.id}`}
+              id={`lobby-tab-${item.id}`}
               aria-selected={selected}
-              aria-controls={`lobby-panel-${t.id}`}
+              aria-controls={`lobby-panel-${item.id}`}
               tabIndex={selected ? 0 : -1}
-              onClick={() => onTab(t.id)}
+              onClick={() => onTab(item.id)}
               className="relative flex h-11 min-w-0 flex-1 basis-0 items-center justify-center gap-1.5 rounded-[16px] px-1 tap-none"
             >
               {selected && (
@@ -417,8 +423,8 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
                   transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 520, damping: 38 }}
                 />
               )}
-              <Icon name={t.icon} size={15} strokeWidth={2.4} className={cn('relative shrink-0 max-[419px]:hidden', selected ? 'text-white' : 'text-ink-400')} />
-              <span className={cn('relative truncate font-display text-[11px] font-bold tracking-wide uppercase max-[379px]:text-[10px] max-[379px]:tracking-normal', selected ? 'text-white' : 'text-ink-200')}>{t.label}</span>
+              <Icon name={item.icon} size={15} strokeWidth={2.4} className={cn('relative shrink-0 max-[419px]:hidden', selected ? 'text-white' : 'text-ink-400')} />
+              <span className={cn('relative truncate font-display text-[11px] font-bold tracking-wide uppercase max-[379px]:text-[10px] max-[379px]:tracking-normal', selected ? 'text-white' : 'text-ink-200')}>{t(item.label)}</span>
               {badge && (
                 <span
                   className={cn(
@@ -427,7 +433,7 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
                   )}
                 >
                   <span aria-hidden>{badge}</span>
-                  <span className="sr-only">{badge === '!' ? ', da scegliere' : `, ${badge} giocatori`}</span>
+                  <span className="sr-only">{badge === '!' ? t('lobby.tabs.toPick') : t('lobby.tabs.playerCount', { count: playerCount })}</span>
                 </span>
               )}
             </button>

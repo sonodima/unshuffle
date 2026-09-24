@@ -3,9 +3,11 @@
 import { describe, expect, test } from 'bun:test'
 import { exitNoticeCopy, exitReasonFor, isRoomGoneMessage, lostContextFor, lostDialogCopy } from '../../src/components/shell/connectionCopy'
 import { HIDE_AFTER_PX, SHOW_BELOW_PX, hudBottomFrom, nextScrolledAway, stackTop } from '../../src/components/shell/layout'
+import type { MessageKey } from '../../src/i18n'
 import { REJECT_MESSAGES } from '../../src/net/protocol'
 
-const ROOM_NOT_FOUND = 'Stanza non trovata. Controlla il codice.'
+// Store errors are message keys (see src/i18n/locales/it/game.ts); the copy is Italian here.
+const ROOM_NOT_FOUND: MessageKey = 'game.net.short.roomNotFound'
 
 describe('lost dialog copy', () => {
   test('context from the phase', () => {
@@ -54,13 +56,16 @@ describe('exit reasons and notices', () => {
     expect(exitReasonFor(REJECT_MESSAGES.closed, 'closed')).toBe('closed')
     expect(exitReasonFor(REJECT_MESSAGES.duplicate, 'closed')).toBe('duplicate')
     expect(exitReasonFor(ROOM_NOT_FOUND, 'error')).toBe('gone')
-    expect(exitReasonFor('L’host non risponde. Riprova tra poco.', 'error')).toBe('failed')
-    expect(exitReasonFor('La stanza è piena.', 'closed')).toBe('other')
-    expect(exitReasonFor('L’host ha lasciato la partita.', 'closed', new Set(['L’host ha lasciato la partita.']))).toBe('gone')
+    expect(exitReasonFor('game.net.roomNotFound', 'error')).toBe('gone')
+    expect(exitReasonFor('game.store.welcomeTimeout', 'error')).toBe('failed')
+    expect(exitReasonFor(REJECT_MESSAGES.full, 'closed')).toBe('other')
+    expect(exitReasonFor('game.store.hostGone', 'closed')).toBe('gone')
+    expect(exitReasonFor(null, 'closed')).toBe('other')
   })
 
   test('room-not-found after a rejoin does not say "controlla il codice"', () => {
     expect(isRoomGoneMessage(ROOM_NOT_FOUND)).toBe(true)
+    expect(isRoomGoneMessage('game.store.joinFailed')).toBe(false)
     const c = exitNoticeCopy('gone', ROOM_NOT_FOUND)
     expect(c.title).toBe('Stanza non più disponibile')
     expect(c.description).not.toMatch(/codice/)
@@ -68,9 +73,14 @@ describe('exit reasons and notices', () => {
   })
 
   test('other notices keep the store message', () => {
-    expect(exitNoticeCopy('kicked', REJECT_MESSAGES.kicked)).toMatchObject({ title: 'Fuori dalla stanza', description: REJECT_MESSAGES.kicked, tone: 'coral' })
+    expect(exitNoticeCopy('kicked', REJECT_MESSAGES.kicked)).toMatchObject({
+      title: 'Fuori dalla stanza',
+      description: 'L’host ti ha rimosso dalla stanza.',
+      tone: 'coral',
+    })
     expect(exitNoticeCopy('closed', REJECT_MESSAGES.closed)).toMatchObject({ title: 'Stanza chiusa', tone: 'violet' })
-    expect(exitNoticeCopy('failed', 'x').title).toBe('Impossibile rientrare')
+    expect(exitNoticeCopy('failed', 'game.store.joinFailed')).toMatchObject({ title: 'Impossibile rientrare', description: 'Impossibile entrare nella stanza. Riprova.' })
+    expect(exitNoticeCopy('other', null)).toMatchObject({ title: 'Sei fuori dalla stanza', description: '' })
   })
 })
 

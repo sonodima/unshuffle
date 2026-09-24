@@ -4,6 +4,7 @@
 
 import { Component } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
+import { useT } from '../../i18n/react'
 
 interface ErrorFallbackProps {
   error: Error
@@ -99,8 +100,9 @@ function reload(): void {
   }
 }
 
-/** Friendly Italian crash screen. */
+/** Friendly crash screen. */
 export function CrashScreen({ error, reset, canRetry = false, onHome, variant = 'app' }: CrashScreenProps) {
+  const t = useT()
   const detail = `${error.name}: ${error.message}`.trim()
   return (
     <div
@@ -117,25 +119,23 @@ export function CrashScreen({ error, reset, canRetry = false, onHome, variant = 
           <span className="absolute inset-[34%] rounded-full bg-coral shadow-glow-coral" />
           <span className="absolute h-[140%] w-[3px] rotate-[28deg] rounded-full bg-ink-950 shadow-[0_0_0_1px_rgb(255_255_255/0.08)]" />
         </div>
-        <p className="eyebrow mb-3 text-coral!">Errore imprevisto</p>
-        <h1 className="display display-skew inline-block text-2xl text-balance sm:text-[28px]">Qualcosa è andato storto</h1>
-        <p className="mt-4 text-[15px] leading-relaxed text-pretty text-ink-300">
-          La traccia si è inceppata. Ricarica la pagina: se eri in una stanza provo a riportarti dentro.
-        </p>
+        <p className="eyebrow mb-3 text-coral!">{t('shell.crash.eyebrow')}</p>
+        <h1 className="display display-skew inline-block text-2xl text-balance sm:text-[28px]">{t('shell.crash.title')}</h1>
+        <p className="mt-4 text-[15px] leading-relaxed text-pretty text-ink-300">{t('shell.crash.body')}</p>
         <div className="mt-7 flex flex-col gap-3">
           <button type="button" className="btn btn-primary btn-lg w-full" onClick={reload}>
-            <span className="btn-label">Ricarica</span>
+            <span className="btn-label">{t('shell.crash.reload')}</span>
           </button>
           {(canRetry || onHome) && (
             <div className="flex flex-col gap-3 sm:flex-row">
               {canRetry && (
                 <button type="button" className="btn btn-glass btn-md w-full sm:flex-1" onClick={reset}>
-                  <span className="btn-label">Riprova</span>
+                  <span className="btn-label">{t('shell.action.retry')}</span>
                 </button>
               )}
               {onHome && (
                 <button type="button" className="btn btn-glass btn-md w-full sm:flex-1" onClick={onHome}>
-                  <span className="btn-label">Torna alla home</span>
+                  <span className="btn-label">{t('shell.action.home')}</span>
                 </button>
               )}
             </div>
@@ -144,8 +144,8 @@ export function CrashScreen({ error, reset, canRetry = false, onHome, variant = 
         {detail && (
           <details className="group mt-6 text-left">
             <summary className="cursor-pointer list-none text-center text-xs font-bold text-ink-400 transition-colors hover:text-ink-200">
-              <span className="group-open:hidden">Dettagli tecnici</span>
-              <span className="hidden group-open:inline">Nascondi dettagli</span>
+              <span className="group-open:hidden">{t('shell.crash.showDetails')}</span>
+              <span className="hidden group-open:inline">{t('shell.crash.hideDetails')}</span>
             </summary>
             <pre className="num mt-3 max-h-40 overflow-auto rounded-2xl bg-ink-950/70 p-3 text-[11px] leading-relaxed break-words whitespace-pre-wrap text-ink-300 shadow-well">
               {detail}

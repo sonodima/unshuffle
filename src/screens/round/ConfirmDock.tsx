@@ -1,5 +1,5 @@
 // Bottom controls of the play phase: the play-all transport and the action slot
-// (CONFERMA → "Confermato ✓" / "Tempo scaduto" / spectator note).
+// (CONFERMA → confirmed ✓ / time up / spectator note).
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { memo, useRef } from 'react'
 import type { ReactNode } from 'react'
@@ -7,7 +7,8 @@ import { TransportBar } from '../../components/board'
 import { Button, Icon, IconButton, Kbd, cn, shakeElement, useMediaQuery } from '../../components/ui'
 import { useOnChange } from './hooks'
 import type { Player, PlayerId, Segment } from '../../game/types'
-import { joinNames, plural } from './model'
+import { rich, useT } from '../../i18n/react'
+import { joinNames } from './model'
 import { PlayersStrip } from './PlayersStrip'
 
 export type DockState = 'ready' | 'submitted' | 'timeup' | 'spectator'
@@ -46,8 +47,14 @@ interface ConfirmDockProps {
 
 const SLOT = 'h-[68px] mb-[6px]'
 
+type Translate = ReturnType<typeof useT>
+
+const APPLE = isApple()
+
 /** ⌘ on Apple keyboards, Ctrl elsewhere (both work). */
-const MOD_KEY = isApple() ? '⌘' : 'Ctrl'
+function modKey(t: Translate): string {
+  return APPLE ? '⌘' : t('round.keys.ctrl')
+}
 
 function isApple(): boolean {
   if (typeof navigator === 'undefined') return false
@@ -58,7 +65,10 @@ function isApple(): boolean {
 // Memoized: the play screen re-renders a few times per second for the clock; the transport doesn't need to.
 export const ConfirmDock = memo(function ConfirmDock(props: ConfirmDockProps) {
   const { state, stacked, roomy, trackKey, segments, order, hues, audioFailed, retrying, onRetry, showHints } = props
+  const t = useT()
   const reduce = useReducedMotion()
+  const keys = { space: t('round.keys.space'), enter: t('round.keys.enter'), mod: modKey(t) }
+  const kbd = (c: string) => <Kbd>{c}</Kbd>
   return (
     <motion.footer
       initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40 }}
@@ -76,21 +86,16 @@ export const ConfirmDock = memo(function ConfirmDock(props: ConfirmDockProps) {
       </div>
       {showHints && roomy && (
         <p className="mt-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[12px] font-semibold text-ink-400">
-          <span className="flex items-center gap-1.5">
-            <Kbd>Spazio</Kbd> ascolta tutto
-          </span>
+          <span className="flex items-center gap-1.5">{rich(t('round.dock.hints.playAll', keys), { kbd })}</span>
           {state === 'ready' ? (
             <>
               <span className="flex items-center gap-1">
-                <Kbd>{MOD_KEY}</Kbd>
-                <span aria-hidden>+</span>
-                <Kbd>Invio</Kbd>
-                <span className="ml-0.5">conferma</span>
+                {rich(t('round.dock.hints.confirm', keys), { kbd, action: (c) => <span className="ml-0.5">{c}</span> })}
               </span>
-              <span>Clicca un blocco per ascoltarlo · tienilo premuto per ascoltare da lì · trascinalo per spostarlo</span>
+              <span>{t('round.dock.hints.pointer')}</span>
             </>
           ) : (
-            <span>Clicca un blocco per ascoltarlo · tienilo premuto per ascoltare da lì</span>
+            <span>{t('round.dock.hints.pointerLocked')}</span>
           )}
         </p>
       )}
@@ -98,13 +103,21 @@ export const ConfirmDock = memo(function ConfirmDock(props: ConfirmDockProps) {
   )
 })
 
-const ARM_HINT: Record<Exclude<ConfirmArm, null>, string> = {
-  tap: 'Tocca di nuovo per confermare',
-  click: 'Clicca di nuovo per confermare',
-  key: `Premi di nuovo ${MOD_KEY} + Invio`,
+function armHint(t: Translate, arm: Exclude<ConfirmArm, null>): string {
+  if (arm === 'tap') return t('round.dock.armTap')
+  if (arm === 'click') return t('round.dock.armClick')
+  return t('round.dock.armKey', { mod: modKey(t), enter: t('round.keys.enter') })
+}
+
+/** "In attesa di Giulia e Marco" (up to two names), else a count. */
+function waitingText(t: Translate, waiting: readonly Player[]): string {
+  return waiting.length <= 2
+    ? t('round.dock.waitingFor', { names: joinNames(waiting.map((p) => p.name)) })
+    : t('round.dock.waitingForCount', { count: waiting.length })
 }
 
 function ActionSlot({ state, stacked, onConfirm, waiting, me, timedOut, burst, armed = null, queued = false }: ConfirmDockProps) {
+  const t = useT()
   const reduce = useReducedMotion()
   const lg = useMediaQuery('(min-width: 1024px)')
   // Side-by-side slot is 320px below lg: three avatars leave room for the title.
@@ -150,13 +163,13 @@ function ActionSlot({ state, stacked, onConfirm, waiting, me, timedOut, burst, a
             >
               {armed ? (
                 <span className="flex flex-col items-start gap-1 text-left">
-                  <span className={cn('leading-none', stacked || lg ? 'text-[15px]' : 'text-[13.5px]')}>Non hai spostato nulla</span>
+                  <span className={cn('leading-none', stacked || lg ? 'text-[15px]' : 'text-[13.5px]')}>{t('round.dock.unchanged')}</span>
                   <span className="font-sans text-[12px] leading-none font-bold tracking-normal normal-case opacity-85">
-                    {ARM_HINT[armed]}
+                    {armHint(t, armed)}
                   </span>
                 </span>
               ) : (
-                'Conferma'
+                t('round.dock.confirm')
               )}
             </Button>
           </motion.div>
@@ -170,8 +183,8 @@ function ActionSlot({ state, stacked, onConfirm, waiting, me, timedOut, burst, a
                   <Icon name="wifi-off" size={20} strokeWidth={2.4} />
                 </span>
               }
-              title="Confermato"
-              body={<span className="rs-dots">Invio appena torni online</span>}
+              title={t('round.dock.confirmed')}
+              body={<span className="rs-dots">{t('round.dock.queued')}</span>}
             />
           </motion.div>
         )}
@@ -189,17 +202,11 @@ function ActionSlot({ state, stacked, onConfirm, waiting, me, timedOut, burst, a
                   <Icon name="check" size={22} strokeWidth={3.4} />
                 </motion.span>
               }
-              title="Confermato"
-              body={
-                waiting.length > 0 ? (
-                  <span className="rs-dots">
-                    In attesa di {waiting.length <= 2 ? joinNames(waiting.map((p) => p.name)) : `${waiting.length} ${plural(waiting.length, 'giocatore', 'giocatori')}`}
-                  </span>
-                ) : (
-                  'Tutti hanno confermato!'
-                )
+              title={t('round.dock.confirmed')}
+              body={waiting.length > 0 ? <span className="rs-dots">{waitingText(t, waiting)}</span> : t('round.dock.allConfirmed')}
+              aside={
+                waiting.length > 0 ? <PlayersStrip players={waiting} me={me} size="xs" overlap max={asideMax} className="shrink-0" label={t('round.dock.stillPlaying')} /> : null
               }
-              aside={waiting.length > 0 ? <PlayersStrip players={waiting} me={me} size="xs" overlap max={asideMax} className="shrink-0" label="Ancora in gioco" /> : null}
             />
           </motion.div>
         )}
@@ -212,8 +219,8 @@ function ActionSlot({ state, stacked, onConfirm, waiting, me, timedOut, burst, a
                   <Icon name="clock" size={21} strokeWidth={2.6} />
                 </span>
               }
-              title="Tempo scaduto!"
-              body={timedOut ? 'Vale l’ordine che hai lasciato' : 'Calcolo i risultati…'}
+              title={t('round.dock.timeUp')}
+              body={timedOut ? t('round.dock.timedOut') : t('round.dock.computing')}
             />
           </motion.div>
         )}
@@ -226,8 +233,8 @@ function ActionSlot({ state, stacked, onConfirm, waiting, me, timedOut, burst, a
                   <Icon name="eye" size={21} strokeWidth={2.4} />
                 </span>
               }
-              title="Spettatore"
-              body="Giocherai dal prossimo round"
+              title={t('round.dock.spectator')}
+              body={t('round.dock.spectatorBody')}
             />
           </motion.div>
         )}
@@ -258,21 +265,22 @@ function StatusPanel({ tone, icon, title, body, aside }: { tone: keyof typeof TO
 }
 
 function AudioRetryPill({ retrying, onRetry, compact, className }: { retrying: boolean; onRetry?: () => void; compact: boolean; className?: string }) {
+  const t = useT()
   return (
     <div role="alert" className={cn('glass-flat flex h-[82px] items-center gap-3 rounded-full border-coral/35 py-2 pl-2.5', compact ? 'pr-3' : 'pr-4', className)}>
       <span className="grid size-[60px] shrink-0 place-items-center rounded-full bg-coral/15 text-coral shadow-[inset_0_0_0_1px_rgb(255_84_112/0.35)]">
         <Icon name="wifi-off" size={24} strokeWidth={2.2} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] leading-tight font-extrabold text-white">Audio non disponibile</p>
-        <p className="mt-0.5 truncate text-[12px] font-semibold text-ink-300">Riprova o gioca lo stesso</p>
+        <p className="truncate text-[14px] leading-tight font-extrabold text-white">{t('round.dock.audioFailed')}</p>
+        <p className="mt-0.5 truncate text-[12px] font-semibold text-ink-300">{t('round.dock.audioFailedBody')}</p>
       </div>
       {onRetry &&
         (compact ? (
-          <IconButton icon="refresh" label="Riprova a scaricare l’audio" variant="danger" size="md" loading={retrying} onClick={onRetry} tooltip={false} />
+          <IconButton icon="refresh" label={t('round.dock.retryAudio')} variant="danger" size="md" loading={retrying} onClick={onRetry} tooltip={false} />
         ) : (
           <Button size="sm" variant="danger" leftIcon="refresh" loading={retrying} onClick={onRetry} className="shrink-0">
-            Riprova
+            {t('round.retry')}
           </Button>
         ))}
     </div>

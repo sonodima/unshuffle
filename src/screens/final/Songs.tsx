@@ -4,6 +4,7 @@ import { audioEngine, evictAudio } from '../../audio/engine'
 import { usePlayback } from '../../audio/usePlayback'
 import { Equalizer, Icon, Spinner, cn } from '../../components/ui'
 import type { TrackInfo } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { previewExpiresAt, refreshPreview } from '../../lib/deezer'
 import { Cover } from './Cover'
 import { dzCoverSize } from './dzImage'
@@ -99,19 +100,21 @@ function useSongPreview() {
 
 /** The songs of the game: replay each preview right here, or open it on Deezer. */
 export function Songs({ rounds, reduced, className }: SongsProps) {
+  const t = useT()
   const rows = rounds.filter((r) => r.track)
   const { playingId, loadingId, failedId, toggle } = useSongPreview()
   if (!rows.length) return null
   return (
     <section className={className} aria-labelledby="fp-songs">
-      <SectionHeading id="fp-songs" icon="disc" title="I brani della partita" aside={<span className="max-sm:hidden">Riascoltali qui o su Deezer</span>} />
+      <SectionHeading id="fp-songs" icon="disc" title={t('final.songs.title')} aside={<span className="max-sm:hidden">{t('final.songs.aside')}</span>} />
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
         {rows.map((r, i) => {
-          const t = r.track!
+          const track = r.track!
           const href = deezerLink(r)
-          const playing = playingId === t.id
-          const loading = loadingId === t.id
-          const failed = failedId === t.id
+          const playing = playingId === track.id
+          const loading = loadingId === track.id
+          const failed = failedId === track.id
+          const song = { title: track.title, artist: track.artist, round: r.index + 1 }
           return (
             <motion.li
               key={r.index}
@@ -124,19 +127,19 @@ export function Songs({ rounds, reduced, className }: SongsProps) {
               <div className="relative transition-transform duration-300 ease-out hover:-translate-y-1 has-[:focus-visible]:-translate-y-1">
                 <button
                   type="button"
-                  onClick={() => void toggle(t)}
+                  onClick={() => void toggle(track)}
                   aria-pressed={playing}
-                  aria-label={`${playing ? 'Ferma' : 'Ascolta'} l’anteprima di ${t.title} di ${t.artist}, round ${r.index + 1}`}
+                  aria-label={t(playing ? 'final.songs.stop' : 'final.songs.play', song)}
                   className="group/cover tap-none relative block w-full rounded-block outline-offset-4 transition-transform duration-150 active:scale-[0.98]"
                 >
                   {/* 500px is plenty for tiles of ~170–210 CSS px, even at 3x (Deezer's default here is 1000px). */}
                   <Cover
-                    src={dzCoverSize(t.cover || t.coverSmall, 500)}
+                    src={dzCoverSize(track.cover || track.coverSmall, 500)}
                     className="aspect-square w-full rounded-block shadow-lift"
                     iconSize={36}
                   />
                   <span className="num absolute top-2 left-2 rounded-full bg-ink-950/85 px-2 py-0.5 text-[11px] font-bold tracking-wider text-ink-100 ring-1 ring-white/15">
-                    R{r.index + 1}
+                    {t('final.roundShort', { round: r.index + 1 })}
                   </span>
                   <span
                     aria-hidden
@@ -151,7 +154,7 @@ export function Songs({ rounds, reduced, className }: SongsProps) {
                     <>
                       <span aria-hidden className="pointer-events-none absolute inset-0 rounded-block shadow-glow-lime ring-2 ring-lime" />
                       <Equalizer bars={4} size={16} tone="lime" label={null} className="absolute top-2.5 right-2.5 drop-shadow-[0_1px_2px_rgb(0_0_0/0.6)]" />
-                      <PreviewProgress tag={`${TAG}${t.id}`} />
+                      <PreviewProgress tag={`${TAG}${track.id}`} />
                     </>
                   )}
                 </button>
@@ -161,18 +164,18 @@ export function Songs({ rounds, reduced, className }: SongsProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute right-2 bottom-2 grid size-10 place-items-center rounded-full bg-ink-950/85 text-ink-50 ring-1 ring-white/20 transition-colors duration-200 outline-offset-2 hover:bg-white hover:text-ink-950 hover:ring-white"
-                    aria-label={`Apri ${t.title} su Deezer (nuova scheda)`}
-                    title="Apri su Deezer"
+                    aria-label={t('final.songs.open', { title: track.title })}
+                    title={t('final.songs.openTooltip')}
                   >
                     <Icon name="external" size={15} strokeWidth={2.4} />
                   </a>
                 )}
               </div>
               <div className="mt-2.5 min-w-0 px-0.5">
-                <div className="line-clamp-2 text-[13.5px] leading-snug font-extrabold text-ink-50 sm:text-sm">{t.title}</div>
-                <div className="mt-0.5 truncate text-[12px] font-semibold text-ink-300">{t.artist}</div>
+                <div className="line-clamp-2 text-[13.5px] leading-snug font-extrabold text-ink-50 sm:text-sm">{track.title}</div>
+                <div className="mt-0.5 truncate text-[12px] font-semibold text-ink-300">{track.artist}</div>
                 <div aria-live="polite" className="text-[12px] leading-snug font-bold text-coral empty:hidden">
-                  {failed ? 'Anteprima non disponibile' : ''}
+                  {failed ? t('final.songs.unavailable') : ''}
                 </div>
               </div>
             </motion.li>

@@ -27,15 +27,24 @@ else. How to play, run and deploy it: [`README.md`](../README.md).
   static credentials) is a deploy-time option that players on mobile data or
   UDP-blocking networks need.
 - **Phone first**: portrait from 360 px wide to desktop, touch-first drag & drop,
-  safe-area insets, `100dvh`. **Italian UI** (loanwords like round, lobby, host are
-  fine).
+  safe-area insets, `100dvh`.
+- **Translatable UI**, no dependency: Italian is the source catalog (loanwords like
+  round, lobby, host are fine), other languages mirror it; left-to-right scripts
+  only. See [Translations](#translations) and [`docs/I18N.md`](I18N.md).
 
 ## Source layout
 
 ```
 src/
-  main.tsx, App.tsx     entry + app shell (shader, screen router, global chrome)
-  index.css             Tailwind v4, design tokens (@theme), shared component CSS
+  main.tsx, App.tsx     entry (initI18n before the app loads) + app shell (shader, screen router, global chrome)
+  index.css             Tailwind v4, design tokens (@theme), shared component CSS, CJK typography
+  i18n/
+    index.ts            current language (zustand), t / tm / tl / td, formatNumber / formatList /
+                        formatOrdinal, detectLocale / setLocale, AppError
+    react.tsx           useT, useLocale, rich (inline <tag>s in a message)
+    catalog.ts          catalog types: MessageKey, Msg, Plural (keys checked at compile time)
+    locales.ts          supported languages, names, BCP 47 tags, browser matching
+    locales/<lang>/     one file per namespace; it/ is the source (bundled), the others lazy chunks
   game/
     types.ts            domain types shared by host, network and UI (all JSON-serialisable)
     constants.ts        settings options, scoring weights, phase timings, avatars, colours, reactions
@@ -58,7 +67,7 @@ src/
     peer.ts             PeerJS loading, VITE_PEERJS_* / VITE_TURN_* config, ICE validation
     wire.ts             envelope: heartbeats, goodbyes, chunking, size limits
     timing.ts           every transport timing
-    errors.ts           NetError + Italian messages
+    errors.ts           NetError; its message is a catalog key (game.net.*)
     runtime.ts          leak-proof timers/listeners, cancellable waits, crypto randomness
   lib/
     deezer.ts           JSONP client, endpoints, playlist parsing, pickGameTracks
@@ -258,7 +267,8 @@ live in a module-level session object so callbacks from an old room are ignored.
 - **Session**: the profile persists in localStorage (random default name like "DJ
   Pinguino"); the hash follows the room (`#/r/CODE`). After a reload
   `resumeSession` rejoins, retrying "room not found" for 15 s so a host reloading
-  at the same moment is found again. Errors are Italian and user-facing.
+  at the same moment is found again. Errors are `Msg` values (catalog keys, see
+  [Translations](#translations)), shown in the viewer's language.
 
 ## Audio
 
@@ -364,6 +374,34 @@ the `hit-slop` utility add an invisible 6 px hit area; the `short:` variant targ
 landscape phones (`max-height: 500px`). Motion via `motion/react`, honouring
 `prefers-reduced-motion`.
 
+## Translations
+
+`src/i18n/` is a small typed layer over `Intl`; the rules for writing UI text are
+in [`docs/I18N.md`](I18N.md).
+
+- **Language**: the saved choice, else the browser's languages, else English (the
+  source catalog while no English one is bundled). `initI18n()` runs in `main.tsx`
+  before the app module is imported, so the first render and the random nickname
+  are already in that language. `setLocale()` switches at runtime (the globe button
+  on Home and in the lobby); `<html lang>` follows it, which also drives the CJK
+  font stacks, the dropped slant (`--text-skew`) and zero tracking in `index.css`.
+- **Only the UI produces text.** Components read it with `useT()` (re-rendering on a
+  language change), non-React UI helpers call `t()` at call time, never at module
+  load. The host, store, network and Deezer layers produce `Msg` values (a key, or
+  key + params) and throw `AppError(msg)`; `NetError` and `DeezerError` carry a key
+  as their message.
+- **Peers exchange keys, never text.** The preparing step (`phase.message`) and
+  `info` events in `RoomState` / `GameEvent` are `Msg`s, so every peer reads them in
+  its own language with `tm()`: a room can mix languages. The fallbacks the host
+  writes into the room data (untitled playlist, unknown artist, a default nickname)
+  are data, in the host's language.
+- **Formatting**: numbers always group thousands (`formatNumber`, 4.428 / 4,428),
+  lists use `Intl.ListFormat` (`formatList`), positions `formatOrdinal` (1º / 1st,
+  a per-language pattern chosen with the ordinal plural rules).
+- **Guards**: `tests/unit/i18n-hardcoded.test.ts` parses `src/` and fails on
+  user-facing text outside the catalog; `i18n-catalog.test.ts` checks the catalog is
+  plain data and that every key is read from the current language.
+
 ## Build and page head
 
 `vite.config.ts`: relative base, ES-module worker, source maps, and the
@@ -380,6 +418,9 @@ scans only `src/` (`source('../src')`).
 - `npm run dev`, `npm run build`, `npm run typecheck`, `npm run lint` (oxlint),
   `npm test` (bun, `tests/unit/`); end-to-end suites in `tests/e2e/`. See
   README → Tests.
+- Every user-facing string lives in the catalog (`src/i18n/locales/it/<namespace>.ts`):
+  whole sentences with `{params}`, plurals by `count`, no text built from fragments
+  (docs/I18N.md). The hardcoded-text guard in `npm test` enforces it.
 - TypeScript is strict, with `verbatimModuleSyntax` (use `import type`),
   `erasableSyntaxOnly` (no `enum`, namespaces or constructor parameter
   properties) and `noUnusedLocals` / `noUnusedParameters`.

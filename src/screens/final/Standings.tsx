@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { useRef, type ReactNode } from 'react'
 import { Avatar, Badge, Icon, Panel, cn, type IconName } from '../../components/ui'
 import type { PlayerId } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { useRevealDelay, type Cue } from './reveal'
 import { CountUp, SectionHeading } from './SectionHeading'
 import { formatAccuracy, formatPoints, formatSeconds, type FinalSummary, type PlayerSummary } from './stats'
@@ -26,13 +27,14 @@ interface StandingsProps {
 }
 
 export function Standings({ summary, me, reduced, cue, className }: StandingsProps) {
+  const t = useT()
   const { standings } = summary
   const panel = useRef<HTMLDivElement>(null)
   // On screen during the podium drop (phones): the whole card waits, not just its rows.
   const { visible, delay } = useRevealDelay(panel, cue)
   return (
     <section className={className} aria-labelledby="fp-standings">
-      <SectionHeading id="fp-standings" icon="trophy" title="Classifica" aside={`${standings.length} ${standings.length === 1 ? 'giocatore' : 'giocatori'}`} />
+      <SectionHeading id="fp-standings" icon="trophy" title={t('final.standings.title')} aside={t('final.standings.players', { count: standings.length })} />
       <motion.div
         ref={panel}
         initial={reduced ? false : { opacity: 0, y: 12 }}
@@ -61,6 +63,7 @@ interface RowProps {
 }
 
 function StandingRow({ s, index, summary, isMe, reduced, cue }: RowProps) {
+  const t = useT()
   const ref = useRef<HTMLLIElement>(null)
   const stagger = Math.min(index, 8) * 0.06
   const { visible, delay } = useRevealDelay(ref, cue, stagger)
@@ -78,8 +81,8 @@ function StandingRow({ s, index, summary, isMe, reduced, cue }: RowProps) {
     >
       {isMe && <span aria-hidden className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-violet-bright shadow-[0_0_12px_var(--color-violet)]" />}
       <span className={cn('display display-skew w-6 shrink-0 text-center text-lg sm:w-7 sm:text-xl', RANK_TEXT[s.rank] ?? 'text-ink-400')}>
-        <span className="sr-only">Posizione </span>
-        {s.rank}
+        <span className="sr-only">{t('final.standings.position', { rank: s.rank })}</span>
+        <span aria-hidden>{s.rank}</span>
       </span>
       <Avatar avatar={s.player.avatar} color={s.player.color} name={s.player.name} size="md" connected={s.player.connected} />
       <div className="min-w-0 flex-1">
@@ -87,32 +90,32 @@ function StandingRow({ s, index, summary, isMe, reduced, cue }: RowProps) {
           <span className="truncate text-[15px] font-extrabold text-ink-50">{s.player.name}</span>
           {isMe && (
             <Badge tone="violet" variant="solid" size="md">
-              Tu
+              {t('final.you')}
             </Badge>
           )}
           {!s.player.connected && (
             <Badge tone="coral" size="md">
-              Offline
+              {t('final.standings.offline')}
             </Badge>
           )}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] font-semibold text-ink-300">
           {s.roundsPlayed === 0 ? (
-            <span className="text-ink-400">Non ha giocato</span>
+            <span className="text-ink-400">{t('final.didNotPlay')}</span>
           ) : (
             <>
-              <Stat icon="star" filled title="Round perfetti" className={s.perfectRounds ? 'text-lime' : undefined}>
+              <Stat icon="star" filled title={t('final.standings.perfectRounds')} className={s.perfectRounds ? 'text-lime' : undefined}>
                 {s.perfectRounds}
               </Stat>
-              <Stat icon="check" title="Spezzoni al posto giusto, in media">
+              <Stat icon="check" title={t('final.standings.accuracy')}>
                 {formatAccuracy(s, summary.snippets)}
               </Stat>
               {s.avgConfirmMs != null && (
-                <Stat icon="bolt" title="Tempo medio di conferma" className="max-[380px]:hidden">
+                <Stat icon="bolt" title={t('final.standings.avgTime')} className="max-[380px]:hidden">
                   {formatSeconds(s.avgConfirmMs)}
                 </Stat>
               )}
-              {lateFrom > 0 && <span className="text-ink-400">dal round {lateFrom}</span>}
+              {lateFrom > 0 && <span className="text-ink-400">{t('final.standings.lateFrom', { round: lateFrom })}</span>}
             </>
           )}
         </div>
@@ -135,7 +138,7 @@ function StandingRow({ s, index, summary, isMe, reduced, cue }: RowProps) {
           format={formatPoints}
           className={cn('num block text-[17px] font-bold sm:text-lg', s.rank === 1 ? 'text-gold' : 'text-ink-50')}
         />
-        <div className="text-[11px] font-bold tracking-[0.14em] text-ink-400 uppercase">punti</div>
+        <div className="text-[11px] font-bold tracking-[0.14em] text-ink-400 uppercase">{t('final.standings.points', { count: s.score })}</div>
       </div>
     </motion.li>
   )

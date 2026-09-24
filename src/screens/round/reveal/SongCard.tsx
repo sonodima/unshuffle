@@ -3,9 +3,9 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { memo, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { Badge, Button, Equalizer, Icon, IconButton, Vinyl, cn, useCanHover, useMediaQuery } from '../../../components/ui'
+import { Badge, Button, Equalizer, Icon, IconButton, Vinyl, cn, formatSeconds, useCanHover, useMediaQuery } from '../../../components/ui'
 import type { TrackInfo } from '../../../game/types'
-import { formatClockS } from './model'
+import { rich, useT } from '../../../i18n/react'
 
 export interface RevealAccent {
   primary: string
@@ -76,6 +76,7 @@ export const SongCard = memo(function SongCard({
   variant: variantProp,
   className,
 }: SongCardProps) {
+  const t = useT()
   const reduce = useReducedMotion()
   const canHover = useCanHover()
   const xl = useMediaQuery('(min-width: 1280px)')
@@ -96,7 +97,7 @@ export const SongCard = memo(function SongCard({
   const album = track.album && track.album !== track.title ? track.album : ''
 
   return (
-    <section aria-label="La canzone" className={cn('rv-song glass-flat relative overflow-hidden rounded-panel', className)} style={vars} data-variant={variant}>
+    <section aria-label={t('reveal.song.region')} className={cn('rv-song glass-flat relative overflow-hidden rounded-panel', className)} style={vars} data-variant={variant}>
       <div aria-hidden className="rv-song-wash" />
       <div
         className={cn(
@@ -137,7 +138,7 @@ export const SongCard = memo(function SongCard({
                     <img aria-hidden src={coverSrc} alt="" className="rv-cover-glow" draggable={false} />
                     <img
                       src={coverSrc}
-                      alt={`Copertina di ${track.album || track.title}`}
+                      alt={t('reveal.song.coverAlt', { name: track.album || track.title })}
                       className="rv-cover"
                       draggable={false}
                       decoding="async"
@@ -168,13 +169,13 @@ export const SongCard = memo(function SongCard({
         >
           <Line>
             <p className="eyebrow flex h-4 items-center gap-2 text-[10px] md:text-[11px]">
-              <span className="rv-acc-text">La canzone era</span>
+              <span className="rv-acc-text">{t('reveal.song.eyebrow')}</span>
               <Equalizer
                 bars={4}
                 size={12}
                 playing={playing}
                 tone="lime"
-                label={playing ? 'In riproduzione' : null}
+                label={playing ? t('reveal.song.playing') : null}
                 className={cn('transition-opacity duration-300', playing ? 'opacity-100' : 'opacity-0')}
               />
             </p>
@@ -206,13 +207,13 @@ export const SongCard = memo(function SongCard({
             <div className={cn('flex items-center gap-2', stack ? 'mt-5' : banner ? 'mt-3' : 'mt-2.5 md:mt-4')}>
               {onToggleSong && pending && (
                 <Button size="sm" variant="primary" leftIcon="play" onClick={onToggleSong} sound={false} className="shrink-0">
-                  {canHover ? 'Clicca per ascoltare' : 'Tocca per ascoltare'}
+                  {t(canHover ? 'reveal.song.unlock.hover' : 'reveal.song.unlock.touch')}
                 </Button>
               )}
               {onToggleSong && !pending && (
                 <IconButton
                   icon={playing ? 'pause' : 'play'}
-                  label={playing ? 'Ferma la canzone' : paused ? 'Riprendi la canzone' : 'Riascolta la canzone'}
+                  label={t(playing ? 'reveal.song.pause' : paused ? 'reveal.song.resume' : 'reveal.song.replay')}
                   size="sm"
                   variant={playing ? 'glass' : 'secondary'}
                   onClick={onToggleSong}
@@ -225,12 +226,10 @@ export const SongCard = memo(function SongCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-glass btn-sm min-w-0"
-                  aria-label={`Ascolta ${track.title} su Deezer (si apre in una nuova scheda)`}
+                  aria-label={t('reveal.song.deezerAria', { title: track.title })}
                 >
                   <span className="btn-label">
-                    <span>
-                      Ascolta<span className="hidden min-[420px]:inline"> su Deezer</span>
-                    </span>
+                    <span>{rich(t('reveal.song.deezer'), { wide: (c) => <span className="hidden min-[420px]:inline">{c}</span> })}</span>
                     <Icon name="external" size={14} strokeWidth={2.4} />
                   </span>
                 </a>
@@ -275,6 +274,7 @@ function Line({ children, className }: { children: ReactNode; className?: string
 
 /** Thin progress bar + time of the reveal song, updated per frame without re-rendering. */
 function NowPlaying({ progress, playing, paused }: { progress: SongProgressFn; playing: boolean; paused: boolean }) {
+  const t = useT()
   const fillRef = useRef<HTMLDivElement>(null)
   const timeRef = useRef<HTMLSpanElement>(null)
   const lastText = useRef('')
@@ -284,7 +284,7 @@ function NowPlaying({ progress, playing, paused }: { progress: SongProgressFn; p
       const p = safeProgress(progress)
       const frac = p && p.duration > 0 ? Math.min(1, p.elapsed / p.duration) : 0
       if (fillRef.current) fillRef.current.style.transform = `scaleX(${frac})`
-      const text = p ? `${formatClockS(p.elapsed)} / ${formatClockS(p.duration)}` : ''
+      const text = p ? `${formatSeconds(p.elapsed)} / ${formatSeconds(p.duration)}` : ''
       if (timeRef.current && text !== lastText.current) {
         lastText.current = text
         timeRef.current.textContent = text
@@ -297,7 +297,7 @@ function NowPlaying({ progress, playing, paused }: { progress: SongProgressFn; p
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between text-[11px] font-bold text-ink-300">
-        <span>{playing ? 'In riproduzione' : paused ? 'In pausa' : 'Ferma'}</span>
+        <span>{t(playing ? 'reveal.song.playing' : paused ? 'reveal.song.paused' : 'reveal.song.stopped')}</span>
         <span ref={timeRef} className="rv-tnum" />
       </div>
       <div className="rv-np mt-1.5">

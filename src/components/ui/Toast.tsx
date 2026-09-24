@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
+import { useT } from '../../i18n/react'
 import { cn } from './cn'
 import { Icon, ICON_NAMES, type IconName } from './Icon'
 
@@ -41,11 +42,12 @@ function isIconName(x: unknown): x is IconName {
  * Top-center on phones, top-right on desktop; swipe/drag sideways to dismiss.
  */
 export function ToastViewport({ items, onDismiss, max = 4, className }: ToastViewportProps) {
+  const t = useT()
   const reduce = useReducedMotion()
   const visible = items.slice(-max).reverse()
   return (
     <section
-      aria-label="Notifiche"
+      aria-label={t('ui.toast.region')}
       aria-live="polite"
       className={cn(
         'pointer-events-none fixed inset-x-0 top-0 z-[900] flex flex-col items-center gap-2 px-3 pt-safe-3 sm:inset-x-auto sm:right-0 sm:items-end sm:px-5 sm:pt-safe-5',
@@ -53,12 +55,12 @@ export function ToastViewport({ items, onDismiss, max = 4, className }: ToastVie
       )}
     >
       <AnimatePresence initial={false} mode="popLayout">
-        {visible.map((t) => {
-          const tone = TONE[t.tone] ?? TONE.neutral
-          const icon = t.icon ?? tone.icon
+        {visible.map((item) => {
+          const tone = TONE[item.tone] ?? TONE.neutral
+          const icon = item.icon ?? tone.icon
           return (
             <motion.div
-              key={t.id}
+              key={item.id}
               layout={!reduce}
               role="status"
               initial={reduce ? { opacity: 0 } : { opacity: 0, y: -24, scale: 0.9 }}
@@ -69,7 +71,7 @@ export function ToastViewport({ items, onDismiss, max = 4, className }: ToastVie
               dragSnapToOrigin
               dragElastic={0.6}
               onDragEnd={(_, info) => {
-                if (Math.abs(info.offset.x) > 90 || Math.abs(info.velocity.x) > 600) onDismiss(t.id)
+                if (Math.abs(info.offset.x) > 90 || Math.abs(info.velocity.x) > 600) onDismiss(item.id)
               }}
               className="glass-flat pointer-events-auto relative flex w-full max-w-[420px] bg-ink-850/95! cursor-grab touch-pan-y items-center gap-3 overflow-hidden rounded-[20px] py-3 pr-2 pl-3 active:cursor-grabbing sm:w-[380px]"
             >
@@ -84,13 +86,13 @@ export function ToastViewport({ items, onDismiss, max = 4, className }: ToastVie
                 )}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm leading-tight font-extrabold text-ink-50">{t.title}</p>
-                {t.body != null && <p className="mt-0.5 line-clamp-2 text-[13px] leading-snug text-ink-300">{t.body}</p>}
+                <p className="line-clamp-2 text-sm leading-tight font-extrabold break-words text-ink-50">{item.title}</p>
+                {item.body != null && <p className="mt-0.5 line-clamp-2 text-[13px] leading-snug text-ink-300">{item.body}</p>}
               </div>
               <button
                 type="button"
-                aria-label="Chiudi notifica"
-                onClick={() => onDismiss(t.id)}
+                aria-label={t('ui.toast.dismiss')}
+                onClick={() => onDismiss(item.id)}
                 className="hit-slop relative grid size-9 shrink-0 place-items-center rounded-full text-ink-300 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <Icon name="x" size={16} strokeWidth={2.6} />

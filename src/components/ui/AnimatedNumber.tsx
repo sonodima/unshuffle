@@ -1,7 +1,8 @@
 import { animate, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
+import { useLocale } from '../../i18n/react'
 import { cn } from './cn'
-import { formatNumber } from './hooks'
+import { formatNumber } from './format'
 
 export interface AnimatedNumberProps {
   value: number
@@ -19,7 +20,7 @@ export interface AnimatedNumberProps {
   signed?: boolean
   prefix?: string
   suffix?: string
-  /** Default: Italian thousands separator ("13.840"). */
+  /** Default: formatNumber, the current language's thousands separator ("13.840" / "13,840"). */
   format?(n: number): string
   /** Fires whenever the displayed integer changes (throttled to ~22/s) — hook sfx 'score' here. */
   onTick?(n: number): void
@@ -42,6 +43,8 @@ export function AnimatedNumber({
   className,
 }: AnimatedNumberProps) {
   const reduce = useReducedMotion()
+  // A language change re-renders the digits (separators) without replaying the count-up.
+  const locale = useLocale()
   const spanRef = useRef<HTMLSpanElement>(null)
   const shown = useRef(from ?? value)
   const tickRef = useRef(onTick)
@@ -92,7 +95,7 @@ export function AnimatedNumber({
     return () => controls.stop()
     // Formatting props are read at animation time; only a new value restarts it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, reduce])
+  }, [value, reduce, locale])
 
   return (
     <span className={cn('num inline-block', className)}>

@@ -5,6 +5,7 @@ import { audioEngine } from '../../audio/engine'
 import { hostNow, useHostNow } from '../../game/clock'
 import { phaseRound, trackKey, useGame } from '../../game/store'
 import type { TrackInfo } from '../../game/types'
+import { AppError } from '../../i18n'
 import { refreshPreview } from '../../lib/deezer'
 import { roundInfo } from './model'
 import { RevealView } from './reveal/RevealView'
@@ -16,7 +17,7 @@ const NO_ORDER: number[] = []
 async function reloadTrack(track: TrackInfo): Promise<void> {
   const refresh = () => refreshPreview(track.id)
   const url = await refresh().catch(() => track.preview)
-  if (!url) throw new Error('Anteprima non disponibile')
+  if (!url) throw new AppError('game.deezer.noPreview')
   await audioEngine.load(trackKey(track.id), url, refresh)
 }
 
@@ -37,7 +38,7 @@ export function RoundScreen() {
 
   const round = phaseRound(room?.phase)
   const track = room && round >= 0 ? roundInfo(room, round).track : null
-  const onRetryAudio = useCallback(() => (track ? reloadTrack(track) : Promise.reject(new Error('Nessuna traccia'))), [track])
+  const onRetryAudio = useCallback(() => (track ? reloadTrack(track) : Promise.reject(new Error('No track for this round'))), [track])
 
   if (!room) return null
   return (

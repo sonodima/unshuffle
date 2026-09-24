@@ -1,8 +1,8 @@
 // Translations: current locale (zustand), message lookup with {param}
-// interpolation and plurals, locale-aware number formatting.
+// interpolation and plurals, locale-aware number / list / ordinal formatting.
 //
 //   t('lobby.start')                          → "Inizia partita"
-//   t('lobby.players', { count: 3 })          → "3 giocatori" (plural by count)
+//   t('ui.timer.secondsLeft', { count: 3 })   → "3 secondi rimasti" (plural by count)
 //   tm(msg)                                   → a Msg from the host / store / network
 //
 // Components read strings through useT() (./react) so they re-render on a
@@ -59,22 +59,53 @@ function isPlural(x: unknown): x is Plural {
   return typeof x === 'object' && x !== null && !Array.isArray(x) && typeof (x as Plural).other === 'string'
 }
 
+// Intl objects are costly to build and some callers format every animation frame:
+// one per language (and options).
 const pluralRules = new Map<string, Intl.PluralRules>()
 const numberFormats = new Map<string, Intl.NumberFormat>()
+const listFormats = new Map<string, Intl.ListFormat>()
 
-function rulesFor(tag: string): Intl.PluralRules {
-  let rules = pluralRules.get(tag)
-  if (!rules) pluralRules.set(tag, (rules = new Intl.PluralRules(tag)))
+function rulesFor(tag: string, type: Intl.PluralRuleType = 'cardinal'): Intl.PluralRules {
+  const id = `${tag}|${type}`
+  let rules = pluralRules.get(id)
+  if (!rules) pluralRules.set(id, (rules = new Intl.PluralRules(tag, { type })))
   return rules
 }
 
-/** Locale-aware number (thousands separators: 5.000 / 5,000 / 5 000). */
+/**
+ * Locale-aware number (thousands separators: 5.000 / 5,000 / 5 000). Grouping is
+ * forced ('always'): plain it-IT and es-ES leave 4-digit numbers ungrouped, so a
+ * "4428" would sit next to an "18.571".
+ */
 export function formatNumber(n: number, options?: Intl.NumberFormatOptions): string {
   const tag = localeTag()
-  if (options) return new Intl.NumberFormat(tag, options).format(n)
-  let fmt = numberFormats.get(tag)
-  if (!fmt) numberFormats.set(tag, (fmt = new Intl.NumberFormat(tag)))
+  const id = options ? `${tag}|${JSON.stringify(options)}` : tag
+  let fmt = numberFormats.get(id)
+  if (!fmt) numberFormats.set(id, (fmt = new Intl.NumberFormat(tag, { useGrouping: 'always', ...options })))
   return fmt.format(n)
+}
+
+/** "Giulia, Tommy e Marco" / "Giulia, Tommy, and Marco" (Intl.ListFormat, current language). */
+export function formatList(items: readonly string[], type: Intl.ListFormatType = 'conjunction'): string {
+  const tag = localeTag()
+  const id = `${tag}|${type}`
+  let fmt = listFormats.get(id)
+  if (!fmt) listFormats.set(id, (fmt = new Intl.ListFormat(tag, { type })))
+  return fmt.format(items)
+}
+
+const ORDINAL_KEY: MessageKey = 'ui.ordinal'
+
+/**
+ * A position or rank as an ordinal: 1 → "1º" (it) / "1st" (en) / "1." (de). The
+ * pattern is `ui.ordinal`, picked with the language's ordinal plural rules
+ * (English one / two / few / other). Pass the result as a string param.
+ */
+export function formatOrdinal(n: number): string {
+  const value = lookup(useI18n.getState().catalog, ORDINAL_KEY)
+  const forms = isPlural(value) ? value : (lookup(it, ORDINAL_KEY) as Plural)
+  const category = rulesFor(localeTag(), 'ordinal').select(n) as keyof Plural
+  return interpolate(forms[category] ?? forms.other, { n })
 }
 
 function interpolate(text: string, params?: Params): string {
@@ -150,9 +181,22 @@ async function loadCatalog(locale: Locale): Promise<Catalog> {
   return catalog
 }
 
-/** Switch language (loads its catalog first) and remember the choice. */
+/**
+ * Install a catalog without a loader. For tests and tooling only (a fake catalog
+ * for a locale whose real one isn't bundled); the app registers languages in LOADERS.
+ */
+export function registerCatalog(locale: Locale, catalog: Catalog): void {
+  loaded.set(locale, catalog)
+}
+
+let switchSeq = 0
+
+/** Switch language (loads its catalog first) and remember the choice. The last call wins. */
 export async function setLocale(locale: Locale, remember = true): Promise<void> {
+  const seq = ++switchSeq
   const catalog = await loadCatalog(locale)
+  // A later call started while this catalog was downloading: it decides.
+  if (seq !== switchSeq) return
   useI18n.setState({ locale, catalog })
   applyDocumentLang(locale)
   if (remember) {

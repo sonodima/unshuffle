@@ -71,8 +71,26 @@ describe('toast copy', () => {
     expect(toastForEvent({ id: 5, at, event: { type: 'kicked', playerId: 'p-4' } }, ctx)?.title).toBe('L’host ha rimosso Marco')
     expect(toastForEvent({ id: 6, at, event: { type: 'kicked', playerId: 'zz' } }, ctx)?.title).toBe('L’host ha rimosso un giocatore')
     expect(toastForEvent({ id: 7, at, event: { type: 'reaction', playerId: 'p-2', emoji: '🔥' } }, ctx)).toBeNull()
-    expect(toastForEvent({ id: 8, at, event: { type: 'info', message: 'Link copiato' } }, ctx)).toMatchObject({ tone: 'success', title: 'Link copiato' })
-    expect(toastForEvent({ id: 9, at, event: { type: 'info', message: 'Azione non riuscita.' } }, ctx)).toMatchObject({ tone: 'warning', icon: 'alert' })
+    // Info toasts carry message keys: the UI's own notices confirm, unless their key says "…Failed";
+    // host / store / network messages are warnings.
+    expect(toastForEvent({ id: 8, at, event: { type: 'info', message: 'lobby.invite.linkCopied' } }, ctx)).toMatchObject({
+      tone: 'success',
+      icon: 'check',
+      title: 'Link della stanza copiato!',
+    })
+    expect(toastForEvent({ id: 11, at, event: { type: 'info', message: 'lobby.invite.copyFailed' } }, ctx)).toMatchObject({
+      tone: 'warning',
+      title: 'Copia non riuscita',
+      body: 'Usa il pulsante QR per vedere il link.',
+    })
+    expect(toastForEvent({ id: 9, at, event: { type: 'info', message: 'game.store.actionFailed' } }, ctx)).toMatchObject({
+      tone: 'warning',
+      icon: 'alert',
+      title: 'Azione non riuscita.',
+    })
+    expect(
+      toastForEvent({ id: 10, at, event: { type: 'info', message: { key: 'game.store.audioUnavailableTitled', params: { title: 'Harder, Better, Faster, Stronger' } } } }, ctx),
+    ).toMatchObject({ tone: 'warning', title: 'Audio di “Harder, Better, Faster, Stronger” non disponibile.' })
   })
   test('splitMessage', () => {
     expect(splitMessage('Link copiato')).toEqual({ title: 'Link copiato' })

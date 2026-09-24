@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { MAX_NAME_LENGTH } from '../../game/constants'
 import { randomPlayerName, sanitizeName } from '../../game/names'
 import type { PlayerProfile } from '../../game/types'
+import { useT } from '../../i18n/react'
 import { Avatar, AvatarPicker, Button, Icon, IconButton, Input, Modal, cn, playSfx, playerColor } from '../../components/ui'
 
 export type ProfilePatch = Partial<Omit<PlayerProfile, 'id'>>
@@ -17,6 +18,7 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ profile, onChange, disabled = false, className }: ProfileCardProps) {
+  const t = useT()
   const [draft, setDraft] = useState(profile.name)
   const [pickerOpen, setPickerOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,7 +54,7 @@ export function ProfileCard({ profile, onChange, disabled = false, className }: 
           playSfx('pop')
           setPickerOpen(true)
         }}
-        aria-label="Cambia avatar e colore"
+        aria-label={t('home.profile.changeAvatar')}
         className="group relative isolate shrink-0 rounded-full tap-none transition-transform duration-200 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100"
       >
         <Avatar avatar={profile.avatar} color={profile.color} size="lg" />
@@ -71,7 +73,7 @@ export function ProfileCard({ profile, onChange, disabled = false, className }: 
 
       <Input
         ref={inputRef}
-        label="Il tuo nome"
+        label={t('home.profile.nameLabel')}
         value={draft}
         maxLength={MAX_NAME_LENGTH}
         showCount={false}
@@ -81,7 +83,7 @@ export function ProfileCard({ profile, onChange, disabled = false, className }: 
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint="done"
-        placeholder="Scegli un nome"
+        placeholder={t('home.profile.namePlaceholder')}
         containerClassName="min-w-0 flex-1"
         onFocus={() => {
           editing.current = true
@@ -100,7 +102,7 @@ export function ProfileCard({ profile, onChange, disabled = false, className }: 
         rightSlot={
           <IconButton
             icon="dice"
-            label="Nome a caso"
+            label={t('home.profile.randomName')}
             variant="ghost"
             size="sm"
             sound={false}
@@ -114,19 +116,19 @@ export function ProfileCard({ profile, onChange, disabled = false, className }: 
       <Modal
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
-        title="Il tuo look"
-        description="Scegli emoji e colore: gli altri giocatori ti vedranno così."
+        title={t('home.profile.lookTitle')}
+        description={t('home.profile.lookDescription')}
         size="md"
         footer={
           <Button variant="primary" size="lg" onClick={() => setPickerOpen(false)} rightIcon="check">
-            Fatto
+            {t('home.profile.done')}
           </Button>
         }
       >
         <div className="mb-5 flex items-center gap-4 rounded-3xl border border-white/[0.06] bg-ink-950/40 p-3.5 shadow-well sm:p-4">
           <Avatar avatar={profile.avatar} color={profile.color} size="lg" active className="sm:scale-110" />
           <div className="min-w-0">
-            <p className="eyebrow">Anteprima</p>
+            <p className="eyebrow">{t('home.profile.preview')}</p>
             <p className="display display-skew mt-1.5 truncate text-xl text-ink-50">{sanitizeName(draft) || profile.name}</p>
           </div>
         </div>

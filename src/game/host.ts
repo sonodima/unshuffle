@@ -400,7 +400,7 @@ export class HostGame {
   }
 
   /**
-   * Rejects with an Italian user-facing message on failure (e.g. playlist without enough playable tracks).
+   * Rejects with an AppError carrying a user-facing Msg on failure (e.g. playlist without enough playable tracks).
    * Resolves once the tracks are picked and broadcast; round preparation continues in the background
    * (a later failure returns to the lobby with an 'info' event). A second call while starting returns the same promise.
    */

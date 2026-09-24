@@ -1,5 +1,6 @@
 // Pure screen routing rules (no React): which screen to show and its document.title.
 
+import { t } from '../../i18n'
 import type { Role } from '../../game/store'
 import type { RoomState } from '../../game/types'
 
@@ -28,26 +29,26 @@ export function selectScreen({ role, room }: ScreenSelectInput): ScreenKey {
   }
 }
 
+/** Not translated. */
 const BRAND = 'UNSHUFFLE'
 
-/** document.title for a screen ("UNSHUFFLE · Lobby KXQPM"…). */
+/** document.title for a screen ("UNSHUFFLE · Lobby KXQPM"…), in the current language. */
 export function screenTitle(screen: ScreenKey, room: Pick<RoomState, 'code' | 'phase' | 'settings'> | null, lost = false): string {
-  if (lost && room) return `${BRAND} · Connessione persa`
+  if (lost && room) return t('shell.title.lost', { brand: BRAND })
   switch (screen) {
     case 'lobby':
-      return room ? `${BRAND} · Lobby ${room.code}` : `${BRAND} · Lobby`
+      return room ? t('shell.title.lobbyRoom', { brand: BRAND, code: room.code }) : t('shell.title.lobby', { brand: BRAND })
     case 'round': {
       const phase = room?.phase
-      if (!room || !phase || !('round' in phase)) return `${BRAND} · Round`
-      const base = `${BRAND} · Round ${phase.round + 1}/${room.settings.rounds}`
-      if (phase.kind === 'reveal') return `${base} · Risultati`
-      if (phase.kind === 'preparing') return `${base} · Preparazione`
-      return base
+      if (!room || !phase || !('round' in phase)) return t('shell.title.round', { brand: BRAND })
+      const params = { brand: BRAND, round: phase.round + 1, rounds: room.settings.rounds }
+      if (phase.kind === 'reveal') return t('shell.title.roundReveal', params)
+      if (phase.kind === 'preparing') return t('shell.title.roundPreparing', params)
+      return t('shell.title.roundOf', params)
     }
     case 'final':
-      return `${BRAND} · Classifica finale`
+      return t('shell.title.final', { brand: BRAND })
     default:
       return BRAND
   }
 }
-

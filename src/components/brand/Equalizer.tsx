@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { useT } from '../../i18n/react'
 import { cn } from '../ui/cn'
 
 export interface EqualizerProps {
@@ -11,7 +12,7 @@ export interface EqualizerProps {
   /** gradient = violet→magenta→cyan (default) · current = currentColor · lime. */
   tone?: 'gradient' | 'current' | 'lime'
   className?: string
-  /** Screen-reader label; null = decorative. Default "Caricamento…". */
+  /** Screen-reader label; null = decorative. Default "Caricamento…" (ui.loading). */
   label?: string | null
 }
 
@@ -21,14 +22,16 @@ const DELAYS = [-0.3, -0.75, -0.1, -0.55, -0.9, -0.2, -0.65, -0.4]
 const REST = [0.35, 0.55, 0.3, 0.5, 0.4, 0.6, 0.32, 0.45]
 
 /** Animated equalizer bars: loader / "now playing" indicator. */
-export function Equalizer({ bars = 5, size = 28, playing = true, tone = 'gradient', className, label = 'Caricamento…' }: EqualizerProps) {
+export function Equalizer({ bars = 5, size = 28, playing = true, tone = 'gradient', className, label }: EqualizerProps) {
+  const t = useT()
+  const name = label === undefined ? t('ui.loading') : label
   const w = Math.max(2, Math.round(size / 7))
   const gap = Math.max(2, Math.round(w * 0.7))
   return (
     <span
-      role={label ? 'status' : undefined}
-      aria-label={label ?? undefined}
-      aria-hidden={label ? undefined : true}
+      role={name ? 'status' : undefined}
+      aria-label={name ?? undefined}
+      aria-hidden={name ? undefined : true}
       className={cn('inline-flex shrink-0 items-end', className)}
       style={{ height: size, gap }}
     >

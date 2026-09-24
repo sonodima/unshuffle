@@ -13,9 +13,12 @@
   bg-ink-900, text-lime, font-display, rounded-block...).
 */
 @theme {
-  --font-display: 'Unbounded Variable', 'Unbounded', system-ui, sans-serif;
-  --font-sans: 'Manrope Variable', 'Manrope', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  /* The webfonts cover Latin and Cyrillic; Chinese, Japanese and Korean glyphs fall
+     through to the system CJK faces of --font-cjk (see base), after system-ui so
+     Latin pages render exactly as before. */
+  --font-display: 'Unbounded Variable', 'Unbounded', system-ui, var(--font-cjk), sans-serif;
+  --font-sans: 'Manrope Variable', 'Manrope', system-ui, var(--font-cjk), sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, var(--font-cjk), monospace;
   --font-emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
 
   /* Background / surfaces — deep violet-black */
@@ -152,6 +155,11 @@
     height: 100%;
   }
   :root {
+    /* System CJK faces behind the webfonts: Japanese first by default; Chinese and
+       Korean put their own first (below) so shared ideographs take their regional forms. */
+    --font-cjk: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'YuGothic', 'Meiryo', 'Noto Sans CJK JP', 'Noto Sans JP',
+      'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR',
+      'Noto Sans KR';
     /* Page colour behind the shader. Safari 26 ignores theme-color and tints its
        Liquid Glass bars from the html/body background, so it matches the shader's
        dark violet rather than the near-black ink-950. */
@@ -160,6 +168,25 @@
        Safari 26 blurs: keep content a bit further down there (only where the inset
        is non-zero). */
     --safe-top: env(safe-area-inset-top, 0px);
+  }
+  /* <html lang> is set by the i18n core. */
+  :root:lang(zh) {
+    --font-cjk: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', 'Source Han Sans SC', 'Hiragino Sans',
+      'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR';
+  }
+  :root:lang(ko) {
+    --font-cjk: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR', 'Noto Sans KR', 'Source Han Sans K', 'Hiragino Sans', 'PingFang SC',
+      'Microsoft YaHei', 'Noto Sans CJK SC';
+    /* Korean wraps between words (spaces), not inside them. */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  /* Ideographs and hangul have no italic: the sporty slant of display type
+     (display-skew, button labels) is dropped for them. */
+  :lang(ja),
+  :lang(ko),
+  :lang(zh) {
+    --text-skew: 0deg;
   }
   @supports (-webkit-touch-callout: none) {
     @media (display-mode: browser) {
@@ -261,9 +288,9 @@
   line-height: 0.98;
   font-synthesis: none;
 }
-/* Sporty GeoGuessr-like slant. Needs a block / inline-block box. */
+/* Sporty GeoGuessr-like slant. Needs a block / inline-block box. None in CJK (--text-skew). */
 @utility display-skew {
-  transform: skewX(-7deg);
+  transform: skewX(var(--text-skew, -7deg));
 }
 @utility num {
   font-family: var(--font-mono);
@@ -452,7 +479,7 @@
     display: inline-flex;
     align-items: center;
     gap: inherit;
-    transform: skewX(-7deg);
+    transform: skewX(var(--text-skew, -7deg));
   }
   .btn:not(:disabled):not([aria-busy='true']):hover {
     filter: brightness(1.07) saturate(1.05);
@@ -647,4 +674,17 @@
 :where(.glass, .glass-flat, .glass-dock) .glass {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+/*
+  Chinese, Japanese and Korean: ideographs and hangul are already evenly spaced and
+  fill the em box. The tight / wide tracking and the 0.98 line height of the Latin
+  display style would crowd or scatter them (the slant is dropped via --text-skew);
+  weight and size stay. Unlayered, so it wins over the tracking utilities.
+*/
+:is(:lang(ja), :lang(ko), :lang(zh)):is(.display, .eyebrow, .btn, [class*='tracking-']) {
+  letter-spacing: 0;
+}
+:is(:lang(ja), :lang(ko), :lang(zh)).display {
+  line-height: 1.12;
 }

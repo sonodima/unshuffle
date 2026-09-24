@@ -60,6 +60,8 @@
         animation: boot-eq var(--t) ease-in-out var(--d) infinite alternate;
       }
       #boot noscript { position: absolute; top: calc(50% + 48px); left: 16px; right: 16px; color: #c9c3f0; font: 600 16px/1.4 system-ui, sans-serif; text-align: center; }
+      #boot noscript p { margin: 0 auto 8px; max-width: 32em; }
+      #boot noscript p + p { font-weight: 500; opacity: 0.8; }
       @keyframes boot-in { to { opacity: 1; } }
       @keyframes boot-eq { from { transform: translateY(calc(100% - 10px)); } }
       @media (prefers-reduced-motion: reduce) { #boot i::before { animation: none; } }
@@ -74,7 +76,10 @@
         <i style="--h: 32px; --t: 0.78s; --d: -0.1s; --c: linear-gradient(#ff3fd1, #7b5cff)"></i>
         <i style="--h: 18px; --t: 1.04s; --d: -0.55s; --c: #a6ff3f"></i>
       </div>
-      <noscript>Per giocare a UNSHUFFLE serve JavaScript: attivalo e ricarica la pagina.</noscript>
+      <noscript>
+        <p lang="it">Per giocare a UNSHUFFLE serve JavaScript: attivalo e ricarica la pagina.</p>
+        <p lang="en">UNSHUFFLE needs JavaScript: turn it on and reload the page.</p>
+      </noscript>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

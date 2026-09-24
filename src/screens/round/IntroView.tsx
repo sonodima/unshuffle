@@ -8,6 +8,7 @@ import { Badge, Icon, ProgressDots, cn, useCanHover } from '../../components/ui'
 import { useBackground } from '../../components/background/useBackground'
 import { useBoardAudio } from '../../components/board'
 import type { PlayerId, RoomState } from '../../game/types'
+import { rich, useT } from '../../i18n/react'
 import { useClock, useStepsLeft } from './clock'
 import { useOnChange } from './hooks'
 import type { Clock } from './clock'
@@ -36,6 +37,7 @@ const STEP_TONE: Record<number, { text: string; glow: string; ring: string; ring
 }
 
 export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewProps) {
+  const t = useT()
   const phase = room.phase
   const endsAt = phase.kind === 'intro' ? phase.endsAt : 0
   const clock = useClock(now, clockProp)
@@ -88,7 +90,7 @@ export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewPr
         <motion.div {...item(0)} className="mb-4 flex min-h-6 items-center gap-2 sm:mb-6 [@media(max-height:560px)]:mb-2">
           {info.isLast ? (
             <Badge tone="gold" variant="solid" size="md" icon="flag">
-              Ultimo round
+              {t('round.intro.lastRound')}
             </Badge>
           ) : playlist ? (
             <span className="eyebrow flex items-center gap-1.5">
@@ -100,16 +102,18 @@ export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewPr
 
         {/* The headline steps back (towards its baseline) when the count takes the stage. */}
         <motion.h1
-          aria-label={`Round ${info.number} di ${info.total}`}
+          aria-label={t('round.intro.headlineLabel', { number: info.number, total: info.total })}
           className="display relative flex origin-bottom items-baseline justify-center leading-none whitespace-nowrap text-white"
           style={{ fontSize: 'clamp(40px, min(13vw, 17vh), 156px)' }}
           initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.7, filter: 'blur(14px)' }}
           animate={{ opacity: staged ? 0.92 : 1, scale: staged && !reduce ? 0.64 : 1, filter: 'blur(0px)' }}
           transition={reduce ? { duration: 0.2 } : { type: 'spring', stiffness: 300, damping: staged ? 26 : 22, mass: 0.9 }}
         >
-          <span className="display-skew inline-block drop-shadow-[0_8px_30px_rgb(123_92_255/0.55)]">Round</span>
-          <span className="display-skew text-gradient-lime ml-[0.2em] inline-block pr-[0.04em] drop-shadow-[0_0_40px_rgb(166_255_63/0.35)]">{info.number}</span>
-          <span className="display-skew ml-[0.08em] inline-block text-[0.34em] text-ink-300">/{info.total}</span>
+          {rich(t('round.intro.headline', { number: info.number, total: info.total }), {
+            word: (c) => <span className="display-skew inline-block drop-shadow-[0_8px_30px_rgb(123_92_255/0.55)]">{c}</span>,
+            n: (c) => <span className="display-skew text-gradient-lime ml-[0.2em] inline-block pr-[0.04em] drop-shadow-[0_0_40px_rgb(166_255_63/0.35)]">{c}</span>,
+            total: (c) => <span className="display-skew ml-[0.08em] inline-block text-[0.34em] text-ink-300">{c}</span>,
+          })}
         </motion.h1>
 
         {/* Round facts step back with the headline while the count runs. */}
@@ -121,14 +125,10 @@ export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewPr
           <motion.ul
             {...item(0.28)}
             className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:gap-2.5 [@media(max-height:560px)]:mt-3"
-            aria-label="Regole del round"
+            aria-label={t('round.intro.rulesLabel')}
           >
-            <Fact icon="scissors">
-              <b className="num text-white">{info.snippets}</b> spezzoni
-            </Fact>
-            <Fact icon="clock">
-              <b className="num text-white">{info.roundTimeSec}</b> s
-            </Fact>
+            <Fact icon="scissors">{rich(t('round.intro.snippets', { count: info.snippets }), { b: factNumber })}</Fact>
+            <Fact icon="clock">{rich(t('round.intro.seconds', { seconds: info.roundTimeSec }), { b: factNumber })}</Fact>
             {info.difficulty && <Fact icon="bolt">{info.difficulty}</Fact>}
           </motion.ul>
         </div>
@@ -141,18 +141,20 @@ export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewPr
           {spectator ? (
             <span className="inline-flex items-center gap-1.5 text-cyan">
               <Icon name="eye" size={15} strokeWidth={2.4} />
-              Questo round lo guardi: giocherai dal prossimo.
+              {t('round.intro.spectator')}
             </span>
           ) : canHover ? (
-            'Clicca un blocco per ascoltarlo, poi trascinalo al suo posto.'
+            t('round.intro.howToHover')
           ) : (
-            'Tocca un blocco per ascoltarlo, poi trascinalo al suo posto.'
+            t('round.intro.howToTouch')
           )}
         </motion.p>
       </motion.div>
     </div>
   )
 }
+
+const factNumber = (c: string) => <b className="num text-white">{c}</b>
 
 function Fact({ icon, children }: { icon: 'scissors' | 'clock' | 'bolt'; children: ReactNode }) {
   return (
@@ -191,6 +193,7 @@ function DrainArc({ step, elapsedMs }: { step: number; elapsedMs: number }) {
 }
 
 function Countdown({ steps, counting, staged, stepElapsedMs }: { steps: number; counting: boolean; staged: boolean; stepElapsedMs: number }) {
+  const t = useT()
   const reduce = useReducedMotion()
   const tone = STEP_TONE[steps] ?? STEP_TONE[3]
   // A punch on every tick (the ring itself grows via CSS when the count starts).
@@ -200,7 +203,7 @@ function Countdown({ steps, counting, staged, stepElapsedMs }: { steps: number; 
     animate(scope.current, { scale: [1, 1.12, 1] }, { duration: 0.2, ease: 'easeOut' })
   })
   return (
-    <div className="rs-cd relative grid place-items-center" data-counting={staged || undefined} role="timer" aria-live="off" aria-label={counting ? `Si parte tra ${steps}` : 'Pronti'}>
+    <div className="rs-cd relative grid place-items-center" data-counting={staged || undefined} role="timer" aria-live="off" aria-label={counting ? t('round.intro.countdownLabel', { seconds: steps }) : t('round.intro.readyLabel')}>
       <span ref={scope} aria-hidden className="absolute inset-0">
         <span
           className="absolute inset-0 rounded-full border border-white/10 bg-ink-950/75 transition-shadow duration-300"
@@ -234,7 +237,7 @@ function Countdown({ steps, counting, staged, stepElapsedMs }: { steps: number; 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.12 } }}
           >
-            Pronti?
+            {t('round.intro.ready')}
           </motion.span>
         ) : null}
       </AnimatePresence>

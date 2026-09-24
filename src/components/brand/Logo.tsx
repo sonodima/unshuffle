@@ -112,6 +112,8 @@ export function Logo({ size = 'lg', animate = true, delay = 0, replayKey, mark =
         className="display-skew relative inline-flex font-display leading-none"
         style={
           {
+            // The wordmark is Latin in every language: keep its slant on CJK pages too.
+            '--text-skew': '-7deg',
             fontWeight: 900,
             letterSpacing: '-0.035em',
             paddingInline: '0.07em',

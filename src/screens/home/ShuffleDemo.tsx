@@ -4,7 +4,9 @@
 // parks on the solved board while the user is idle.
 import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { AnimatedNumber, Icon, cn, formatClock } from '../../components/ui'
+import { AnimatedNumber, Icon, cn, formatClock, formatNumber } from '../../components/ui'
+import type { MessageKey } from '../../i18n'
+import { useT } from '../../i18n/react'
 import { DEMO_HUES, DEMO_LETTERS, songEnvelope } from './demoScript'
 import { DEMO_TIMING, useDemoLoop, type DemoPhase, type DemoState } from './useDemoLoop'
 import './home.css'
@@ -139,20 +141,22 @@ function DemoBoard({ state, count, columns, compact, aspect, gap, className }: D
 
 // ---------------------------------------------------------------- panel (desktop)
 
-const STEPS: { phase: DemoPhase; label: string; icon: 'headphones' | 'grip' | 'check' }[] = [
-  { phase: 'listen', label: 'Ascolta', icon: 'headphones' },
-  { phase: 'sort', label: 'Riordina', icon: 'grip' },
-  { phase: 'solved', label: 'Conferma', icon: 'check' },
+const STEPS: { phase: DemoPhase; label: MessageKey; icon: 'headphones' | 'grip' | 'check' }[] = [
+  { phase: 'listen', label: 'home.demo.steps.listen', icon: 'headphones' },
+  { phase: 'sort', label: 'home.demo.steps.sort', icon: 'grip' },
+  { phase: 'solved', label: 'home.demo.steps.confirm', icon: 'check' },
 ]
 
 /** Fake round clock shown by the desktop demo. */
 const DEMO_ROUND_MS = 20_000
+/** Points "won" when the demo board is solved. */
+const DEMO_POINTS = 5000
 
-const CAPTION: Record<DemoPhase, string> = {
-  shuffle: 'La hit viene fatta a pezzi…',
-  listen: 'Ascolta gli spezzoni',
-  sort: 'Trascinali nell’ordine giusto',
-  solved: 'Perfetto! Conferma per primo',
+const CAPTION: Record<DemoPhase, MessageKey> = {
+  shuffle: 'home.demo.caption.shuffle',
+  listen: 'home.demo.caption.listen',
+  sort: 'home.demo.caption.sort',
+  solved: 'home.demo.caption.solved',
 }
 
 interface ShuffleDemoProps {
@@ -215,6 +219,7 @@ function DemoTimer({ totalMs, running, resetKey, className }: { totalMs: number;
 
 /** Desktop showcase: a mini round HUD around the demo board. Memoized: Home re-renders on every keystroke. */
 export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, paused = false, idle = false, className }: ShuffleDemoProps) {
+  const t = useT()
   const ref = useRef<HTMLDivElement>(null)
   const state = useDemoLoop(count, ref, paused, idle)
   const active = state.phase === 'shuffle' ? -1 : STEPS.findIndex((s) => s.phase === state.phase)
@@ -231,7 +236,7 @@ export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, p
                 state.resting || state.frozen ? 'opacity-60' : 'animate-blink',
               )}
             />
-            Demo
+            {t('home.demo.badge')}
           </span>
           <div className="relative h-6 min-w-0 flex-1 overflow-hidden">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -243,7 +248,7 @@ export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, p
                 transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 className={cn('absolute inset-0 truncate text-[15px] leading-6 font-bold', solved ? 'text-lime' : 'text-ink-50')}
               >
-                {CAPTION[state.phase]}
+                {t(CAPTION[state.phase])}
               </motion.p>
             </AnimatePresence>
           </div>
@@ -256,7 +261,7 @@ export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, p
           aria-hidden
         >
           <Icon name="star" size={14} filled />
-          <AnimatedNumber key={state.cycle} value={solved ? 5000 : 0} from={0} duration={0.9} signed />
+          <AnimatedNumber key={state.cycle} value={solved ? DEMO_POINTS : 0} from={0} duration={0.9} signed />
         </div>
       </div>
 
@@ -269,7 +274,7 @@ export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, p
 
       <DemoBoard state={state} count={count} columns={columns} gap={12} className="min-h-[190px] flex-1" />
 
-      <ol className="mt-5 grid grid-cols-3 gap-2" aria-label="Come si gioca, in breve">
+      <ol className="mt-5 grid grid-cols-3 gap-2" aria-label={t('home.demo.stepsLabel')}>
         {STEPS.map((step, i) => {
           const on = i === active
           const done = active > i
@@ -295,7 +300,7 @@ export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, p
               >
                 {done ? <Icon name="check" size={12} strokeWidth={3.4} /> : i + 1}
               </span>
-              <span className="truncate">{step.label}</span>
+              <span className="truncate">{t(step.label)}</span>
               <Icon name={step.icon} size={16} className={cn('ml-auto shrink-0 transition-opacity', on ? 'opacity-90' : 'opacity-35')} />
             </li>
           )
@@ -317,6 +322,7 @@ interface DemoStripProps {
 
 /** Compact one-row demo for phones, with a one-line caption. Memoized like ShuffleDemo. */
 export const DemoStrip = memo(function DemoStrip({ count = 6, paused = false, idle = false, className }: DemoStripProps) {
+  const t = useT()
   const ref = useRef<HTMLDivElement>(null)
   const state = useDemoLoop(count, ref, paused, idle)
   const solved = state.phase === 'solved'
@@ -331,9 +337,9 @@ export const DemoStrip = memo(function DemoStrip({ count = 6, paused = false, id
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -12, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className={cn('absolute inset-0 text-center text-xs leading-5 font-bold', solved ? 'text-lime' : 'text-ink-300')}
+            className={cn('absolute inset-0 truncate text-center text-xs leading-5 font-bold', solved ? 'text-lime' : 'text-ink-300')}
           >
-            {solved ? 'Perfetto! +5.000' : CAPTION[state.phase]}
+            {solved ? t('home.demo.solvedPoints', { points: formatNumber(DEMO_POINTS) }) : t(CAPTION[state.phase])}
           </motion.p>
         </AnimatePresence>
       </div>

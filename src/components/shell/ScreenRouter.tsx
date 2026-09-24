@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/
 import { Suspense, lazy, useEffect, useLayoutEffect, useRef } from 'react'
 import type { ComponentType, ReactNode } from 'react'
 import { useGame } from '../../game/store'
+import { useLocale } from '../../i18n/react'
 import { navigate } from '../../lib/router'
 import { HomeScreen } from '../../screens/home/HomeScreen'
 import { Spinner } from '../ui'
@@ -95,6 +96,8 @@ export function ScreenRouter() {
   // Primitive selectors: room updates (up to 20/s in game) don't re-render the router.
   const screen = useGame((s) => selectScreen({ role: s.role, room: s.room }))
   const lost = useGame((s) => s.room !== null && s.role === 'client' && (s.connection === 'closed' || s.connection === 'error'))
+  // A language change re-renders the router, so the title below is re-read in the new language.
+  useLocale()
   const title = useGame((s) => screenTitle(screen, s.room, lost))
   // Screen-level crash recovery gets another chance when the phase moves on.
   const phaseKey = useGame((s) => (s.room ? `${s.room.phase.kind}:${'round' in s.room.phase ? s.room.phase.round : ''}` : 'none'))

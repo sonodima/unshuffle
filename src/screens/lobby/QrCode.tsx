@@ -1,12 +1,13 @@
 import QRCode from 'qrcode'
 import { useMemo } from 'react'
+import { useT } from '../../i18n/react'
 
 interface QrCodeProps {
   /** Text to encode (the join URL). */
   value: string
   /** Rendered size in px (square). */
   size: number
-  /** Accessible description. */
+  /** Accessible description (default: "Codice QR per entrare nella stanza"). */
   label?: string
   className?: string
 }
@@ -62,12 +63,13 @@ function build(value: string): Geometry | null {
 }
 
 /** QR code drawn as crisp rounded modules (dark on light, so every phone camera reads it). */
-export function QrCode({ value, size, label = 'Codice QR per entrare nella stanza', className }: QrCodeProps) {
+export function QrCode({ value, size, label, className }: QrCodeProps) {
+  const t = useT()
   const geo = useMemo(() => build(value), [value])
   if (!geo) return null
   const vb = geo.n + QUIET * 2
   return (
-    <svg role="img" aria-label={label} viewBox={`0 0 ${vb} ${vb}`} width={size} height={size} className={className} shapeRendering="geometricPrecision">
+    <svg role="img" aria-label={label ?? t('lobby.qr.imageLabel')} viewBox={`0 0 ${vb} ${vb}`} width={size} height={size} className={className} shapeRendering="geometricPrecision">
       <path d={geo.modules} fill="var(--color-ink-950)" />
       <path d={geo.eyesOuter} fill="var(--color-ink-950)" fillRule="evenodd" />
       <path d={geo.eyesInner} fill="var(--color-violet-deep)" />

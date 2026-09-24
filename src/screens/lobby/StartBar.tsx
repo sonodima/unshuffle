@@ -1,18 +1,20 @@
-import { msgOf, t, tm } from '../../i18n'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Avatar, AvatarGroup, Button, Equalizer, Icon, cn } from '../../components/ui'
 import { SNIPPET_DIFFICULTY } from '../../game/constants'
 import type { GameSettings, Player } from '../../game/types'
+import { localeTag, msgOf, tm, type Msg } from '../../i18n'
+import { useT } from '../../i18n/react'
+import { withNum } from './num'
 import { PlaylistRecord, WaitingText } from './PlaylistHero'
-import { MIN_ROUNDS, playlistShortfall, tracksWord, type PlaylistShortfall } from './rules'
+import { MIN_ROUNDS, playlistShortfall, type PlaylistShortfall } from './rules'
 
 interface StartBarProps {
   isHost: boolean
   settings: GameSettings
   players: Player[]
   hostId: string
-  /** Host: resolves when the game is starting, rejects with an Italian message (shown inline). */
+  /** Host: resolves when the game is starting, rejects with an AppError (its message is shown inline). */
   onStart(): Promise<void>
   /** Host: enables the "Gioca N round" shortcut when the playlist is too short for the chosen rounds. */
   onUpdateSettings?(patch: Partial<GameSettings>): void
@@ -25,8 +27,9 @@ interface StartBarProps {
 
 /** Sticky bottom action bar: the host's start CTA, or the guests' waiting state. */
 export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateSettings, variant, dense = false, className }: StartBarProps) {
+  const t = useT()
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Msg | null>(null)
   const mounted = useRef(true)
   useEffect(() => {
     mounted.current = true
@@ -56,24 +59,32 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
     try {
       await onStart()
     } catch (err) {
-      if (mounted.current) setError(tm(msgOf(err, 'game.store.startFailed')))
+      if (mounted.current) setError(msgOf(err, 'game.store.startFailed'))
     } finally {
       if (mounted.current) setBusy(false)
     }
   }
 
-  const difficulty = SNIPPET_DIFFICULTY[settings.snippets] ? t(SNIPPET_DIFFICULTY[settings.snippets]) : undefined
+  const difficultyKey = SNIPPET_DIFFICULTY[settings.snippets]
+  // Inline in the summary: lowercase ("8 spezzoni (normale)").
+  const difficulty = difficultyKey ? t(difficultyKey).toLocaleLowerCase(localeTag()) : undefined
+  // Three items in a row, " · " between them (each item has its own plural).
   const rules = (
     <>
       {/* Gold when fewer rounds would fix a too-short playlist. */}
-      <span className={cn(shortfall?.fitRounds != null && 'text-gold')}>
-        <span className="num">{settings.rounds}</span> round
-      </span> · <span className="num">{settings.snippets}</span> spezzoni
-      {dock && difficulty ? ` (${difficulty.toLowerCase()})` : ''} · <span className="num">{settings.roundTime}s</span>
+      <span className={cn(shortfall?.fitRounds != null && 'text-gold')}>{withNum(t('lobby.bar.rounds', { count: settings.rounds }))}</span>
+      {' · '}
+      {withNum(
+        dock && difficulty
+          ? t('lobby.bar.snippetsLevel', { count: settings.snippets, difficulty })
+          : t('lobby.bar.snippets', { count: settings.snippets }),
+      )}
+      {' · '}
+      {withNum(t('lobby.bar.roundTime', { seconds: settings.roundTime }))}
     </>
   )
-  const waiting = playlist ? 'In attesa che l’host avvii la partita' : 'L’host sta scegliendo la playlist'
-  const hint = !playlist ? 'Scegli una playlist per iniziare' : players.length <= 1 ? 'Puoi giocare anche da solo' : null
+  const waiting = t(playlist ? 'lobby.bar.waitingStart' : 'lobby.bar.waitingPlaylist')
+  const hint = !playlist ? t('lobby.bar.pickPlaylist') : players.length <= 1 ? t('lobby.bar.solo') : null
   const sleeve = dock ? (dense ? 48 : 56) : 44
 
   const summary = (
@@ -82,10 +93,10 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
       <PlaylistRecord playlist={playlist} sleeve={sleeve} spin={isHost} glow={isHost} reserve />
       <div className="min-w-0 flex-1">
         <p className={cn('truncate font-extrabold', dock ? 'text-[15px]' : 'text-sm', playlist ? 'text-ink-50' : 'text-ink-300')} title={playlist?.title}>
-          {playlist ? playlist.title : 'Nessuna playlist'}
+          {playlist ? playlist.title : t('lobby.bar.noPlaylist')}
         </p>
         <p className="mt-0.5 truncate text-xs font-semibold text-ink-400">
-          {!dock && !isHost ? <WaitingText>{waiting}</WaitingText> : !dock && !playlist ? 'Scegli una playlist per iniziare' : rules}
+          {!dock && !isHost ? <WaitingText>{waiting}</WaitingText> : !dock && !playlist ? t('lobby.bar.pickPlaylist') : rules}
         </p>
       </div>
     </div>
@@ -95,7 +106,7 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
     <AnimatePresence initial={false}>
       {error && (
         <motion.p
-          key={error}
+          key={tm(error)}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
@@ -104,7 +115,7 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
           className={cn('text-xs leading-snug font-bold text-coral', dock ? 'max-w-[300px] text-right' : 'text-center')}
         >
           <Icon name="alert" size={14} strokeWidth={2.6} className="mr-1 inline-block -translate-y-px align-middle" />
-          {error}
+          {tm(error)}
         </motion.p>
       )}
     </AnimatePresence>
@@ -115,7 +126,7 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
     <ShortfallNotice shortfall={shortfall} dock={dock}>
       {fix != null && (
         <Button variant="glass" size="sm" leftIcon="flag" className="shrink-0 text-gold" onClick={() => onUpdateSettings?.({ rounds: fix })}>
-          Gioca {fix} round
+          {t('lobby.bar.playRounds', { count: fix })}
         </Button>
       )}
     </ShortfallNotice>
@@ -132,7 +143,7 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
       onClick={() => void start()}
       className={cn(dock && (dense ? 'min-w-[240px]' : 'min-w-[280px]'))}
     >
-      Inizia partita
+      {t('lobby.start')}
     </Button>
   )
 
@@ -170,7 +181,7 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
       <div className="hidden shrink-0 items-center gap-3 min-[1180px]:flex">
         <AvatarGroup players={players} size="sm" max={6} />
         <span className="text-xs font-bold whitespace-nowrap text-ink-300">
-          <span className="num text-ink-100">{players.length}</span> {players.length === 1 ? 'giocatore' : 'giocatori'}
+          {withNum(t('lobby.players', { count: players.length }), 'text-ink-100')}
         </span>
       </div>
 
@@ -195,17 +206,11 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
 
 /** "Playlist troppo corta" line (+ the one-tap fix) shown instead of a start that could only fail. */
 function ShortfallNotice({ shortfall, dock, children }: { shortfall: PlaylistShortfall; dock: boolean; children?: ReactNode }) {
+  const t = useT()
   const { have, need, fitRounds } = shortfall
-  const text =
-    fitRounds != null ? (
-      <>
-        Playlist troppo corta: ha <span className="num">{have}</span> {tracksWord(have)}, ne servono <span className="num">{need}</span>.
-      </>
-    ) : (
-      <>
-        Playlist troppo corta: ha solo <span className="num">{have}</span> {tracksWord(have)}, ne servono almeno <span className="num">{MIN_ROUNDS}</span>.
-      </>
-    )
+  const text = withNum(
+    fitRounds != null ? t('lobby.bar.shortfall', { count: have, need }) : t('lobby.bar.shortfallMin', { count: have, min: MIN_ROUNDS }),
+  )
   return (
     <motion.div
       key={`${have}-${need}`}

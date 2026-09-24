@@ -4,8 +4,10 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { memo, useCallback, useRef } from 'react'
 import { AnimatedNumber, Badge, Icon, cn } from '../../../components/ui'
 import { MAX_ROUND_POINTS } from '../../../game/constants'
+import { formatOrdinal } from '../../../i18n'
+import { rich, useT } from '../../../i18n/react'
 import type { LeaderRow, ScoreBreakdown } from './model'
-import { formatPoints, formatSeconds, ordinal, pairsLabel, verdictFor } from './model'
+import { formatPoints, formatSeconds, pairsLabel, verdictFor } from './model'
 
 interface ScorePanelProps {
   breakdown: ScoreBreakdown
@@ -33,6 +35,7 @@ export const ScorePanel = memo(function ScorePanel({
   onDone,
   className,
 }: ScorePanelProps) {
+  const t = useT()
   const reduce = useReducedMotion()
   const pct = Math.max(0, Math.min(1, b.points / MAX_ROUND_POINTS))
   const doneRef = useRef(false)
@@ -46,24 +49,26 @@ export const ScorePanel = memo(function ScorePanel({
 
   return (
     <section
-      aria-label="I tuoi punti"
+      aria-label={t('reveal.score.region')}
       className={cn('rv-score glass-flat relative overflow-hidden rounded-panel p-4 md:p-5', b.perfect && 'rv-score-perfect', className)}
       data-counting={counting || undefined}
     >
       <div aria-hidden className="rv-score-wash" />
       <div className="rv-score-body relative">
         <div className="rv-score-head relative flex items-start justify-between gap-3">
-          <p className="eyebrow pt-1 whitespace-nowrap">Punti del round</p>
+          <p className="eyebrow pt-1 whitespace-nowrap">{t('reveal.score.eyebrow')}</p>
           <div className="flex flex-wrap justify-end gap-1.5">
             {b.timedOut ? (
               <Badge tone="coral" icon="clock" size="sm">
-                Tempo scaduto
+                {t('reveal.score.timedOut')}
               </Badge>
             ) : (
               <span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/10 px-2 text-[11px] font-bold whitespace-nowrap text-ink-100">
                 <Icon name="check" size={11} strokeWidth={3} />
-                <span className="hidden min-[400px]:inline">Confermato in</span>
-                <span className="rv-tnum">{formatSeconds(b.timeMs)}</span>
+                {rich(t('reveal.score.confirmedIn', { time: formatSeconds(b.timeMs) }), {
+                  wide: (c) => <span className="hidden min-[400px]:inline">{c}</span>,
+                  num: (c) => <span className="rv-tnum">{c}</span>,
+                })}
               </span>
             )}
           </div>
@@ -80,15 +85,15 @@ export const ScorePanel = memo(function ScorePanel({
         </div>
 
         {/* 0 → 5000 bar */}
-        <div className="rv-bar rv-score-bar relative mt-2" role="img" aria-label={`${formatPoints(b.points)} punti su ${formatPoints(MAX_ROUND_POINTS)}`}>
+        <div className="rv-bar rv-score-bar relative mt-2" role="img" aria-label={t('reveal.score.barAria', { count: b.points, points: formatPoints(b.points), max: formatPoints(MAX_ROUND_POINTS) })}>
           <motion.div
             className={cn('rv-bar-fill', `rv-bar-${tone}`)}
             initial={{ width: '0%' }}
             animate={{ width: `${(counting ? pct : 0) * 100}%` }}
             transition={reduce ? { duration: 0 } : { duration: durationS, ease: EASE }}
           />
-          {[0.25, 0.5, 0.75].map((t) => (
-            <span key={t} aria-hidden className="rv-bar-tick" style={{ left: `${t * 100}%` }} />
+          {[0.25, 0.5, 0.75].map((x) => (
+            <span key={x} aria-hidden className="rv-bar-tick" style={{ left: `${x * 100}%` }} />
           ))}
         </div>
 
@@ -111,7 +116,7 @@ export const ScorePanel = memo(function ScorePanel({
             icon="check"
             tone="lime"
             value={`${b.correct}/${b.n}`}
-            label="al posto giusto"
+            label={t('reveal.score.correct')}
             points={b.positionPoints}
             shown={counting}
             delay={0}
@@ -134,10 +139,10 @@ export const ScorePanel = memo(function ScorePanel({
             animate={{ opacity: showTotal ? 1 : 0 }}
             transition={{ duration: 0.4 }}
           >
-            <span className="font-bold text-ink-300">Totale partita</span>
+            <span className="font-bold text-ink-300">{t('reveal.score.total')}</span>
             <span className="flex items-center gap-2">
               <span className="rv-tnum text-base font-extrabold text-white">{formatPoints(row.totalAfter)}</span>
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-extrabold text-ink-100">{ordinal(row.rank)}</span>
+              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-extrabold text-ink-100">{formatOrdinal(row.rank)}</span>
               {row.rankDelta !== 0 && <RankDelta delta={row.rankDelta} />}
             </span>
           </motion.div>
@@ -186,6 +191,7 @@ function Stat({
 }
 
 function Stamp({ delay, className }: { delay: number; className?: string }) {
+  const t = useT()
   const reduce = useReducedMotion()
   return (
     <motion.span
@@ -195,18 +201,19 @@ function Stamp({ delay, className }: { delay: number; className?: string }) {
       exit={{ opacity: 0 }}
       transition={reduce ? { duration: 0.2 } : { type: 'spring', stiffness: 380, damping: 17, delay }}
     >
-      Perfetto!
+      {t('reveal.score.stamp')}
     </motion.span>
   )
 }
 
 export function RankDelta({ delta, className }: { delta: number; className?: string }) {
+  const t = useT()
   if (!delta) return null
   const up = delta > 0
   return (
     <span
       className={cn('rv-delta rv-tnum inline-flex items-center gap-0.5 text-xs font-extrabold', up ? 'text-lime' : 'text-coral', className)}
-      aria-label={up ? `Sale di ${delta} ${delta === 1 ? 'posizione' : 'posizioni'}` : `Scende di ${-delta} ${delta === -1 ? 'posizione' : 'posizioni'}`}
+      aria-label={t(up ? 'reveal.rankUp' : 'reveal.rankDown', { count: Math.abs(delta) })}
     >
       <Icon name={up ? 'chevron-up' : 'chevron-down'} size={13} strokeWidth={3.4} />
       {Math.abs(delta)}

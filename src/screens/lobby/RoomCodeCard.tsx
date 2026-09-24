@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useState } from 'react'
 import { Button, Icon, IconButton, Modal, Panel, cn, playSfx, useCanHover } from '../../components/ui'
+import { useT } from '../../i18n/react'
 import { QrCode } from './QrCode'
 import { canNativeShare, nativeShare, splitDisplayUrl, useCopy } from './invite'
 
@@ -15,6 +16,7 @@ interface RoomCodeCardProps {
 
 /** The room's identity card: huge sliced-letter code, copy / share / QR. */
 export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: RoomCodeCardProps) {
+  const t = useT()
   const [qrOpen, setQrOpen] = useState(false)
   const link = useCopy()
   const codeCopy = useCopy(1600)
@@ -39,9 +41,9 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
   }
 
   return (
-    <Panel as="section" aria-label="Codice stanza" padding={compact ? 'sm' : 'lg'} glow="magenta" className={cn(compact && '@container px-4 pt-3.5 pb-4', className)}>
+    <Panel as="section" aria-label={t('lobby.code.title')} padding={compact ? 'sm' : 'lg'} glow="magenta" className={cn(compact && '@container px-4 pt-3.5 pb-4', className)}>
       <div className="flex items-center justify-between gap-3">
-        <span className="eyebrow text-ink-200">Codice stanza</span>
+        <span className="eyebrow text-ink-200">{t('lobby.code.title')}</span>
         <AnimatePresence initial={false} mode="wait">
           <motion.span
             key={codeCopy.state}
@@ -52,13 +54,15 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
             className={cn('text-[11px] font-bold', codeCopy.state === 'copied' ? 'text-lime' : codeCopy.state === 'failed' ? 'text-gold' : 'text-ink-400')}
             aria-live="polite"
           >
-            {codeCopy.state === 'copied'
-              ? 'Codice copiato!'
-              : codeCopy.state === 'failed'
-                ? 'Copia non riuscita'
-                : canHover
-                  ? 'Clicca per copiarlo'
-                  : 'Tocca per copiarlo'}
+            {t(
+              codeCopy.state === 'copied'
+                ? 'lobby.code.copied'
+                : codeCopy.state === 'failed'
+                  ? 'lobby.code.copyFailed'
+                  : canHover
+                    ? 'lobby.code.clickToCopy'
+                    : 'lobby.code.tapToCopy',
+            )}
           </motion.span>
         </AnimatePresence>
       </div>
@@ -68,7 +72,7 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
         onClick={() => {
           void codeCopy.copy(code).then((ok) => ok && playSfx('pop'))
         }}
-        aria-label={`Codice stanza ${code.split('').join(' ')}. Copia codice`}
+        aria-label={t('lobby.code.copyLabel', { code: code.split('').join(' ') })}
         className={cn('group block w-full rounded-[18px] tap-none', compact ? 'mt-2.5' : 'mt-4')}
       >
         <CodeTiles code={code} size={compact ? 'md' : 'lg'} />
@@ -84,21 +88,21 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
             onClick={copyLink}
             sound={false}
           >
-            {link.state === 'copied' ? 'Copiato!' : 'Copia link'}
+            {t(link.state === 'copied' ? 'lobby.code.linkCopied' : 'lobby.code.copyLink')}
           </Button>
           {shareable && (
             <Button variant="glass" size="md" leftIcon="share" className={cn('min-w-0 flex-1 sm:max-w-[220px]', tight)} onClick={share}>
-              Condividi
+              {t('lobby.code.share')}
             </Button>
           )}
-          <IconButton icon="qr" label="Mostra QR code" variant="glass" size="md" onClick={() => setQrOpen(true)} />
+          <IconButton icon="qr" label={t('lobby.code.showQr')} variant="glass" size="md" onClick={() => setQrOpen(true)} />
         </div>
       ) : (
         <div className="mt-6 flex items-stretch gap-4 border-t border-white/[0.07] pt-5">
           <button
             type="button"
             onClick={() => setQrOpen(true)}
-            aria-label="Ingrandisci QR code"
+            aria-label={t('lobby.code.enlargeQr')}
             className="group relative shrink-0 rounded-[18px] bg-ink-50 p-2 shadow-[0_0_0_1px_rgb(255_255_255/0.5),0_14px_30px_-12px_rgb(255_63_209/0.55)] transition-transform duration-200 ease-[var(--ease-spring)] hover:scale-[1.04] active:scale-[0.98]"
           >
             <QrCode value={joinUrl} size={88} />
@@ -108,8 +112,8 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
           </button>
           <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
             <div className="min-w-0">
-              <p className="display display-skew text-[13px] text-ink-50">Entra dal telefono</p>
-              <p className="mt-1.5 text-[13px] leading-snug text-ink-300">Inquadra il QR o apri il link: si entra al volo, senza account.</p>
+              <p className="display display-skew text-[13px] text-ink-50">{t('lobby.code.phoneTitle')}</p>
+              <p className="mt-1.5 text-[13px] leading-snug text-ink-300">{t('lobby.code.phoneBody')}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -120,10 +124,10 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
                 onClick={copyLink}
                 sound={false}
               >
-                {link.state === 'copied' ? 'Copiato!' : 'Copia link'}
+                {t(link.state === 'copied' ? 'lobby.code.linkCopied' : 'lobby.code.copyLink')}
               </Button>
               {shareable && (
-                <IconButton icon="share" label="Condividi" size="sm" onClick={share} />
+                <IconButton icon="share" label={t('lobby.code.share')} size="sm" onClick={share} />
               )}
             </div>
           </div>
@@ -133,8 +137,8 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
       <Modal
         open={qrOpen}
         onClose={() => setQrOpen(false)}
-        title="Invita gli amici"
-        description="Inquadra il QR con la fotocamera del telefono, oppure condividi il link."
+        title={t('lobby.qr.title')}
+        description={t('lobby.qr.description')}
         size="sm"
       >
         <div className="flex flex-col items-center gap-5">
@@ -142,7 +146,7 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
             <QrCode value={joinUrl} size={232} />
           </div>
           <div className="flex w-full flex-col items-center gap-1">
-            <span className="eyebrow">Codice</span>
+            <span className="eyebrow">{t('lobby.qr.code')}</span>
             <span className="display display-skew text-3xl tracking-[0.18em] text-ink-50">{code}</span>
           </div>
           <div className="flex w-full items-center gap-2 rounded-2xl border border-white/[0.08] bg-ink-950/50 py-1.5 pr-1.5 pl-4 shadow-well">
@@ -159,15 +163,15 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
               onClick={copyLink}
               sound={false}
             >
-              {link.state === 'copied' ? 'Copiato' : 'Copia'}
+              {t(link.state === 'copied' ? 'lobby.qr.copied' : 'lobby.qr.copy')}
             </Button>
           </div>
           {link.state === 'failed' && (
-            <p className="-mt-2 text-center text-xs font-semibold text-gold">Copia non riuscita: seleziona il link e copialo a mano.</p>
+            <p className="-mt-2 text-center text-xs font-semibold text-gold">{t('lobby.qr.copyFailed')}</p>
           )}
           {shareable && (
             <Button variant="glass" size="md" leftIcon="share" fullWidth onClick={share}>
-              Condividi link
+              {t('lobby.qr.shareLink')}
             </Button>
           )}
         </div>

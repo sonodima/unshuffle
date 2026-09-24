@@ -1,7 +1,9 @@
 // Full-screen "VIA!" slam between the intro countdown and the board.
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useT } from '../../i18n/react'
 
 export function GoBurst({ burstKey }: { burstKey: string | null }) {
+  const t = useT()
   const reduce = useReducedMotion()
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-40 grid place-items-center overflow-hidden">
@@ -44,7 +46,7 @@ export function GoBurst({ burstKey }: { burstKey: string | null }) {
                 className="display display-skew text-gradient-lime block pr-[0.08em] leading-none"
                 style={{ fontSize: 'clamp(84px, 26vw, 260px)', filter: 'drop-shadow(0 0 40px rgb(166 255 63 / 0.55)) drop-shadow(0 10px 0 rgb(40 80 10 / 0.55))' }}
               >
-                Via!
+                {t('round.go')}
               </span>
             </motion.span>
           </motion.div>

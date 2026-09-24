@@ -2,6 +2,8 @@ import { motion } from 'motion/react'
 import { useId, useRef, type CSSProperties, type Ref } from 'react'
 import { AnimatedNumber, Avatar, useMediaQuery, type AvatarSize } from '../../components/ui'
 import type { PlayerId } from '../../game/types'
+import { formatOrdinal } from '../../i18n'
+import { useT } from '../../i18n/react'
 import { useFitWords } from './fit'
 import { formatPoints, type PlayerSummary } from './stats'
 import { PODIUM_TIMING, landingTime } from './timing'
@@ -84,13 +86,14 @@ const WIDE_SHORT: Dims = {
 }
 
 export function Podium({ standings, me, reduced, muted = false, winnerRef, onCheer, compact = false, small = false }: PodiumProps) {
+  const t = useT()
   const wide = useMediaQuery('(min-width: 768px)') && !small
   const d = wide ? (compact ? WIDE_SHORT : WIDE) : PHONE
   const top = standings.slice(0, 3)
   const slots = SLOT_ORDER.filter((place) => place < top.length)
 
   return (
-    <div className="relative mx-auto w-full max-w-[680px]" role="list" aria-label="Podio">
+    <div className="relative mx-auto w-full max-w-[680px]" role="list" aria-label={t('final.podium.label')}>
       <div className="flex items-end justify-center gap-2 sm:gap-4">
         {slots.map((place) => {
           const s = top[place]
@@ -133,6 +136,7 @@ interface SlotProps {
 }
 
 function PodiumSlot({ summary, place, rank, count, isMe, muted, dims, reduced, winnerRef, onCheer }: SlotProps) {
+  const t = useT()
   const { player } = summary
   const first = rank === 1 && !muted
   const h = dims.heights[muted ? 3 : rank] ?? dims.heights[3]
@@ -140,7 +144,7 @@ function PodiumSlot({ summary, place, rank, count, isMe, muted, dims, reduced, w
   const land = landingTime(place, count, reduced)
   const rise = reduced ? 0 : PODIUM_TIMING.riseStart + (Math.min(count, 3) - 1 - place) * PODIUM_TIMING.riseStagger
   const avatarSize = first ? dims.winnerAvatar : dims.avatar
-  const label = `${summary.rank}º posto: ${player.name}${isMe ? ' (tu)' : ''}, ${formatPoints(summary.score)} punti`
+  const label = t(isMe ? 'final.podium.slotMe' : 'final.podium.slot', { rank: formatOrdinal(summary.rank), name: player.name, count: summary.score, points: formatPoints(summary.score) })
   const nameRef = useRef<HTMLSpanElement>(null)
   useFitWords(nameRef, `${player.name}|${dims.name}`, { min: dims.nameMin })
 
@@ -175,7 +179,7 @@ function PodiumSlot({ summary, place, rank, count, isMe, muted, dims, reduced, w
                 ref={winnerRef}
                 type="button"
                 onClick={onCheer}
-                aria-label={`Festeggia ${player.name}`}
+                aria-label={t('final.podium.cheer', { name: player.name })}
                 className="tap-none block rounded-full transition-transform duration-150 hover:scale-105 active:scale-95"
               >
                 {avatar}

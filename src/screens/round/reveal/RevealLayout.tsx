@@ -12,6 +12,7 @@
 // joiners) get the song and the leaderboard only. The header hosts the inline
 // sound control, so the shell's floating one never covers the page.
 import { t } from '../../../i18n'
+import { rich, useLocale, useT } from '../../../i18n/react'
 import { MotionConfig, motion, useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { SfxName } from '../../../audio/sfx'
@@ -31,7 +32,6 @@ import {
   buildRevealModel,
   buildTimeline,
   formatPoints,
-  pairsLabel,
   secondsUntil,
   shouldSkipChoreography,
   sortedViewMarks,
@@ -142,6 +142,8 @@ function RevealContent({
   className,
   model,
 }: RevealLayoutProps & { model: RevealModel }) {
+  const t = useT()
+  const locale = useLocale()
   const reduce = useReducedMotion()
   const accent = accentProp ?? DEFAULT_COVER_COLORS
   const personal = model.mode === 'player' && !!model.myOrder && !!model.data
@@ -256,10 +258,10 @@ function RevealContent({
   // Count-up ticks: at most ~one every 3 % of the way, so the ease-out tail doesn't buzz.
   const lastTick = useRef(-1)
   const onScoreTick = useCallback((v: number, target: number) => {
-    const t = target > 0 ? Math.max(0, Math.min(1, v / target)) : 0
-    if (t - lastTick.current < 0.03 && t < 1) return
-    lastTick.current = t
-    safe(() => fx.current.sfx('score', { pitch: 0.85 + t * 0.7, gain: 0.7 }))
+    const frac = target > 0 ? Math.max(0, Math.min(1, v / target)) : 0
+    if (frac - lastTick.current < 0.03 && frac < 1) return
+    lastTick.current = frac
+    safe(() => fx.current.sfx('score', { pitch: 0.85 + frac * 0.7, gain: 0.7 }))
   }, [])
   const perfect = !!model.breakdown?.perfect
   const onScoreDone = useCallback(() => {
@@ -287,7 +289,9 @@ function RevealContent({
     if (!progress.sorted) return marks.map((m, i) => (i < progress.marks ? m : null))
     return view === 'correct' ? sortedMarks : marks
   }, [marks, sortedMarks, progress.sorted, progress.marks, view])
-  const labels = useMemo(() => (myOrder && progress.sorted ? boardLabels(myOrder, view) : null), [myOrder, progress.sorted, view])
+  // `locale` (here and below): the memoized values hold text, recomputed on a language change.
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
+  const labels = useMemo(() => (myOrder && progress.sorted ? boardLabels(myOrder, view) : null), [myOrder, progress.sorted, view, locale])
   const shownCorrect = boardMarks ? boardMarks.filter((m) => m === 'correct').length : 0
   const shownWrong = boardMarks ? boardMarks.filter((m) => m === 'wrong').length : 0
   const md = useMediaQuery('(min-width: 768px)')
@@ -299,21 +303,23 @@ function RevealContent({
   const viewOptions = useMemo(
     () =>
       [
-        { value: 'mine' as const, label: md ? 'Il tuo ordine' : 'Il tuo', ariaLabel: 'Il tuo ordine' },
-        { value: 'correct' as const, label: md ? 'Ordine giusto' : 'Giusto', ariaLabel: 'L’ordine giusto' },
+        { value: 'mine' as const, label: t(md ? 'reveal.board.toggle.mine' : 'reveal.board.toggle.mineShort'), ariaLabel: t('reveal.board.titleMine') },
+        { value: 'correct' as const, label: t(md ? 'reveal.board.toggle.correct' : 'reveal.board.toggle.correctShort'), ariaLabel: t('reveal.board.titleCorrect') },
       ] satisfies { value: BoardView; label: string; ariaLabel: string }[],
-    [md],
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [md, t, locale],
   )
 
   const secondsLeft = secondsUntil(nextAt, now)
   const trackKey = `track:${model.track.id}`
   const canHover = useCanHover()
   const facts = useMemo(() => {
-    const out = [`${n} spezzoni`]
+    const out = [t('reveal.song.snippets', { count: n })]
     if (SNIPPET_DIFFICULTY[n]) out.push(t(SNIPPET_DIFFICULTY[n]))
-    if (data && data.bpm > 0) out.push(`${Math.round(data.bpm)} BPM`)
+    if (data && data.bpm > 0) out.push(t('reveal.song.bpm', { bpm: Math.round(data.bpm) }))
     return out
-  }, [n, data])
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [n, data, t, locale])
 
   // Round progress dots: my perfect rounds in gold.
   const myPerfect = useMemo(() => {
@@ -343,10 +349,11 @@ function RevealContent({
           {/* Header */}
           <motion.header className="flex items-center gap-4 md:gap-6" {...section(0)}>
             <div className="min-w-0">
-              <p className="eyebrow">Risultati</p>
+              <p className="eyebrow">{t('reveal.header.eyebrow')}</p>
               <h1 className="display display-skew mt-1 text-[22px] text-white md:text-[26px]">
-                Round {model.round + 1}
-                <span className="text-ink-400"> / {model.totalRounds}</span>
+                {rich(t('reveal.header.round', { round: model.round + 1, total: model.totalRounds }), {
+                  dim: (c) => <span className="text-ink-400">{c}</span>,
+                })}
               </h1>
             </div>
             <ProgressDots total={model.totalRounds} current={model.round} doneTone={doneTone} size="md" className="mt-4 hidden min-[380px]:flex" />
@@ -374,11 +381,11 @@ function RevealContent({
 
             {personal && segments && hues && myOrder ? (
               <>
-                <motion.section className="rv-area-board flex min-h-0 flex-col" aria-label="La tua sequenza" {...section(0.3)}>
+                <motion.section className="rv-area-board flex min-h-0 flex-col" aria-label={t('reveal.board.region')} {...section(0.3)}>
                   <div className="mb-4 px-1 xl:mt-4">
                     <div className="flex min-h-10 items-center justify-between gap-3">
                       <h3 className="display display-skew min-w-0 truncate text-[13px] text-white md:text-[15px]">
-                        {view === 'correct' ? 'L’ordine giusto' : 'Il tuo ordine'}
+                        {t(view === 'correct' ? 'reveal.board.titleCorrect' : 'reveal.board.titleMine')}
                       </h3>
                       {progress.sorted ? (
                         <motion.div
@@ -389,7 +396,7 @@ function RevealContent({
                         >
                           <Segmented
                             size="sm"
-                            label="Ordine mostrato"
+                            label={t('reveal.board.toggle.label')}
                             options={viewOptions}
                             value={view}
                             onChange={setChosenView}
@@ -398,8 +405,8 @@ function RevealContent({
                         </motion.div>
                       ) : (
                         <div className="flex shrink-0 items-center gap-1.5" aria-live="polite">
-                          <Tally tone="lime" icon="check" value={shownCorrect} label="al posto giusto" />
-                          <Tally tone="coral" icon="x" value={shownWrong} label="sbagliati" />
+                          <Tally tone="lime" icon="check" value={shownCorrect} label={t('reveal.board.tallyCorrect', { count: shownCorrect })} />
+                          <Tally tone="coral" icon="x" value={shownWrong} label={t('reveal.board.tallyWrong', { count: shownWrong })} />
                         </div>
                       )}
                     </div>
@@ -472,25 +479,29 @@ function RevealContent({
   )
 }
 
-/** One line under the board title: how it went, and what a tap does. */
+/** One line under the board title: how it went, and what a click (mouse) / tap (touch) does. */
 function boardHint(model: RevealModel, sorted: boolean, view: BoardView, canHover: boolean): string {
-  const tap = canHover ? 'clicca' : 'tocca'
+  const input = canHover ? 'hover' : 'touch'
   const b = model.breakdown
-  if (!sorted || !b) return `${canHover ? 'Clicca' : 'Tocca'} uno spezzone per ascoltare la canzone da lì`
-  if (view === 'mine') return `Com’erano i tuoi spezzoni · ${tap} per ascoltarli`
-  if (b.perfect) return `Tutti al posto giusto! · ${tap} per riascoltare`
-  if (b.correct === 0) return `Nessuna posizione azzeccata · ${tap} per riascoltare`
-  return `Hai azzeccato ${b.correct} ${b.correct === 1 ? 'posizione' : 'posizioni'} su ${b.n} · ${tap} per riascoltare`
+  if (!sorted || !b) return t(`reveal.board.hint.intro.${input}`)
+  if (view === 'mine') return t(`reveal.board.hint.mine.${input}`)
+  if (b.perfect) return t(`reveal.board.hint.perfect.${input}`)
+  if (b.correct === 0) return t(`reveal.board.hint.none.${input}`)
+  return t(`reveal.board.hint.partial.${input}`, { count: b.correct, n: b.n })
 }
 
 function resultAnnouncement(b: NonNullable<RevealModel['breakdown']>): string {
-  const head = b.perfect ? 'Sequenza perfetta! ' : ''
-  return `${head}${formatPoints(b.points)} punti: ${b.correct} su ${b.n} al posto giusto, ${b.pairs} ${pairsLabel(b.pairs)}.${b.timedOut ? ' Tempo scaduto.' : ''}`
+  const pairs = t('reveal.announce.pairs', { count: b.pairs })
+  let result = t('reveal.announce.result', { count: b.points, points: formatPoints(b.points), correct: b.correct, n: b.n, pairs })
+  if (b.perfect) result = t('reveal.announce.perfect', { result })
+  if (b.timedOut) result = t('reveal.announce.timedOut', { result })
+  return result
 }
 
+/** `label`: the whole screen-reader text, count included ("3 al posto giusto"). */
 function Tally({ tone, icon, value, label }: { tone: 'lime' | 'coral'; icon: 'check' | 'x'; value: number; label: string }) {
   return (
-    <span className="rv-tally rv-tnum inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-[13px] font-extrabold" data-tone={tone} aria-label={`${value} ${label}`}>
+    <span className="rv-tally rv-tnum inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-[13px] font-extrabold" data-tone={tone} aria-label={label}>
       <Icon name={icon} size={13} strokeWidth={3.2} />
       {value}
     </span>
@@ -498,6 +509,7 @@ function Tally({ tone, icon, value, label }: { tone: 'lime' | 'coral'; icon: 'ch
 }
 
 function SpectatorNote({ mode }: { mode: RevealModel['mode'] }) {
+  const t = useT()
   const spectator = mode === 'spectator'
   return (
     <div className="glass-flat flex items-center gap-4 rounded-panel p-4 md:p-5">
@@ -505,9 +517,9 @@ function SpectatorNote({ mode }: { mode: RevealModel['mode'] }) {
         <Icon name={spectator ? 'eye' : 'clock'} size={24} strokeWidth={2.2} />
       </span>
       <div className="min-w-0">
-        <p className="display display-skew text-sm text-white md:text-base">{spectator ? 'Sei spettatore' : 'Nessuna risposta'}</p>
+        <p className="display display-skew text-sm text-white md:text-base">{t(spectator ? 'reveal.spectator.title' : 'reveal.missing.title')}</p>
         <p className="mt-1 text-sm font-semibold text-ink-200">
-          {spectator ? 'Questo round lo guardi da fuori: giocherai dal prossimo.' : 'Questa volta non abbiamo ricevuto la tua sequenza.'}
+          {t(spectator ? 'reveal.spectator.body' : 'reveal.missing.body')}
         </p>
       </div>
     </div>

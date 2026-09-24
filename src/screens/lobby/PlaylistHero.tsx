@@ -1,8 +1,9 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { Badge, Button, Icon, Panel, Vinyl, cn, formatNumber } from '../../components/ui'
+import { Badge, Button, Icon, Panel, Vinyl, cn } from '../../components/ui'
 import type { PlaylistRef } from '../../game/types'
+import { useT } from '../../i18n/react'
+import { withNum } from './num'
 import { Cover } from './PlaylistPicker'
-import { tracksWord } from './rules'
 
 interface PlaylistHeroProps {
   playlist: PlaylistRef | null
@@ -18,19 +19,20 @@ interface PlaylistHeroProps {
 
 /** The chosen playlist, shown to everyone as a record sleeve with the vinyl sliding out. */
 export function PlaylistHero({ playlist, isHost, onChange, layout = 'row', size, className }: PlaylistHeroProps) {
+  const t = useT()
   const column = layout === 'column'
   const sleeve = size ?? (column ? 212 : 100)
   return (
     <Panel
       as="section"
-      aria-label="Playlist scelta"
+      aria-label={t('lobby.hero.label')}
       padding="lg"
       glow={playlist ? 'violet' : undefined}
       className={cn('flex overflow-hidden', column ? 'flex-col items-center text-center' : 'items-center gap-4 sm:gap-5', className)}
     >
       <PlaylistRecord playlist={playlist} sleeve={sleeve} />
       <div className={cn('min-w-0', column ? 'mt-7 flex w-full flex-col items-center' : 'flex-1')}>
-        <span className="eyebrow">{playlist ? 'Playlist' : isHost ? 'Nessuna playlist' : 'Playlist in arrivo'}</span>
+        <span className="eyebrow">{t(playlist ? 'lobby.hero.eyebrow' : isHost ? 'lobby.hero.none' : 'lobby.hero.incoming')}</span>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={playlist?.id ?? 'none'}
@@ -53,22 +55,22 @@ export function PlaylistHero({ playlist, isHost, onChange, layout = 'row', size,
                 </h2>
                 <div className={cn('mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5', column && 'justify-center')}>
                   <Badge tone="violet" size="md" icon="music">
-                    <span className="num">{formatNumber(playlist.nbTracks)}</span> {tracksWord(playlist.nbTracks)}
+                    {withNum(t('lobby.tracks', { count: playlist.nbTracks }))}
                   </Badge>
-                  {playlist.creator && <span className="truncate text-xs font-semibold text-ink-300">di {playlist.creator}</span>}
+                  {playlist.creator && <span className="truncate text-xs font-semibold text-ink-300">{t('lobby.hero.by', { creator: playlist.creator })}</span>}
                 </div>
               </>
             ) : (
               <p className={cn('mt-1.5 text-sm leading-relaxed text-ink-300', column && 'max-w-[30ch]')}>
                 {/* Guests: the start bar already says "L’host sta scegliendo la playlist…"; don't repeat it word for word. */}
-                {isHost ? 'Cerca una playlist, tocca una categoria o incolla un link Deezer.' : 'Apparirà qui appena l’host la sceglie: preparati ad ascoltare.'}
+                {t(isHost ? 'lobby.hero.hostEmpty' : 'lobby.hero.guestEmpty')}
               </p>
             )}
           </motion.div>
         </AnimatePresence>
         {isHost && onChange && playlist && (
           <Button variant="glass" size="sm" leftIcon="refresh" onClick={onChange} className={cn(column ? 'mt-5' : 'mt-3.5')}>
-            Cambia
+            {t('lobby.hero.change')}
           </Button>
         )}
       </div>

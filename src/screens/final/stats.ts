@@ -1,8 +1,10 @@
 // Pure derivations for the final screen: standings, per-round matrix, awards and
 // the headline. Only plain RoomState data in, plain data out, so this file can be
-// tested headless.
+// tested headless. Texts and numbers come out in the current language (callers
+// that memoize them depend on the locale).
 
 import { MAX_ROUND_POINTS } from '../../game/constants'
+import { formatList, formatOrdinal, localeTag, t } from '../../i18n'
 import { compareStanding } from '../../game/standing'
 import type { Player, PlayerId, RoomState, RoundResult, TrackInfo } from '../../game/types'
 
@@ -53,7 +55,7 @@ export interface Award {
   emoji: string
   tone: AwardTone
   winners: Player[]
-  /** Winning figure, e.g. "3 round perfetti". */
+  /** Winning figure, e.g. "3 round perfetti" (current language). */
   value: string
 }
 
@@ -80,34 +82,49 @@ export interface FinalSummary {
 }
 
 const EPS = 1e-6
-const nf1 = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-// Always group thousands (it-IT alone leaves 4-digit numbers ungrouped: 4428 vs 18.571).
-const nf0 = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 0, useGrouping: 'always' })
+
+const NUMBER_FORMATS = {
+  // Always group thousands (it-IT alone leaves 4-digit numbers ungrouped: 4428 vs 18.571).
+  points: { maximumFractionDigits: 0, useGrouping: 'always' },
+  seconds: { minimumFractionDigits: 1, maximumFractionDigits: 1 },
+  average: { maximumFractionDigits: 1 },
+  percent: { style: 'percent', maximumFractionDigits: 0 },
+} satisfies Record<string, Intl.NumberFormatOptions>
+
+// Formatters per language (points are formatted on every frame of the count-ups).
+const numberFormats = new Map<string, Intl.NumberFormat>()
+function formatAs(kind: keyof typeof NUMBER_FORMATS, n: number): string {
+  const tag = localeTag()
+  const id = `${tag}|${kind}`
+  let fmt = numberFormats.get(id)
+  if (!fmt) numberFormats.set(id, (fmt = new Intl.NumberFormat(tag, NUMBER_FORMATS[kind])))
+  return fmt.format(n)
+}
 
 /** 4428 → "4.428". */
 export function formatPoints(n: number): string {
-  return nf0.format(Math.round(n))
+  return formatAs('points', Math.round(n))
 }
 
 /** 32400 → "32,4 s" (no-break space: the unit never wraps away from its number). */
 export function formatSeconds(ms: number): string {
-  return `${nf1.format(ms / 1000)}\u00a0s`
+  return t('final.units.seconds', { value: formatAs('seconds', ms / 1000) })
 }
 
-/** 6.8 of 8 → "6,8/8"; mixed snippet counts → "85%". */
+/** 6.8 of 8 → "6,8/8" (7.0 → "7/8"); mixed snippet counts → "85%". */
 export function formatAccuracy(s: Pick<PlayerSummary, 'avgCorrect' | 'accuracy'>, snippets: number | null): string {
-  if (snippets) return `${nf1.format(s.avgCorrect).replace(/,0$/, '')}/${snippets}`
-  return `${Math.round(s.accuracy * 100)}%`
+  if (snippets) return `${formatAs('average', s.avgCorrect)}/${snippets}`
+  return formatAs('percent', s.accuracy)
 }
 
-/** "Giulia", "Giulia e Tommy", "Giulia, Tommy e Marco". */
-export function joinNames(names: string[]): string {
-  if (names.length <= 1) return names[0] ?? ''
-  return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`
+/** "Giulia", "Giulia e Tommy", "Giulia, Tommy e Marco" (in the current language). */
+export function joinNames(names: readonly string[]): string {
+  return formatList(names)
 }
 
-function plural(n: number, one: string, many: string): string {
-  return `${n} ${n === 1 ? one : many}`
+/** A points phrase's params: the plural follows the score, the text shows it formatted. */
+function pointsParams(score: number): { count: number; points: string } {
+  return { count: score, points: formatPoints(score) }
 }
 
 export function computeFinalSummary(room: FinalSource): FinalSummary {
@@ -216,11 +233,11 @@ function computeAwards(standings: PlayerSummary[], snippets: number | null): Awa
   push(
     {
       id: 'golden-ear',
-      title: 'Orecchio d’oro',
-      description: 'Più round perfetti',
+      title: t('final.awards.goldenEar.title'),
+      description: t('final.awards.goldenEar.description'),
       emoji: '👂',
       tone: 'gold',
-      value: ear[0] ? plural(ear[0].perfectRounds, 'round perfetto', 'round perfetti') : '',
+      value: ear[0] ? t('final.awards.goldenEar.value', { count: ear[0].perfectRounds }) : '',
     },
     ear,
   )
@@ -230,11 +247,11 @@ function computeAwards(standings: PlayerSummary[], snippets: number | null): Awa
   push(
     {
       id: 'lightning',
-      title: 'Fulmine',
-      description: 'Conferma più rapida nei round a punti',
+      title: t('final.awards.lightning.title'),
+      description: t('final.awards.lightning.description'),
       emoji: '⚡',
       tone: 'cyan',
-      value: fast[0]?.avgScoringConfirmMs != null ? `in media ${formatSeconds(fast[0].avgScoringConfirmMs)}` : '',
+      value: fast[0]?.avgScoringConfirmMs != null ? t('final.awards.lightning.value', { time: formatSeconds(fast[0].avgScoringConfirmMs) }) : '',
     },
     fast,
   )
@@ -243,11 +260,11 @@ function computeAwards(standings: PlayerSummary[], snippets: number | null): Awa
   push(
     {
       id: 'sniper',
-      title: 'Cecchino',
-      description: 'Più spezzoni al posto giusto',
+      title: t('final.awards.sniper.title'),
+      description: t('final.awards.sniper.description'),
       emoji: '🎯',
       tone: 'lime',
-      value: sniper[0] ? `${formatAccuracy(sniper[0], snippets)} di media` : '',
+      value: sniper[0] ? t('final.awards.sniper.value', { accuracy: formatAccuracy(sniper[0], snippets) }) : '',
     },
     sniper,
   )
@@ -256,11 +273,11 @@ function computeAwards(standings: PlayerSummary[], snippets: number | null): Awa
   push(
     {
       id: 'last-second',
-      title: 'Ultimo secondo',
-      description: 'Più round finiti fuori tempo',
+      title: t('final.awards.lastSecond.title'),
+      description: t('final.awards.lastSecond.description'),
       emoji: '⏱️',
       tone: 'coral',
-      value: late[0] ? plural(late[0].timeouts, 'volta fuori tempo', 'volte fuori tempo') : '',
+      value: late[0] ? t('final.awards.lastSecond.value', { count: late[0].timeouts }) : '',
     },
     late,
   )
@@ -268,52 +285,49 @@ function computeAwards(standings: PlayerSummary[], snippets: number | null): Awa
   return awards
 }
 
-function ordinal(n: number): string {
-  return `${n}º`
-}
-
 export function computeHeadline(summary: FinalSummary, me: PlayerId): Headline {
   const { standings, winners, roundsPlayed } = summary
   const top = standings[0]
   const mine = standings.find((s) => s.player.id === me)
-  if (!top) return { title: 'Partita finita!', subtitle: 'Nessun giocatore in classifica.', tone: 'zero' }
+  if (!top) return { title: t('final.headline.over'), subtitle: t('final.headline.noPlayers'), tone: 'zero' }
 
-  const rounds = `${roundsPlayed} round`
+  const pointsInRounds = () => t('final.headline.pointsInRounds', { ...pointsParams(top.score), rounds: t('final.headline.rounds', { count: roundsPlayed }) })
   if (standings.length === 1) {
-    if (top.score <= 0) return { title: 'Zero punti!', subtitle: 'Riprova: la prossima la rimetti in ordine.', tone: 'zero' }
+    if (top.score <= 0) return { title: t('final.headline.soloZero'), subtitle: t('final.headline.soloZeroSub'), tone: 'zero' }
     const avg = roundsPlayed ? top.score / roundsPlayed : 0
-    const title = avg >= MAX_ROUND_POINTS * 0.9 ? 'Da maestro!' : avg >= MAX_ROUND_POINTS * 0.6 ? 'Bel colpo!' : 'Partita finita!'
-    return { title, subtitle: `${formatPoints(top.score)} punti in ${rounds}`, tone: 'solo' }
+    const title = avg >= MAX_ROUND_POINTS * 0.9 ? t('final.headline.soloGreat') : avg >= MAX_ROUND_POINTS * 0.6 ? t('final.headline.soloGood') : t('final.headline.soloOk')
+    return { title, subtitle: pointsInRounds(), tone: 'solo' }
   }
 
   if (top.score <= 0) {
-    return { title: 'Tutti a zero!', subtitle: 'Nessun punto stavolta: rigioca e rifatti.', tone: 'zero' }
+    return { title: t('final.headline.allZero'), subtitle: t('final.headline.allZeroSub'), tone: 'zero' }
   }
 
   if (winners.length > 1) {
     const names = winners.map((w) => w.player.name)
     if (winners.some((w) => w.player.id === me)) {
       const others = winners.filter((w) => w.player.id !== me).map((w) => w.player.name)
-      return { title: 'Pari merito!', subtitle: `Hai vinto insieme a ${joinNames(others)}`, tone: 'tie' }
+      return { title: t('final.headline.tie'), subtitle: t('final.headline.tieWithMe', { names: joinNames(others) }), tone: 'tie' }
     }
-    return { title: 'Pari merito!', subtitle: `${joinNames(names)} vincono a pari merito`, tone: 'tie' }
+    return { title: t('final.headline.tie'), subtitle: t('final.headline.tieOthers', { names: joinNames(names) }), tone: 'tie' }
   }
 
   const second = standings[1]
   if (top.player.id === me) {
     const gap = second ? top.score - second.score : 0
     const subtitle = !second
-      ? `${formatPoints(top.score)} punti`
+      ? t('final.headline.youWinPoints', pointsParams(top.score))
       : gap > 0
-        ? `${formatPoints(top.score)} punti · +${formatPoints(gap)} su ${second.player.name}`
-        : `A pari punti con ${second.player.name}, ma più veloce`
-    return { title: 'Hai vinto!', subtitle, tone: 'win' }
+        ? t('final.headline.youWinLead', { ...pointsParams(top.score), gap: formatPoints(gap), name: second.player.name })
+        : t('final.headline.youWinFaster', { name: second.player.name })
+    return { title: t('final.headline.youWin'), subtitle, tone: 'win' }
   }
 
   const subtitle = !mine
-    ? `${formatPoints(top.score)} punti in ${rounds}`
+    ? pointsInRounds()
     : mine.score === top.score
-      ? `Stessi punti di ${top.player.name}: vince chi ha confermato prima`
-      : `Sei ${ordinal(mine.rank)} su ${standings.length} con ${formatPoints(mine.score)} punti`
-  return { title: `${top.player.name} vince!`, subtitle, tone: 'lose' }
+      ? t('final.headline.sameScore', { name: top.player.name })
+      : t('final.headline.myRank', { ...pointsParams(mine.score), rank: formatOrdinal(mine.rank), total: standings.length })
+  // FinalView colors {name} in this title for the 'lose' tone (see final.headline.theyWin).
+  return { title: t('final.headline.theyWin', { name: top.player.name }), subtitle, tone: 'lose' }
 }

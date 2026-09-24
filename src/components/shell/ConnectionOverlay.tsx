@@ -7,15 +7,17 @@
 //   a failed "Riprova" turns the same dialog into "the room is gone" (no second dialog);
 // - notice after being dropped out of a room (kicked, room closed, …).
 
-import { msgKey, tm } from '../../i18n'
 import { AnimatePresence, motion, useIsPresent } from 'motion/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { STORE_MESSAGES, useGame } from '../../game/store'
 import type { Role } from '../../game/store'
+import { msgKey, tm } from '../../i18n'
+import type { Msg } from '../../i18n'
+import { rich, useT } from '../../i18n/react'
 import { Button, Icon, Modal, Spinner, cn } from '../ui'
 import type { IconName } from '../ui'
-import { exitNoticeCopy, exitReasonFor, lostContextFor, lostDialogCopy } from './connectionCopy'
+import { exitNoticeCopy, exitReasonFor, isHostGoneMessage, lostContextFor, lostDialogCopy } from './connectionCopy'
 import type { DialogCopy, ExitReason, LostCause, LostContext } from './connectionCopy'
 import { setBannerBox, useHudBottom } from './hudInset'
 import type { BannerBox } from './hudInset'
@@ -54,7 +56,8 @@ interface StatusBannerProps {
 
 /** Floating status pill (top-center, safe-area aware). Render inside AnimatePresence. */
 function StatusBanner({ tone = 'warning', busy, icon = 'wifi-off', title, detail, meta, action, onDismiss, belowHud, onMeasure }: StatusBannerProps) {
-  const t = BANNER_TONE[tone]
+  const t = useT()
+  const look = BANNER_TONE[tone]
   const under = belowHud != null
   const present = useIsPresent()
   const outerRef = useRef<HTMLDivElement>(null)
@@ -114,11 +117,11 @@ function StatusBanner({ tone = 'warning', busy, icon = 'wifi-off', title, detail
           'glass-flat pointer-events-auto flex max-w-[min(100%,480px)] items-center gap-3 border bg-ink-900/88! py-2 pr-2 pl-2',
           detail != null ? 'rounded-[26px]' : 'rounded-full',
           !onDismiss && !action && 'pr-5',
-          t.ring,
-          t.glow,
+          look.ring,
+          look.glow,
         )}
       >
-        <span className={cn('grid size-9 shrink-0 place-items-center rounded-full', t.chip)}>
+        <span className={cn('grid size-9 shrink-0 place-items-center rounded-full', look.chip)}>
           {busy ? <Spinner size={18} label={null} /> : <Icon name={icon} size={18} strokeWidth={2.4} />}
         </span>
         <div className="min-w-0 py-0.5">
@@ -141,7 +144,7 @@ function StatusBanner({ tone = 'warning', busy, icon = 'wifi-off', title, detail
         {onDismiss && (
           <button
             type="button"
-            aria-label="Nascondi avviso"
+            aria-label={t('shell.banner.dismiss')}
             onClick={onDismiss}
             className="grid size-9 shrink-0 place-items-center rounded-full text-ink-400 transition-colors hover:bg-white/10 hover:text-white"
           >
@@ -155,6 +158,7 @@ function StatusBanner({ tone = 'warning', busy, icon = 'wifi-off', title, detail
 
 /** The icon + room code + hint well shared by the connection dialogs. */
 function DialogWell({ copy, code, pulse }: { copy: DialogCopy; code: string | null; pulse?: boolean }) {
+  const t = useT()
   return (
     <motion.div
       key={copy.title}
@@ -174,9 +178,7 @@ function DialogWell({ copy, code, pulse }: { copy: DialogCopy; code: string | nu
       </span>
       <div className="min-w-0">
         {code && (
-          <p className="eyebrow">
-            Stanza <span className="num text-ink-100">{code}</span>
-          </p>
+          <p className="eyebrow">{rich(t('shell.dialogRoom', { code }), { b: (c) => <span className="num text-ink-100">{c}</span> })}</p>
         )}
         <p className="mt-1 text-sm leading-snug text-pretty text-ink-200">{copy.hint}</p>
       </div>
@@ -189,7 +191,7 @@ interface ConnectionLostDialogProps {
   role: Role
   code: string | null
   /** Store error; shown only when no retry is possible (the context copy says the rest). */
-  message: string | null
+  message: Msg | null
   retrying?: boolean
   onRetry?(): void
   /** Leave the room (or, after a failed retry, close the dialog: home is already behind it). */
@@ -215,8 +217,9 @@ function ConnectionLostDialog({
   cause = 'network',
   failure = null,
 }: ConnectionLostDialogProps) {
+  const t = useT()
   const copy = failure ? exitNoticeCopy(failure.reason, failure.message) : lostDialogCopy(context, cause, role === 'client' && !!onRetry)
-  const description = !failure && !copy.canRetry && cause === 'network' && message ? message : copy.description
+  const description = !failure && !copy.canRetry && cause === 'network' && message ? tm(message) : copy.description
   const shownCode = failure?.code ?? code
   return (
     <Modal
@@ -231,15 +234,15 @@ function ConnectionLostDialog({
         copy.canRetry ? (
           <>
             <Button variant="glass" leftIcon="home" onClick={onHome}>
-              Torna alla home
+              {t('shell.action.home')}
             </Button>
             <Button variant="primary" leftIcon="refresh" loading={retrying} onClick={onRetry}>
-              Riprova
+              {t('shell.action.retry')}
             </Button>
           </>
         ) : (
           <Button variant="primary" leftIcon="home" onClick={onHome}>
-            Torna alla home
+            {t('shell.action.home')}
           </Button>
         )
       }
@@ -251,7 +254,8 @@ function ConnectionLostDialog({
 
 interface ExitNotice {
   reason: ExitReason
-  message: string
+  /** The store error that came with it (translated where it is shown). */
+  message: Msg | null
   code: string | null
 }
 
@@ -263,6 +267,7 @@ interface ExitNoticeDialogProps {
 
 /** Explains why we are back home after being dropped out of a room. */
 function ExitNoticeDialog({ notice, open, onClose }: ExitNoticeDialogProps) {
+  const t = useT()
   const copy = exitNoticeCopy(notice?.reason ?? 'other', notice?.message)
   return (
     <Modal
@@ -273,7 +278,7 @@ function ExitNoticeDialog({ notice, open, onClose }: ExitNoticeDialogProps) {
       description={copy.description || undefined}
       footer={
         <Button variant="primary" onClick={onClose}>
-          Ok
+          {t('shell.action.ok')}
         </Button>
       }
     >
@@ -284,9 +289,6 @@ function ExitNoticeDialog({ notice, open, onClose }: ExitNoticeDialogProps) {
 
 // ---------------------------------------------------------------------------
 // Connected overlay
-
-/** Store errors meaning the host left for good (no Riprova, only 'Torna alla home'). */
-const HOST_GONE_MESSAGES: ReadonlySet<string> = new Set([STORE_MESSAGES.hostGone])
 
 function useElapsedSeconds(active: boolean): number {
   const [since, setSince] = useState<number | null>(null)
@@ -313,9 +315,9 @@ const RECONNECT_DETAIL_AFTER_S = 5
  */
 const RECONNECT_SLOW_AFTER_S = 30
 
-/** True while `key` is non-null and younger than `ms`; a new key shows it again. */
-function useAutoHide(key: string | null, ms: number): boolean {
-  const [expired, setExpired] = useState<string | null>(null)
+/** True while `key` is non-null and younger than `ms`; a new key (by identity) shows it again. */
+function useAutoHide<K>(key: K | null, ms: number): boolean {
+  const [expired, setExpired] = useState<K | null>(null)
   useEffect(() => {
     if (key === null) {
       setExpired(null)
@@ -328,6 +330,7 @@ function useAutoHide(key: string | null, ms: number): boolean {
 }
 
 export function ConnectionOverlay() {
+  const t = useT()
   const role = useGame((s) => s.role)
   const connection = useGame((s) => s.connection)
   const error = useGame((s) => s.error)
@@ -347,7 +350,7 @@ export function ConnectionOverlay() {
     () =>
       useGame.subscribe((s, prev) => {
         if (prev.room && !s.room && s.role === 'none' && s.error) {
-          const next: ExitNotice = { reason: exitReasonFor(msgKey(s.error) ?? '', s.connection, HOST_GONE_MESSAGES), message: tm(s.error), code: prev.room.code }
+          const next: ExitNotice = { reason: exitReasonFor(s.error, s.connection), message: s.error, code: prev.room.code }
           // Our own "Riprova" failed: the lost dialog turns into the answer (no second dialog).
           if (retryingRef.current) setFailure(next)
           else {
@@ -361,11 +364,11 @@ export function ConnectionOverlay() {
 
   const linkDown = inRoom && role !== 'none' && (connection === 'reconnecting' || connection === 'connecting')
   const lost = inRoom && role !== 'none' && (connection === 'closed' || connection === 'error')
-  const cause: LostCause = error && HOST_GONE_MESSAGES.has(msgKey(error) ?? '') ? 'host-gone' : 'network'
+  const cause: LostCause = isHostGoneMessage(error) ? 'host-gone' : 'network'
   const context = lostContextFor(phaseKind ? { kind: phaseKind } : null)
   const dialogOpen = lost || retrying || failure !== null
   const hostWarningActive = inRoom && role === 'host' && connection === 'open' && !!error
-  const hostWarning = useAutoHide(hostWarningActive ? tm(error) : null, HOST_WARNING_MS)
+  const hostWarning = useAutoHide(hostWarningActive ? error : null, HOST_WARNING_MS)
   const elapsed = useElapsedSeconds(linkDown && !dialogOpen)
 
   const leave = () => {
@@ -399,10 +402,10 @@ export function ConnectionOverlay() {
   }
 
   /** Clear the store error only if it is still the one we are showing (Home may have a newer one). */
-  const clearShownError = (message: string | null | undefined) => {
+  const clearShownError = (message: Msg | null | undefined) => {
     try {
       const st = useGame.getState()
-      if (message && st.error && tm(st.error) === message) st.clearError()
+      if (message && st.error === message) st.clearError()
     } catch {
       // ignore
     }
@@ -419,6 +422,7 @@ export function ConnectionOverlay() {
     clearShownError(notice?.message)
   }
 
+  const meta = elapsed >= 2 ? t('shell.banner.elapsed', { seconds: elapsed }) : undefined
   let banner: ReactNode = null
   if (linkDown && !dialogOpen) {
     banner =
@@ -427,44 +431,44 @@ export function ConnectionOverlay() {
           key="link"
           busy
           tone="warning"
-          title="Server perso, riprovo…"
-          detail="La partita continua"
-          meta={elapsed >= 2 ? `${elapsed}s` : undefined}
+          title={t('shell.banner.hostReconnecting')}
+          detail={t('shell.banner.hostReconnectingDetail')}
+          meta={meta}
           belowHud={hud}
           onMeasure={setBannerBox}
         />
       ) : connection === 'connecting' ? (
-        <StatusBanner key="link" busy tone="warning" title="Riconnessione…" meta={elapsed >= 2 ? `${elapsed}s` : undefined} belowHud={hud} onMeasure={setBannerBox} />
+        <StatusBanner key="link" busy tone="warning" title={t('shell.banner.connecting')} meta={meta} belowHud={hud} onMeasure={setBannerBox} />
       ) : (
         <StatusBanner
           key="link"
           busy
           tone="warning"
-          title={elapsed >= RECONNECT_SLOW_AFTER_S ? 'L’host non risponde' : 'Connessione persa'}
+          title={t(elapsed >= RECONNECT_SLOW_AFTER_S ? 'shell.banner.hostSilent' : 'shell.banner.lost')}
           // Short enough for the phone pill between the header's corner buttons.
-          detail={
+          detail={t(
             elapsed >= RECONNECT_SLOW_AFTER_S
-              ? 'Aspetto che torni…'
+              ? 'shell.banner.hostSilentDetail'
               : elapsed >= RECONNECT_DETAIL_AFTER_S
-                ? 'Riprovo… rientri da solo.'
-                : 'Riprovo a collegarmi…'
-          }
-          meta={elapsed >= 2 ? `${elapsed}s` : undefined}
-          action={elapsed >= RECONNECT_SLOW_AFTER_S ? { label: 'Esci', onClick: leave } : undefined}
+                ? 'shell.banner.lostDetailLong'
+                : 'shell.banner.lostDetail',
+          )}
+          meta={meta}
+          action={elapsed >= RECONNECT_SLOW_AFTER_S ? { label: t('shell.banner.leave'), onClick: leave } : undefined}
           belowHud={hud}
           onMeasure={setBannerBox}
         />
       )
   } else if (hostWarning) {
-    const signaling = error === STORE_MESSAGES.signalingLost
+    const signaling = msgKey(error) === STORE_MESSAGES.signalingLost
     banner = (
       <StatusBanner
         key="host-warn"
         tone="warning"
         icon={signaling ? 'wifi-off' : 'alert'}
-        title={signaling ? 'Nuovi ingressi in pausa' : 'Attenzione'}
-        detail={signaling ? 'Server di collegamento perso: chi è già dentro continua a giocare.' : tm(error)}
-        onDismiss={() => clearShownError(tm(error))}
+        title={t(signaling ? 'shell.banner.signalingTitle' : 'shell.banner.warning')}
+        detail={signaling ? t('shell.banner.signalingDetail') : tm(error)}
+        onDismiss={() => clearShownError(error)}
         belowHud={hud}
         onMeasure={setBannerBox}
       />
@@ -478,7 +482,7 @@ export function ConnectionOverlay() {
         open={dialogOpen}
         role={role}
         code={code}
-        message={error ? tm(error) : null}
+        message={error}
         retrying={retrying}
         onRetry={retry}
         onHome={failure ? closeFailure : leave}

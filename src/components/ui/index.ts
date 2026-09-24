@@ -3,7 +3,8 @@
 
 export { cn } from './cn'
 export { playSfx } from './sound'
-export { useMediaQuery, useCanHover, useIsWide, formatNumber, formatClock, shakeElement } from './hooks'
+export { useMediaQuery, useCanHover, useIsWide, shakeElement } from './hooks'
+export { formatNumber, formatClock, formatSeconds, joinFacts } from './format'
 
 export { Icon, type IconName, type IconProps } from './Icon'
 export { Button, IconButton, type ButtonProps, type IconButtonProps, type ButtonVariant, type ButtonSize } from './Button'
