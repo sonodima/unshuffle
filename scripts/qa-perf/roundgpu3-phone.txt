@@ -1,0 +1,6 @@
+phone idle board | default               renderer  12.6%  gpu  20.1%   (reps gpu: 20/20/20)
+phone idle board | no backdrop-filter    renderer  12.4%  gpu  19.4%   (reps gpu: 20/19/19)
+phone idle board | no timer (ring/bar hidden) renderer  10.9%  gpu  16.2%   (reps gpu: 16/16/16)
+phone idle board | no background         renderer  12.8%  gpu  13.7%   (reps gpu: 14/14/14)
+phone play-all | default                 renderer  17.5%  gpu  27.6%   (reps gpu: 28)
+phone play-all | no background           renderer  16.9%  gpu  25.6%   (reps gpu: 26)

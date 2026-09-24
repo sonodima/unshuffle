@@ -1,0 +1,665 @@
+/* Class names only live in src/ (and the dev labs): scan just those, not the test
+   tooling, reports or docs — a change to any scanned file (even README.md) makes
+   the dev server full-reload every open page. */
+@import 'tailwindcss' source('../src');
+@source '../lab';
+@import '@fontsource-variable/unbounded';
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* Short viewports (phones in landscape): `short:` compacts dialogs and chrome. */
+@custom-variant short (@media (max-height: 500px));
+
+/*
+  UNSHUFFLE design tokens. Every component uses these (Tailwind classes such as
+  bg-ink-900, text-lime, font-display, rounded-block...). Do not rename tokens.
+*/
+@theme {
+  --font-display: 'Unbounded Variable', 'Unbounded', system-ui, sans-serif;
+  --font-sans: 'Manrope Variable', 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  --font-emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
+
+  /* Background / surfaces — deep violet-black */
+  --color-ink-950: #06040f;
+  --color-ink-900: #0d0a1f;
+  --color-ink-850: #120e2a;
+  --color-ink-800: #181336;
+  --color-ink-700: #231c4b;
+  --color-ink-600: #342b6c;
+  --color-ink-500: #4c4290;
+  /* Secondary text. #8a82c4 keeps small labels ≥ 4.5:1 (WCAG AA) on the tinted glass
+     panels and ink-700/800 surfaces, while staying clearly dimmer than ink-300. */
+  --color-ink-400: #8a82c4;
+  --color-ink-300: #a39bd6;
+  --color-ink-200: #c9c3f0;
+  --color-ink-100: #e4e0fb;
+  --color-ink-50: #f4f2ff;
+
+  /* Neon accents */
+  --color-violet: #7b5cff;
+  --color-violet-deep: #5a3df0;
+  --color-magenta: #ff3fd1;
+  --color-cyan: #2ee6ff;
+  /* Primary CTA / correct (GeoGuessr-green, but neon) */
+  --color-lime: #a6ff3f;
+  --color-lime-deep: #6fd11a;
+  /* Score / first place */
+  --color-gold: #ffd23f;
+  /* Wrong / danger / timer low */
+  --color-coral: #ff5470;
+  --color-orange: #ff9a3f;
+
+  /* Added: companions of the accents (edges of 3D buttons, podium metals) */
+  --color-violet-bright: #a18bff;
+  --color-magenta-deep: #c81fa3;
+  --color-cyan-deep: #12a9c7;
+  --color-gold-deep: #d6a100;
+  --color-coral-deep: #d42c4c;
+  --color-mint: #3fffb2;
+  --color-silver: #d6d9ec;
+  --color-bronze: #e08a4f;
+  /* Focus ring (keyboard) */
+  --color-focus: #2ee6ff;
+
+  --radius-block: 18px;
+  --radius-panel: 28px;
+
+  --shadow-glow-violet: 0 0 0 1px rgb(123 92 255 / 0.35), 0 10px 40px -8px rgb(123 92 255 / 0.55);
+  --shadow-glow-lime: 0 0 0 1px rgb(166 255 63 / 0.4), 0 10px 40px -8px rgb(166 255 63 / 0.55);
+  --shadow-glow-magenta: 0 0 0 1px rgb(255 63 209 / 0.35), 0 10px 40px -8px rgb(255 63 209 / 0.55);
+  --shadow-glow-cyan: 0 0 0 1px rgb(46 230 255 / 0.35), 0 10px 40px -8px rgb(46 230 255 / 0.5);
+  --shadow-glow-gold: 0 0 0 1px rgb(255 210 63 / 0.4), 0 10px 40px -8px rgb(255 210 63 / 0.5);
+  --shadow-glow-coral: 0 0 0 1px rgb(255 84 112 / 0.4), 0 10px 40px -8px rgb(255 84 112 / 0.55);
+  /* Layered elevation for floating glass */
+  --shadow-panel: inset 0 1px 0 0 rgb(255 255 255 / 0.07), 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.65), 0 40px 80px -32px rgb(6 4 15 / 0.8);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 18px 40px -12px rgb(0 0 0 / 0.7);
+  --shadow-well: inset 0 2px 6px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.04);
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-shake: shake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  --animate-pop: pop 0.32s var(--ease-spring) both;
+  --animate-float-up: float-up 1.6s var(--ease-out-expo) both;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-pulse-ring: pulse-ring 1.6s var(--ease-out-expo) infinite;
+  --animate-glow: glow 2.4s ease-in-out infinite;
+  --animate-spin-slow: spin 6s linear infinite;
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-blink: blink 1.2s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------- keyframes */
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(3px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes float-up {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  15% { transform: translate3d(0, -12px, 0) scale(1.1); opacity: 1; }
+  100% { transform: translate3d(0, -120px, 0) scale(1); opacity: 0; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+@keyframes glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -6px, 0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes eq-bar {
+  0%, 100% { transform: scaleY(0.22); }
+  20% { transform: scaleY(0.9); }
+  45% { transform: scaleY(0.45); }
+  70% { transform: scaleY(1); }
+  85% { transform: scaleY(0.6); }
+}
+@keyframes timer-beat {
+  0% { transform: scale(1); }
+  18% { transform: scale(1.09); }
+  100% { transform: scale(1); }
+}
+@keyframes bar-sweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(320%); }
+}
+
+/* --------------------------------------------------------------------- base */
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    background: var(--color-ink-950);
+    color: var(--color-ink-50);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    color-scheme: dark;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.16) transparent;
+  }
+  body {
+    overscroll-behavior: none;
+  }
+  ::selection {
+    background: rgb(255 63 209 / 0.4);
+  }
+
+  /* Thin dark scrollbars everywhere (WebKit/Blink; Firefox via scrollbar-color). */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.16) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(255 255 255 / 0.26);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Keyboard focus: neon ring, never on mouse clicks. */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+  img {
+    -webkit-user-drag: none;
+  }
+}
+
+/* ------------------------------------------------------------ reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *:not([data-motion-essential]),
+  *:not([data-motion-essential])::before,
+  *:not([data-motion-essential])::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-motion-essential] {
+    animation-duration: 2.4s !important;
+  }
+}
+
+/* ---------------------------------------------------------------- utilities */
+
+/* Headline type: Unbounded, heavy, uppercase, tight. */
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+  font-synthesis: none;
+}
+/* Sporty GeoGuessr-like slant. Needs a block / inline-block box. */
+@utility display-skew {
+  transform: skewX(-7deg);
+}
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 0;
+  letter-spacing: -0.01em;
+}
+@utility emoji {
+  font-family: var(--font-emoji);
+  font-style: normal;
+  line-height: 1;
+}
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-300);
+}
+
+/*
+  Glass surfaces. A backdrop blur over the 60 fps shader is re-computed on every
+  frame, and ANY blurred element on screen (even a tiny one) moves the page off
+  the compositor's cheap path: in the lobby it was most of the idle GPU cost
+  (≈ 35% → 7% of a core with none). So:
+  - glass-flat   the default look for in-flow panels and cards sitting on the
+                 background (the plasma is already soft, a blur changes nothing
+                 you can see). Panel uses it.
+  - glass-dock   docks and sticky bars that content scrolls under: near-opaque
+                 instead of blurred, so nothing reads through, at no GPU cost.
+  - glass        real frosted blur: only for short-lived overlays over busy
+                 content (toasts, popovers) — keep it off persistent chrome.
+  - glass-subtle faint white film (pills, tips), no blur.
+  A glass surface nested inside another one never blurs (see "Nested glass").
+*/
+@utility glass {
+  background-color: rgb(13 10 31 / 0.7);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: var(--shadow-panel);
+}
+@utility glass-flat {
+  background-color: rgb(13 10 31 / 0.74);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: var(--shadow-panel);
+}
+@utility glass-dock {
+  background-color: rgb(16 12 36 / 0.95);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0) 42%);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: var(--shadow-panel), 0 -18px 40px -24px rgb(6 4 15 / 0.9);
+}
+@utility glass-subtle {
+  background-color: rgb(255 255 255 / 0.055);
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+@utility text-gradient-brand {
+  background-image: linear-gradient(100deg, var(--color-violet-bright) 0%, var(--color-magenta) 55%, var(--color-orange) 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility text-gradient-lime {
+  background-image: linear-gradient(180deg, color-mix(in oklab, var(--color-lime) 60%, white) 0%, var(--color-lime) 50%, var(--color-lime-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility bg-gradient-brand {
+  background-image: linear-gradient(135deg, var(--color-violet) 0%, var(--color-magenta) 100%);
+}
+@utility bg-gradient-lime {
+  background-image: linear-gradient(135deg, var(--color-lime) 0%, var(--color-lime-deep) 100%);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Safe-area padding (notch / home indicator). pb-safe-4 = 1rem + inset. */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility px-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+@utility pt-safe-* {
+  padding-top: calc(--spacing(--value(integer)) + env(safe-area-inset-top, 0px));
+}
+@utility pb-safe-* {
+  padding-bottom: calc(--spacing(--value(integer)) + env(safe-area-inset-bottom, 0px));
+}
+@utility px-safe-* {
+  padding-left: calc(--spacing(--value(integer)) + env(safe-area-inset-left, 0px));
+  padding-right: calc(--spacing(--value(integer)) + env(safe-area-inset-right, 0px));
+}
+@utility bottom-safe-* {
+  bottom: calc(--spacing(--value(integer)) + env(safe-area-inset-bottom, 0px));
+}
+@utility top-safe-* {
+  top: calc(--spacing(--value(integer)) + env(safe-area-inset-top, 0px));
+}
+
+/* Film grain. `.grain` adds it on a positioned box; `.grain-fixed` is a full-screen overlay element. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: var(--grain-url);
+    background-size: 160px 160px;
+    opacity: 0.09;
+    mix-blend-mode: overlay;
+  }
+}
+@utility grain-fixed {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: var(--grain-url);
+  background-size: 180px 180px;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+}
+
+@utility shimmer {
+  background-image: linear-gradient(100deg, rgb(255 255 255 / 0.03) 20%, rgb(255 255 255 / 0.1) 40%, rgb(255 255 255 / 0.03) 60%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@utility tap-none {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+:root {
+  --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------- components */
+
+@layer components {
+  /*
+    3D pill button. The face is a vertical gradient with a top inner highlight;
+    the "edge" is a hard box-shadow below that collapses when pressed.
+    Colors come from --btn-* custom properties set per variant.
+  */
+  .btn {
+    --btn-depth: 4px;
+    --btn-face: var(--color-ink-600);
+    --btn-face-hi: var(--color-ink-500);
+    --btn-edge: var(--color-ink-800);
+    --btn-text: var(--color-ink-50);
+    --btn-glow: transparent;
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55em;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    border-radius: 999px;
+    border: 0;
+    color: var(--btn-text);
+    font-family: var(--font-display);
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    background-image: linear-gradient(180deg, var(--btn-face-hi) 0%, var(--btn-face) 62%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.45),
+      inset 0 -2px 0 0 rgb(0 0 0 / 0.12),
+      0 var(--btn-depth) 0 0 var(--btn-edge),
+      0 calc(var(--btn-depth) + 6px) 18px -6px var(--btn-glow),
+      0 calc(var(--btn-depth) + 2px) 6px -2px rgb(0 0 0 / 0.45);
+    transform: translate3d(0, 0, 0);
+    transition:
+      transform 0.14s var(--ease-out-expo),
+      box-shadow 0.14s var(--ease-out-expo),
+      filter 0.2s ease,
+      opacity 0.2s ease;
+    margin-bottom: var(--btn-depth);
+  }
+  /* Glossy top sheen */
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 38% 0;
+    border-radius: inherit;
+    background: radial-gradient(90% 120% at 50% 0%, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.08) 55%, rgb(255 255 255 / 0) 80%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: inherit;
+    transform: skewX(-7deg);
+  }
+  .btn:not(:disabled):not([aria-busy='true']):hover {
+    filter: brightness(1.07) saturate(1.05);
+    transform: translate3d(0, -1px, 0);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.5),
+      inset 0 -2px 0 0 rgb(0 0 0 / 0.12),
+      0 calc(var(--btn-depth) + 1px) 0 0 var(--btn-edge),
+      0 calc(var(--btn-depth) + 10px) 26px -6px var(--btn-glow),
+      0 calc(var(--btn-depth) + 3px) 8px -2px rgb(0 0 0 / 0.45);
+  }
+  .btn:not(:disabled):not([aria-busy='true']):active,
+  .btn[data-pressed='true'] {
+    filter: brightness(0.97);
+    transform: translate3d(0, calc(var(--btn-depth) - 1px), 0);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.3),
+      inset 0 2px 6px 0 rgb(0 0 0 / 0.18),
+      0 1px 0 0 var(--btn-edge),
+      0 3px 10px -4px var(--btn-glow);
+    transition-duration: 0.05s;
+  }
+  .btn:disabled {
+    --btn-face: var(--color-ink-700);
+    --btn-face-hi: color-mix(in oklab, var(--color-ink-700) 88%, white);
+    --btn-edge: var(--color-ink-850);
+    --btn-text: var(--color-ink-300);
+    --btn-glow: transparent;
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+      0 var(--btn-depth) 0 0 var(--btn-edge);
+  }
+  .btn:disabled::before {
+    opacity: 0.25;
+  }
+  .btn[aria-busy='true'] {
+    cursor: progress;
+  }
+
+  .btn-primary {
+    --btn-face: var(--color-lime);
+    --btn-face-hi: color-mix(in oklab, var(--color-lime) 62%, white);
+    --btn-edge: color-mix(in oklab, var(--color-lime-deep) 72%, black);
+    --btn-text: var(--color-ink-950);
+    --btn-glow: rgb(166 255 63 / 0.55);
+  }
+  .btn-secondary {
+    --btn-face: var(--color-violet-deep);
+    --btn-face-hi: color-mix(in oklab, var(--color-violet) 78%, white);
+    --btn-edge: color-mix(in oklab, var(--color-violet-deep) 58%, black);
+    --btn-text: white;
+    --btn-glow: rgb(123 92 255 / 0.6);
+  }
+  .btn-danger {
+    --btn-face: var(--color-coral);
+    --btn-face-hi: color-mix(in oklab, var(--color-coral) 72%, white);
+    --btn-edge: color-mix(in oklab, var(--color-coral-deep) 62%, black);
+    --btn-text: white;
+    --btn-glow: rgb(255 84 112 / 0.55);
+  }
+  .btn-glass {
+    --btn-depth: 3px;
+    --btn-face: rgb(255 255 255 / 0.07);
+    --btn-face-hi: rgb(255 255 255 / 0.15);
+    --btn-edge: rgb(0 0 0 / 0.45);
+    --btn-text: var(--color-ink-50);
+    /* No backdrop blur: under a 7–15% white film it is invisible, but it costs a
+       render pass every frame over the animated background. */
+    outline: 1px solid rgb(255 255 255 / 0.12);
+    outline-offset: -1px;
+  }
+  .btn-glass:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+  .btn-glass::before {
+    opacity: 0.35;
+  }
+  .btn-ghost {
+    --btn-depth: 0px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--color-ink-100);
+    margin-bottom: 0;
+  }
+  .btn-ghost::before {
+    display: none;
+  }
+  .btn-ghost .btn-label {
+    transform: none;
+  }
+  .btn.btn-ghost:not(:disabled):hover {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: none;
+    transform: none;
+    filter: none;
+  }
+  .btn.btn-ghost:not(:disabled):active {
+    background: rgb(255 255 255 / 0.12);
+    box-shadow: none;
+    transform: scale(0.97);
+  }
+  .btn.btn-ghost:disabled {
+    background: transparent;
+    box-shadow: none;
+    color: var(--color-ink-500);
+  }
+
+  .btn-sm {
+    --btn-depth: 3px;
+    height: 2.25rem;
+    padding-inline: 1rem;
+    font-size: 0.6875rem;
+  }
+  .btn-md {
+    height: 2.75rem;
+    padding-inline: 1.35rem;
+    font-size: 0.8125rem;
+  }
+  .btn-lg {
+    --btn-depth: 5px;
+    height: 3.5rem;
+    padding-inline: 1.9rem;
+    font-size: 0.9375rem;
+  }
+  .btn-xl {
+    --btn-depth: 6px;
+    height: 4.25rem;
+    padding-inline: 2.4rem;
+    font-size: 1.1875rem;
+    letter-spacing: 0.02em;
+  }
+  .btn-icon {
+    flex-shrink: 0;
+  }
+  .btn-icon.btn-sm {
+    width: 2.25rem;
+    padding: 0;
+  }
+  .btn-icon.btn-md {
+    width: 2.75rem;
+    padding: 0;
+  }
+  .btn-icon.btn-lg {
+    width: 3.5rem;
+    padding: 0;
+  }
+  .btn-icon.btn-xl {
+    width: 4.25rem;
+    padding: 0;
+  }
+  .btn-icon .btn-label {
+    transform: none;
+  }
+
+  /*
+    Touch: small buttons (36px) keep their look but get an invisible 48px hit
+    area (::before is the glossy sheen, so the slop lives on ::after).
+  */
+  @media (pointer: coarse) {
+    .btn-sm::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: inherit;
+    }
+  }
+}
+
+/*
+  Same invisible hit-slop for small custom controls: `hit-slop` adds 6px on every
+  side on touch screens (36 → 48 px). The element must be positioned (relative,
+  absolute…) and must not use ::after itself.
+*/
+@utility hit-slop {
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: inherit;
+    }
+  }
+}
+
+/*
+  Nested glass: a frosted surface inside another glass surface would re-blur an
+  already tinted panel (no visible difference) at the cost of one extra
+  full-rate render pass over the shader each frame. Unlayered on purpose, so it
+  wins over the utilities.
+*/
+:where(.glass, .glass-flat, .glass-dock) .glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}

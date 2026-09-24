@@ -1,0 +1,22 @@
+/* Lobby-only keyframes. */
+@keyframes lobby-tab-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Soft highlight crossing the guests' "waiting" pill. */
+@keyframes lobby-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}

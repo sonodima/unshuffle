@@ -1,0 +1,80 @@
+
+=== round 1 reveal: longtasks [[11242,185],[11480,71]] maxFrame 316.7 over50 3
+inclusive (app code):
+    115ms src/components/background/runtime.ts:324 Te
+    102ms src/components/background/runtime.ts:348 Ee
+     62ms src/components/background/runtime.ts:314 we
+     61ms src/components/background/ShaderBackground.tsx:178 
+     59ms src/audio/engine.ts:800 Vf
+     49ms src/lib/coverColor.ts:58 Oe
+     44ms src/screens/round/reveal/BoardStage.tsx:30 t
+     43ms src/screens/round/reveal/BoardStage.tsx:27 
+     28ms src/screens/round/reveal/SongCard.tsx:240 o
+     25ms src/components/board/Waveform.tsx:110 t
+     25ms src/components/board/Waveform.tsx:107 
+     21ms src/components/background/renderer.ts:184 draw
+     21ms src/screens/round/reveal/useRevealProgress.ts:55 
+     19ms src/screens/round/reveal/SongCard.tsx:267 Eo
+     18ms src/screens/round/reveal/RevealLayout.tsx:190 
+     18ms src/screens/round/reveal/revealAudio.ts:111 
+     17ms src/audio/engine.ts:629 jf
+     16ms src/audio/sfx.ts:456 play
+     16ms src/screens/round/reveal/RevealLayout.tsx:85 Mo
+     15ms src/components/ui/sound.ts:6 Xp
+     15ms src/lib/coverColor.ts:248 Je
+     15ms src/audio/engine.ts:957 getPosition
+self:
+     46ms nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs:6 measureScroll
+     43ms src/screens/round/reveal/BoardStage.tsx:30 t
+     35ms ((garbage collector))
+     30ms (drawImage)
+     28ms (getBoundingClientRect)
+     24ms (getFloatFrequencyData)
+     24ms nm:motion-dom/dist/es/render/html/utils/render.mjs:1 Zo
+     20ms src/audio/engine.ts:800 Vf
+     13ms (postMessage)
+     12ms nm:react-dom/cjs/react-dom-client.production.js:4627 ts
+     11ms nm:react-dom/cjs/react-dom-client.production.js:13931 
+     10ms (setAttribute)
+      9ms (matchMedia)
+      9ms (drawArrays)
+
+=== round 2 reveal: longtasks [[21573,136]] maxFrame 166.7 over50 2
+inclusive (app code):
+     92ms src/components/background/runtime.ts:324 Te
+     85ms src/components/background/runtime.ts:348 Ee
+     53ms src/components/background/runtime.ts:314 we
+     51ms src/audio/engine.ts:800 Vf
+     44ms src/screens/round/reveal/BoardStage.tsx:30 t
+     44ms src/screens/round/reveal/BoardStage.tsx:27 
+     23ms src/components/board/Waveform.tsx:110 t
+     23ms src/components/board/Waveform.tsx:107 
+     18ms src/screens/round/reveal/SongCard.tsx:240 o
+     18ms src/screens/round/reveal/useRevealProgress.ts:55 
+     18ms src/components/background/renderer.ts:184 draw
+     16ms src/audio/sfx.ts:456 play
+     16ms src/screens/round/reveal/RevealLayout.tsx:110 Fo
+     15ms src/screens/round/reveal/RevealLayout.tsx:85 Mo
+     15ms src/screens/round/reveal/RevealLayout.tsx:190 
+     15ms src/components/ui/sound.ts:6 Xp
+     14ms src/screens/round/reveal/RevealLayout.tsx:204 
+     14ms src/audio/sfx.ts:387 wrong
+     13ms src/audio/sfx.ts:255 X
+     12ms src/screens/round/reveal/SongCard.tsx:267 Eo
+     12ms src/lib/coverColor.ts:58 Oe
+     11ms src/audio/engine.ts:629 jf
+self:
+     46ms ((garbage collector))
+     44ms nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs:6 measureScroll
+     44ms src/screens/round/reveal/BoardStage.tsx:30 t
+     32ms (getFloatFrequencyData)
+     24ms (getBoundingClientRect)
+     14ms (drawArrays)
+      9ms src/audio/engine.ts:800 Vf
+      9ms nm:motion-dom/dist/es/render/html/utils/render.mjs:1 Zo
+      8ms nm:react-dom/cjs/react-dom-client.production.js:13931 
+      8ms src/audio/engine.ts:788 zf
+      8ms nm:react-dom/cjs/react-dom-client.production.js:4627 ts
+      8ms nm:react-dom/cjs/react-dom-client.production.js:15035 ip
+      7ms src/screens/round/reveal/SongCard.tsx:240 o
+      7ms nm:framer-motion/dist/es/motion/utils/use-visual-element.mjs:111 

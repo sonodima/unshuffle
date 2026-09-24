@@ -1,0 +1,12 @@
+import { chromium } from 'playwright'
+const [variant = 'longW', w = 360, h = 740] = process.argv.slice(2)
+const browser = await chromium.launch({ channel: 'chrome' })
+const page = await browser.newPage({ viewport: { width: +w, height: +h } })
+page.on('console', (m) => console.log('console', m.type(), m.text().slice(0, 200)))
+page.on('pageerror', (e) => console.log('pageerror', e.message))
+const t = Date.now()
+await page.goto(`http://localhost:5405/lab/fix-final.html?ui=0&v=${variant}&me=p-host`, { waitUntil: 'load', timeout: 20000 }).catch((e) => console.log('goto', e.message))
+console.log('loaded', Date.now() - t)
+const r = await Promise.race([page.evaluate(() => document.querySelector('h1')?.textContent), new Promise((r) => setTimeout(() => r('EVAL TIMEOUT'), 5000))])
+console.log('h1', r)
+await browser.close()

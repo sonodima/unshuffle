@@ -1,0 +1,959 @@
+{
+  "name": "s1-full",
+  "pass": true,
+  "secs": 329.396,
+  "results": [
+    {
+      "ok": true,
+      "msg": "all 4 players in the lobby"
+    },
+    {
+      "ok": true,
+      "msg": "every peer sees the settings 3/8/90/15",
+      "extra": [
+        {
+          "rounds": 3,
+          "snippets": 8,
+          "roundTime": 90,
+          "finalTimer": 15,
+          "playlist": 248297032
+        },
+        {
+          "rounds": 3,
+          "snippets": 8,
+          "roundTime": 90,
+          "finalTimer": 15,
+          "playlist": 248297032
+        },
+        {
+          "rounds": 3,
+          "snippets": 8,
+          "roundTime": 90,
+          "finalTimer": 15,
+          "playlist": 248297032
+        },
+        {
+          "rounds": 3,
+          "snippets": 8,
+          "roundTime": 90,
+          "finalTimer": 15,
+          "playlist": 248297032
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "r1: firstSubmit is Giulia"
+    },
+    {
+      "ok": true,
+      "msg": "r1: endsAt pulled in to firstSubmit.at + 15s",
+      "extra": {
+        "endsAt": 1790209587966,
+        "at": 1790209572966
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: every peer has the same endsAt"
+    },
+    {
+      "ok": true,
+      "msg": "r1: endsAt in local clock agrees across peers (spread 1 ms)",
+      "extra": {
+        "offsets": [
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: displayed timers agree (15,15,15,15)"
+    },
+    {
+      "ok": true,
+      "msg": "r1: reveal reached on every peer within 1.5 s of endsAt (Marco never confirms)",
+      "extra": [
+        15,
+        100,
+        113,
+        105
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "r1: results identical on all peers"
+    },
+    {
+      "ok": true,
+      "msg": "r1: scores identical on all peers"
+    },
+    {
+      "ok": true,
+      "msg": "r1: 4 results",
+      "extra": 4
+    },
+    {
+      "ok": true,
+      "msg": "r1: Giulia scored order == what was on their board",
+      "extra": {
+        "scored": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          3,
+          5,
+          7
+        ],
+        "board": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          3,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Giulia points 2286 == scoreArrangement",
+      "extra": {
+        "correct": 4,
+        "pairs": 2,
+        "points": 2286,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Giulia timedOut=false"
+    },
+    {
+      "ok": true,
+      "msg": "r1: Host scored order == what was on their board",
+      "extra": {
+        "scored": [
+          0,
+          4,
+          6,
+          3,
+          2,
+          5,
+          7,
+          1
+        ],
+        "board": [
+          0,
+          4,
+          6,
+          3,
+          2,
+          5,
+          7,
+          1
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Host points 1500 == scoreArrangement",
+      "extra": {
+        "correct": 3,
+        "pairs": 0,
+        "points": 1500,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Host timedOut=false"
+    },
+    {
+      "ok": true,
+      "msg": "r1: Sofi scored order == what was on their board",
+      "extra": {
+        "scored": [
+          4,
+          6,
+          3,
+          2,
+          5,
+          7,
+          1,
+          0
+        ],
+        "board": [
+          4,
+          6,
+          3,
+          2,
+          5,
+          7,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Sofi points 0 == scoreArrangement",
+      "extra": {
+        "correct": 0,
+        "pairs": 0,
+        "points": 0,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Sofi timedOut=false"
+    },
+    {
+      "ok": true,
+      "msg": "r1: Marco scored order == what was on their board",
+      "extra": {
+        "scored": [
+          4,
+          6,
+          3,
+          2,
+          5,
+          7,
+          1,
+          0
+        ],
+        "board": [
+          4,
+          6,
+          3,
+          2,
+          5,
+          7,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Marco points 0 == scoreArrangement",
+      "extra": {
+        "correct": 0,
+        "pairs": 0,
+        "points": 0,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r1: Marco timedOut=true"
+    },
+    {
+      "ok": true,
+      "msg": "r1: Marco timed-out timeMs = full round",
+      "extra": 90000
+    },
+    {
+      "ok": true,
+      "msg": "r1: results ranked points desc, time asc"
+    },
+    {
+      "ok": true,
+      "msg": "r1: player.score == sum of results",
+      "extra": {
+        "totals": [
+          1500,
+          0,
+          2286,
+          0
+        ],
+        "sums": [
+          1500,
+          0,
+          2286,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: firstSubmit is Giulia"
+    },
+    {
+      "ok": true,
+      "msg": "r2: endsAt pulled in to firstSubmit.at + 15s",
+      "extra": {
+        "endsAt": 1790209679882,
+        "at": 1790209664882
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: every peer has the same endsAt"
+    },
+    {
+      "ok": true,
+      "msg": "r2: endsAt in local clock agrees across peers (spread 1 ms)",
+      "extra": {
+        "offsets": [
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: displayed timers agree (14,14,14,14)"
+    },
+    {
+      "ok": true,
+      "msg": "r2: reveal reached on every peer within 1.5 s of endsAt (Marco never confirms)",
+      "extra": [
+        130,
+        602,
+        590,
+        468
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "r2: results identical on all peers"
+    },
+    {
+      "ok": true,
+      "msg": "r2: scores identical on all peers"
+    },
+    {
+      "ok": true,
+      "msg": "r2: 4 results",
+      "extra": 4
+    },
+    {
+      "ok": true,
+      "msg": "r2: Giulia scored order == what was on their board",
+      "extra": {
+        "scored": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          7,
+          6,
+          4
+        ],
+        "board": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          7,
+          6,
+          4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Giulia points 2929 == scoreArrangement",
+      "extra": {
+        "correct": 5,
+        "pairs": 3,
+        "points": 2929,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Giulia timedOut=false"
+    },
+    {
+      "ok": true,
+      "msg": "r2: Host scored order == what was on their board",
+      "extra": {
+        "scored": [
+          0,
+          3,
+          5,
+          1,
+          7,
+          6,
+          2,
+          4
+        ],
+        "board": [
+          0,
+          3,
+          5,
+          1,
+          7,
+          6,
+          2,
+          4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Host points 500 == scoreArrangement",
+      "extra": {
+        "correct": 1,
+        "pairs": 0,
+        "points": 500,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Host timedOut=false"
+    },
+    {
+      "ok": true,
+      "msg": "r2: Sofi scored order == what was on their board",
+      "extra": {
+        "scored": [
+          3,
+          5,
+          1,
+          7,
+          6,
+          2,
+          0,
+          4
+        ],
+        "board": [
+          3,
+          5,
+          1,
+          7,
+          6,
+          2,
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Sofi points 0 == scoreArrangement",
+      "extra": {
+        "correct": 0,
+        "pairs": 0,
+        "points": 0,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Sofi timedOut=false"
+    },
+    {
+      "ok": true,
+      "msg": "r2: Marco scored order == what was on their board",
+      "extra": {
+        "scored": [
+          3,
+          5,
+          1,
+          7,
+          6,
+          2,
+          0,
+          4
+        ],
+        "board": [
+          3,
+          5,
+          1,
+          7,
+          6,
+          2,
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Marco points 0 == scoreArrangement",
+      "extra": {
+        "correct": 0,
+        "pairs": 0,
+        "points": 0,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: Marco timedOut=true"
+    },
+    {
+      "ok": true,
+      "msg": "r2: Marco timed-out timeMs = full round",
+      "extra": 90000
+    },
+    {
+      "ok": true,
+      "msg": "r2: results ranked points desc, time asc"
+    },
+    {
+      "ok": true,
+      "msg": "r2: player.score == sum of results",
+      "extra": {
+        "totals": [
+          2000,
+          0,
+          5215,
+          0
+        ],
+        "sums": [
+          2000,
+          0,
+          5215,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r2: reveal leaderboard identical on all peers",
+      "extra": [
+        "1º, Giulia: 2.929 punti in questo round, 5 su 8 al posto giusto, totale 5.215",
+        "2º, Host: 500 punti in questo round, 1 su 8 al posto giusto, totale 2.000",
+        "3º, Sofi: 0 punti in questo round, 0 su 8 al posto giusto, totale 0",
+        "4º, Marco: 0 punti in questo round, 0 su 8 al posto giusto, totale 0"
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "r3: reveal reached on every peer within 1.5 s of endsAt (Marco never confirms)",
+      "extra": [
+        20,
+        152,
+        154,
+        153
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "r3: results identical on all peers"
+    },
+    {
+      "ok": true,
+      "msg": "r3: scores identical on all peers"
+    },
+    {
+      "ok": true,
+      "msg": "r3: 4 results",
+      "extra": 4
+    },
+    {
+      "ok": true,
+      "msg": "r3: Giulia scored order == what was on their board",
+      "extra": {
+        "scored": [
+          0,
+          1,
+          2,
+          6,
+          4,
+          3,
+          5,
+          7
+        ],
+        "board": [
+          0,
+          1,
+          2,
+          6,
+          4,
+          3,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Giulia points 2786 == scoreArrangement",
+      "extra": {
+        "correct": 5,
+        "pairs": 2,
+        "points": 2786,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Giulia timedOut=true"
+    },
+    {
+      "ok": true,
+      "msg": "r3: Giulia timed-out timeMs = full round",
+      "extra": 90000
+    },
+    {
+      "ok": true,
+      "msg": "r3: Host scored order == what was on their board",
+      "extra": {
+        "scored": [
+          0,
+          6,
+          4,
+          3,
+          5,
+          2,
+          7,
+          1
+        ],
+        "board": [
+          0,
+          6,
+          4,
+          3,
+          5,
+          2,
+          7,
+          1
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Host points 1000 == scoreArrangement",
+      "extra": {
+        "correct": 2,
+        "pairs": 0,
+        "points": 1000,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Host timedOut=true"
+    },
+    {
+      "ok": true,
+      "msg": "r3: Host timed-out timeMs = full round",
+      "extra": 90000
+    },
+    {
+      "ok": true,
+      "msg": "r3: Marco scored order == what was on their board",
+      "extra": {
+        "scored": [
+          6,
+          4,
+          3,
+          5,
+          0,
+          2,
+          7,
+          1
+        ],
+        "board": [
+          6,
+          4,
+          3,
+          5,
+          0,
+          2,
+          7,
+          1
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Marco points 0 == scoreArrangement",
+      "extra": {
+        "correct": 0,
+        "pairs": 0,
+        "points": 0,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Marco timedOut=true"
+    },
+    {
+      "ok": true,
+      "msg": "r3: Marco timed-out timeMs = full round",
+      "extra": 90000
+    },
+    {
+      "ok": true,
+      "msg": "r3: Sofi scored order == what was on their board",
+      "extra": {
+        "scored": [
+          6,
+          4,
+          3,
+          5,
+          0,
+          2,
+          7,
+          1
+        ],
+        "board": [
+          6,
+          4,
+          3,
+          5,
+          0,
+          2,
+          7,
+          1
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Sofi points 0 == scoreArrangement",
+      "extra": {
+        "correct": 0,
+        "pairs": 0,
+        "points": 0,
+        "perfect": false
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: Sofi timedOut=true"
+    },
+    {
+      "ok": true,
+      "msg": "r3: Sofi timed-out timeMs = full round",
+      "extra": 90000
+    },
+    {
+      "ok": true,
+      "msg": "r3 (nobody confirms): dragged boards score > 0 on timeout",
+      "extra": {
+        "Giulia": 2786,
+        "Host": 1000,
+        "Marco": 0,
+        "Sofi": 0
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: untouched boards score 0",
+      "extra": {
+        "Giulia": 2786,
+        "Host": 1000,
+        "Marco": 0,
+        "Sofi": 0
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: results ranked points desc, time asc"
+    },
+    {
+      "ok": true,
+      "msg": "r3: player.score == sum of results",
+      "extra": {
+        "totals": [
+          3000,
+          0,
+          8001,
+          0
+        ],
+        "sums": [
+          3000,
+          0,
+          8001,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "msg": "r3: reveal leaderboard identical on all peers",
+      "extra": [
+        "1º, Giulia: 2.786 punti in questo round, 5 su 8 al posto giusto, totale 8.001",
+        "2º, Host: 1.000 punti in questo round, 2 su 8 al posto giusto, totale 3.000",
+        "3º, Sofi: 0 punti in questo round, 0 su 8 al posto giusto, totale 0",
+        "4º, Marco: 0 punti in questo round, 0 su 8 al posto giusto, totale 0"
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "final standings order matches score desc / time asc on every peer",
+      "extra": [
+        [
+          "Giulia",
+          "Host",
+          "Sofi",
+          "Marco"
+        ],
+        [
+          "Giulia",
+          "Host",
+          "Sofi",
+          "Marco"
+        ],
+        [
+          "Giulia",
+          "Host",
+          "Sofi",
+          "Marco"
+        ],
+        [
+          "Giulia",
+          "Host",
+          "Sofi",
+          "Marco"
+        ]
+      ]
+    }
+  ],
+  "problems": [],
+  "console": [],
+  "timings": {
+    "r1-toPlaying": 8.64,
+    "r1-firstSubmitPropagationMs": {
+      "Host": 415,
+      "Giulia": 424,
+      "Marco": 420,
+      "Sofi": 420
+    },
+    "r1-displayedAfterFirst": [
+      15,
+      15,
+      15,
+      15
+    ],
+    "r1-Sofi-confirmAfterFirstMs": 1868,
+    "r1-Host-confirmAfterFirstMs": 3821,
+    "r1-revealLagVsEndsAtMs": {
+      "Host": 15,
+      "Giulia": 100,
+      "Marco": 113,
+      "Sofi": 105
+    },
+    "r2-toPlaying": 95.923,
+    "r2-firstSubmitPropagationMs": {
+      "Host": 1926,
+      "Giulia": 2172,
+      "Marco": 1926,
+      "Sofi": 1926
+    },
+    "r2-displayedAfterFirst": [
+      14,
+      14,
+      14,
+      14
+    ],
+    "r2-Sofi-confirmAfterFirstMs": 4441,
+    "r2-Host-confirmAfterFirstMs": 6608,
+    "r2-revealLagVsEndsAtMs": {
+      "Host": 130,
+      "Giulia": 602,
+      "Marco": 590,
+      "Sofi": 468
+    },
+    "r3-toPlaying": 158.858,
+    "r3-revealLagVsEndsAtMs": {
+      "Host": 20,
+      "Giulia": 152,
+      "Marco": 154,
+      "Sofi": 153
+    },
+    "hostTimeline": [
+      {
+        "t": 1790209540041,
+        "k": "[\"lobby\",null,null,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209551742,
+        "k": "[\"preparing\",0,null,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209554895,
+        "k": "[\"intro\",0,1790209558894,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209558904,
+        "k": "[\"playing\",0,1790209648901,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209572966,
+        "k": "[\"playing\",0,1790209587966,\"qa-Giulia-lscnm5\",1,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209574363,
+        "k": "[\"playing\",0,1790209587966,\"qa-Giulia-lscnm5\",2,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209575938,
+        "k": "[\"playing\",0,1790209587966,\"qa-Giulia-lscnm5\",3,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209587981,
+        "k": "[\"reveal\",0,null,null,3,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209612997,
+        "k": "[\"preparing\",1,null,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209613297,
+        "k": "[\"intro\",1,1790209617293,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209617322,
+        "k": "[\"playing\",1,1790209707300,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209664882,
+        "k": "[\"playing\",1,1790209679882,\"qa-Giulia-lscnm5\",1,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209667233,
+        "k": "[\"playing\",1,1790209679882,\"qa-Giulia-lscnm5\",2,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209668563,
+        "k": "[\"playing\",1,1790209679882,\"qa-Giulia-lscnm5\",3,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209680012,
+        "k": "[\"reveal\",1,null,null,3,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209705000,
+        "k": "[\"preparing\",2,null,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209705129,
+        "k": "[\"intro\",2,1790209709125,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209709134,
+        "k": "[\"playing\",2,1790209799130,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209799150,
+        "k": "[\"reveal\",2,null,null,0,\"open\",\"1111\"]"
+      },
+      {
+        "t": 1790209814793,
+        "k": "[\"final\",null,null,null,0,\"open\",\"1111\"]"
+      }
+    ]
+  }
+}

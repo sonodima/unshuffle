@@ -1,0 +1,6 @@
+home desktop default                          renderer  20.7%  gpu  32.3%  layouts/s  27  main-thread task 126ms/s
+home desktop no TimerBar                      renderer  19.2%  gpu  34.7%  layouts/s   6  main-thread task 107ms/s
+home desktop no demo (panel/strip hidden)     renderer  16.2%  gpu  20.1%  layouts/s  35  main-thread task 120ms/s
+home desktop no backdrop-filter               renderer  19.7%  gpu  23.0%  layouts/s  63  main-thread task 119ms/s
+home desktop no background                    renderer  19.9%  gpu  34.0%  layouts/s  33  main-thread task 132ms/s
+home desktop no demo + no backdrop + no bg    renderer  11.1%  gpu   4.0%  layouts/s  63  main-thread task 80ms/s

@@ -1,0 +1,7 @@
+desktop 1440x900 dpr1          1080x675 scale=0.75 q=0 oct=5 fps=59.9 frameMs=16.66 cpuMs=0.04 gpuMs=1.42  q-trace=00000000000
+desktop 1440x900 dpr2          1080x675 scale=0.75 q=0 oct=5 fps=60 frameMs=16.66 cpuMs=0.04 gpuMs=1.00  q-trace=000000000000
+desktop 2560x1440 dpr2         1520x855 scale=0.594 q=0 oct=5 fps=60 frameMs=16.66 cpuMs=0.05 gpuMs=2.12  q-trace=00000000000
+phone 390x844 dpr3             195x422 scale=0.5 q=0 oct=5 fps=60 frameMs=16.65 cpuMs=0.05 gpuMs=0.28  q-trace=00000000000
+phone 390x844 dpr3 cpu4x       195x422 scale=0.5 q=0 oct=5 fps=60 frameMs=16.66 cpuMs=0.13 gpuMs=0.28  q-trace=00000000000
+tablet 1024x1366 dpr2 touch    512x683 scale=0.5 q=0 oct=5 fps=60.1 frameMs=16.66 cpuMs=0.05 gpuMs=0.56  q-trace=00000000000
+desktop 1440x900 cpu4x         1080x675 scale=0.75 q=0 oct=5 fps=60.1 frameMs=16.66 cpuMs=0.13 gpuMs=1.45  q-trace=00000000000

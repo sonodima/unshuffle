@@ -1,0 +1,47 @@
+// React hooks over the audio engine's discrete state (re-render only on
+// start / stop / position change — never per frame; playheads read
+// audioEngine.getPosition() inside their own rAF loop instead).
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
+import { audioEngine, holdSoftUnlock, subscribeAudioSettings } from './engine'
+import type { PlaybackState } from './engine'
+import { sfx, subscribeSfx } from './sfx'
+
+export function usePlayback(): PlaybackState {
+  return useSyncExternalStore(audioEngine.subscribe, audioEngine.getState, audioEngine.getState)
+}
+
+/** True while `usePlayback()` is playing with the given tag (e.g. "board", "block:3"). */
+export function usePlayingTag(tag: string): boolean {
+  const s = usePlayback()
+  return s.playing && s.tag === tag
+}
+
+const getUnlocked = () => audioEngine.unlocked
+const getVolume = () => audioEngine.volume
+const getSfxEnabled = () => sfx.enabled
+
+/** Whether the AudioContext is running (false until a user gesture unlocked audio). */
+export function useAudioUnlocked(): boolean {
+  return useSyncExternalStore(subscribeAudioSettings, getUnlocked, getUnlocked)
+}
+
+/** Master volume 0..1 and its setter (persisted). */
+export function useVolume(): [number, (v: number) => void] {
+  const v = useSyncExternalStore(subscribeAudioSettings, getVolume, getVolume)
+  return [v, useCallback((next: number) => audioEngine.setVolume(next), [])]
+}
+
+/** SFX on/off toggle and its setter (persisted). */
+export function useSfxEnabled(): [boolean, (on: boolean) => void] {
+  const on = useSyncExternalStore(subscribeSfx, getSfxEnabled, getSfxEnabled)
+  return [on, useCallback((next: boolean) => sfx.setEnabled(next), [])]
+}
+
+/**
+ * For the Home screen: while mounted (and `active`), taps anywhere don't claim the audio
+ * session, so on iOS the player's own music (Spotify…) keeps playing while they type a
+ * nickname. Audio is unlocked for real by the CTAs, which call `audioEngine.unlock()`.
+ */
+export function useSoftAudioUnlock(active = true): void {
+  useEffect(() => (active ? holdSoftUnlock() : undefined), [active])
+}

@@ -1,0 +1,92 @@
+name: CI
+
+# Every push and pull request: type-check, lint, unit tests and a production build.
+# Pushes to main are then published to GitHub Pages.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck · lint · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      # The unit tests (scripts/**/*.test.ts) run on bun.
+      - uses: oven-sh/setup-bun@v2
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Configure Pages
+        id: pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+
+      # Deploy options (README → Deploy) come from repository variables
+      # (Settings → Secrets and variables → Actions → Variables). They end up in
+      # the public bundle by design, so variables, not secrets.
+      - name: Build
+        run: npx vite build
+        env:
+          VITE_SITE_URL: ${{ steps.pages.outputs.base_url && format('{0}/', steps.pages.outputs.base_url) || '' }}
+          VITE_TURN_CREDENTIALS_URL: ${{ vars.VITE_TURN_CREDENTIALS_URL }}
+          VITE_TURN_CREDENTIALS_METHOD: ${{ vars.VITE_TURN_CREDENTIALS_METHOD }}
+          VITE_TURN_CREDENTIALS_TTL: ${{ vars.VITE_TURN_CREDENTIALS_TTL }}
+          VITE_TURN_URLS: ${{ vars.VITE_TURN_URLS }}
+          VITE_TURN_USERNAME: ${{ vars.VITE_TURN_USERNAME }}
+          VITE_TURN_CREDENTIAL: ${{ vars.VITE_TURN_CREDENTIAL }}
+          VITE_PEERJS_HOST: ${{ vars.VITE_PEERJS_HOST }}
+          VITE_PEERJS_PORT: ${{ vars.VITE_PEERJS_PORT }}
+          VITE_PEERJS_PATH: ${{ vars.VITE_PEERJS_PATH }}
+          VITE_PEERJS_KEY: ${{ vars.VITE_PEERJS_KEY }}
+          VITE_PEERJS_SECURE: ${{ vars.VITE_PEERJS_SECURE }}
+
+      - name: Upload Pages artifact
+        if: steps.pages.outcome == 'success'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

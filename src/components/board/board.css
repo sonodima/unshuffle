@@ -1,0 +1,833 @@
+/*
+  Snippet board visuals. Faces are built from a single hue (--h, 0..360) in
+  OKLCH so every hue reads at the same perceived brightness under a white waveform.
+*/
+
+/* ---------- board & grid ---------- */
+.sb-board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+.sb-grid {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+}
+.sb-board[data-free] .sb-grid {
+  position: relative;
+  inset: auto;
+}
+
+.sb-item {
+  position: relative;
+  outline: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+  will-change: transform;
+}
+.sb-item[data-locked] {
+  cursor: pointer;
+}
+.sb-flip {
+  width: 100%;
+  height: 100%;
+}
+.sb-grabbing,
+.sb-grabbing .sb-item {
+  cursor: grabbing;
+}
+
+/* ---------- block ---------- */
+.sb-block {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+}
+.sb-block {
+  --sb-l: 0;
+}
+@supports (width: calc(1px * cos(0deg))) {
+  .sb-block {
+    /* Yellow-green hues look muddy at equal OKLCH lightness: lift them a little. */
+    --sb-y: max(0, cos(calc((var(--h) - 105) * 1deg)));
+    --sb-l: calc(var(--sb-y) * var(--sb-y) * 0.11);
+  }
+}
+.sb-block > * {
+  --sb-r: clamp(11px, 12.5cqmin, 20px);
+}
+
+.sb-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--sb-r);
+  background:
+    radial-gradient(120% 85% at 12% -8%, oklch(0.9 0.12 var(--h) / 0.55), transparent 58%),
+    radial-gradient(90% 70% at 100% 115%, oklch(0.32 0.16 var(--h) / 0.55), transparent 70%),
+    linear-gradient(
+      162deg,
+      oklch(calc(0.76 + var(--sb-l)) 0.165 var(--h)) 0%,
+      oklch(calc(0.62 + var(--sb-l)) 0.19 var(--h)) 48%,
+      oklch(calc(0.47 + var(--sb-l)) 0.175 var(--h)) 100%
+    );
+  box-shadow:
+    inset 0 1.5px 0 oklch(0.97 0.05 var(--h) / 0.8),
+    inset 0 0 0 1px oklch(1 0 0 / 0.14),
+    inset 0 -4px 0 oklch(0.28 0.12 var(--h) / 0.5),
+    0 1.5px 0 oklch(0.3 0.12 var(--h) / 0.9),
+    0 12px 24px -12px oklch(0.2 0.14 var(--h) / 0.95);
+  transition:
+    filter 0.3s ease,
+    transform 0.25s var(--ease-spring);
+}
+.sb-gloss {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 46%;
+  border-radius: var(--sb-r) var(--sb-r) 40% 40% / var(--sb-r) var(--sb-r) 12% 12%;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.06) 65%, rgb(255 255 255 / 0));
+  pointer-events: none;
+}
+
+
+.sb-letter {
+  position: absolute;
+  left: 9%;
+  top: 8%;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(13px, 19cqmin, 34px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  transform: skewX(-7deg);
+  text-shadow:
+    0 2px 0 oklch(0.3 0.13 var(--h) / 0.55),
+    0 0 18px oklch(0.96 0.08 var(--h) / 0.35);
+  pointer-events: none;
+}
+
+.sb-slot {
+  position: absolute;
+  right: 8%;
+  top: 8%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.38em 0.6em;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(9px, 8.5cqmin, 12px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.92);
+  background: oklch(0.22 0.09 var(--h) / 0.34);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  pointer-events: none;
+  transition: transform 0.3s var(--ease-spring);
+}
+/* Chip that replaces the slot badge (SnippetBoard `labels`, e.g. the reveal's
+   "era 5º"). Outside the face, so a dimmed block keeps it readable. Next to a ✓ / ✗
+   mark it moves left of it; small blocks put it bottom-left instead. */
+.sb-chip {
+  position: absolute;
+  top: 8%;
+  right: 8%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.38em 0.62em;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(10px, 9.5cqmin, 13px);
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.94);
+  background: rgb(6 4 15 / 0.8);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+  pointer-events: none;
+  animation: sb-chip-in 0.4s var(--ease-spring) both;
+}
+.sb-block[data-mark] .sb-chip {
+  top: calc(clamp(6px, 7cqmin, 11px) + (clamp(20px, 17cqmin, 30px) - 1.76em) / 2);
+  right: calc(clamp(6px, 7cqmin, 11px) + clamp(20px, 17cqmin, 30px) + 5px);
+}
+@container (max-width: 104px) {
+  .sb-chip {
+    font-size: 9px;
+    padding: 0.32em 0.42em;
+    letter-spacing: -0.04em;
+  }
+  .sb-block[data-mark] .sb-chip {
+    top: auto;
+    right: auto;
+    left: 8%;
+    bottom: 8%;
+  }
+}
+@keyframes sb-chip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+.sb-slot-lock {
+  width: 1.05em;
+  height: 1.05em;
+  margin-left: -0.1em;
+  opacity: 0.85;
+}
+
+.sb-hint {
+  position: absolute;
+  right: 7%;
+  bottom: 9%;
+  display: grid;
+  place-items: center;
+  width: clamp(20px, 21cqmin, 32px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  color: oklch(0.36 0.14 var(--h));
+  background: rgb(255 255 255 / 0.94);
+  box-shadow: 0 4px 14px -3px oklch(0.2 0.12 var(--h) / 0.7);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.16s ease,
+    transform 0.24s var(--ease-spring);
+  pointer-events: none;
+}
+.sb-hint svg {
+  width: 52%;
+  height: 52%;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sb-item:hover .sb-hint {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .sb-item:hover .sb-face {
+    transform: translateY(-2px);
+  }
+}
+.sb-block[data-playing] .sb-hint {
+  opacity: 1;
+  transform: scale(1);
+}
+.sb-board[data-dragging] .sb-hint {
+  opacity: 0 !important;
+}
+.sb-board[data-dragging] .sb-item:hover .sb-face {
+  transform: none;
+}
+
+.sb-item:focus-visible .sb-face {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+/* ---------- playing ---------- */
+.sb-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--sb-r) + 2px);
+  opacity: 0;
+  box-shadow:
+    0 0 0 2px oklch(0.93 0.1 var(--h)),
+    0 0 24px 3px oklch(0.78 0.19 var(--h) / 0.8),
+    0 0 64px 10px oklch(0.7 0.2 var(--h) / 0.38);
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+.sb-block[data-playing] .sb-glow {
+  opacity: 1;
+  animation: sb-breathe 1.15s ease-in-out infinite;
+}
+.sb-block[data-playing] .sb-face {
+  transform: scale(1.025);
+}
+@keyframes sb-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ---------- drag states ---------- */
+.sb-block[data-variant='ghost'] .sb-face,
+.sb-block[data-variant='ghost'] .sb-glow,
+.sb-block[data-variant='ghost'] .sb-ring,
+.sb-block[data-variant='ghost'] .sb-mark {
+  opacity: 0;
+  animation: none;
+}
+.sb-ghost {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--sb-r);
+  border: 2px dashed oklch(0.82 0.14 var(--h) / 0.6);
+  background: oklch(0.62 0.18 var(--h) / 0.1);
+  box-shadow: inset 0 0 28px oklch(0.62 0.18 var(--h) / 0.2);
+  animation: sb-ghost-in 0.2s ease-out;
+}
+@keyframes sb-ghost-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+.sb-overlay {
+  touch-action: none;
+}
+.sb-lift {
+  width: 100%;
+  height: 100%;
+  transform: scale(1.06) rotate(2deg);
+  animation: sb-lift-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1.25);
+}
+@keyframes sb-lift-in {
+  from {
+    transform: none;
+  }
+}
+.sb-block[data-variant='lifted'] .sb-glow {
+  opacity: 1;
+  animation: none;
+  box-shadow:
+    0 0 0 2px oklch(0.95 0.08 var(--h) / 0.95),
+    0 0 26px 4px oklch(0.8 0.19 var(--h) / 0.85),
+    0 0 70px 14px oklch(0.72 0.2 var(--h) / 0.45),
+    0 36px 60px -12px rgb(0 0 0 / 0.85);
+}
+.sb-block[data-variant='lifted'] .sb-face {
+  transform: none;
+  filter: brightness(1.06) saturate(1.05);
+}
+.sb-dropping .sb-lift {
+  animation: sb-settle 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.sb-dropping .sb-glow {
+  opacity: 0 !important;
+  transition: opacity 0.26s ease;
+}
+@keyframes sb-settle {
+  0% {
+    transform: scale(1.06) rotate(2deg);
+  }
+  55% {
+    transform: scale(0.965) rotate(0deg);
+  }
+  80% {
+    transform: scale(1.012);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ---------- press & hold ---------- */
+/* Held past a tap: the block sinks while the long-press (play from here) charges. */
+.sb-item[data-pressing] .sb-face {
+  transform: scale(0.955);
+  filter: brightness(1.08);
+  transition:
+    filter 0.3s ease,
+    transform 0.31s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+/* ---------- locked ---------- */
+.sb-block[data-locked] .sb-face {
+  filter: saturate(0.7) brightness(0.8);
+}
+/* Read-only (after confirming, on the reveal): swipes that start on a block must
+   scroll the page. Taps still play; dnd-kit is disabled while locked. */
+.sb-item[data-locked] {
+  touch-action: pan-x pan-y;
+  cursor: pointer;
+}
+
+/* ---------- reveal marks ---------- */
+.sb-block[data-mark='correct'] {
+  --mk: var(--color-lime);
+}
+.sb-block[data-mark='wrong'] {
+  --mk: var(--color-coral);
+}
+.sb-block[data-mark='wrong'] .sb-face {
+  filter: saturate(0.5) brightness(0.62);
+  transition-delay: var(--md);
+}
+/* The mark takes the slot chip's corner (the grid already says the position). */
+.sb-block[data-mark] .sb-slot {
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.16s ease var(--md),
+    transform 0.2s ease var(--md);
+}
+.sb-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--sb-r) + 2px);
+  border: 3px solid var(--mk);
+  box-shadow:
+    0 0 18px -3px var(--mk),
+    inset 0 0 14px -4px var(--mk);
+  pointer-events: none;
+  animation: sb-ring-in 0.45s var(--ease-spring) both;
+  animation-delay: var(--md);
+}
+.sb-mark {
+  position: absolute;
+  top: clamp(6px, 7cqmin, 11px);
+  right: clamp(6px, 7cqmin, 11px);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: clamp(20px, 17cqmin, 30px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: var(--mk);
+  color: var(--color-ink-950);
+  box-shadow:
+    0 0 0 2px rgb(0 0 0 / 0.35),
+    inset 0 1.5px 0 rgb(255 255 255 / 0.45),
+    0 6px 14px -4px var(--mk);
+  animation: sb-mark-pop 0.55s var(--ease-spring) both;
+  animation-delay: var(--md);
+}
+.sb-block[data-mark='wrong'] .sb-mark {
+  color: #fff;
+}
+.sb-mark svg {
+  width: 58%;
+  height: 58%;
+}
+@keyframes sb-mark-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-35deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.25) rotate(8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sb-ring-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- waveform ---------- */
+.sb-wf {
+  position: relative;
+}
+.sb-wave {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 34%;
+  bottom: 12%;
+  filter: drop-shadow(0 1px 0 oklch(0.3 0.14 var(--h) / 0.45));
+}
+.sb-wf-shimmer {
+  -webkit-mask-image: linear-gradient(100deg, rgb(0 0 0 / 0.35) 38%, #000 50%, rgb(0 0 0 / 0.35) 62%);
+  mask-image: linear-gradient(100deg, rgb(0 0 0 / 0.35) 38%, #000 50%, rgb(0 0 0 / 0.35) 62%);
+  -webkit-mask-size: 250% 100%;
+  mask-size: 250% 100%;
+  animation: sb-shimmer 1.4s linear infinite;
+}
+@keyframes sb-shimmer {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-block[data-playing] .sb-glow {
+    animation: none;
+  }
+  .sb-block[data-playing] .sb-face,
+  .sb-item[data-pressing] .sb-face,
+  .sb-lift,
+  .sb-dropping .sb-lift {
+    transform: none;
+    animation: none;
+  }
+  .sb-mark,
+  .sb-ring,
+  .sb-chip,
+  .sb-ghost {
+    animation-duration: 0.01ms;
+  }
+  .sb-wf-shimmer {
+    animation: none;
+  }
+}
+
+/* ---------- transport bar ---------- */
+.tb {
+  container-type: inline-size;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 8px 18px 8px 8px;
+  border-radius: 999px;
+  /* No backdrop blur: the bar stays on screen for the whole round, and any blurred
+     element costs ~5% GPU per frame (see glass-flat in index.css). */
+  background: rgb(13 10 31 / 0.8);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 14px 34px -16px rgb(0 0 0 / 0.7);
+}
+.tb-play {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.tb-play:disabled {
+  cursor: default;
+}
+.tb-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.tb-ring-track {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.08);
+  stroke-width: 3.5;
+}
+.tb-ring-fill {
+  fill: none;
+  stroke: var(--color-cyan);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgb(46 230 255 / 0.8));
+  transition: opacity 0.2s ease;
+}
+.tb[data-playing] .tb-ring-fill {
+  opacity: 1;
+}
+.tb-play-face {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background:
+    radial-gradient(110% 80% at 30% 8%, rgb(255 255 255 / 0.35), transparent 55%),
+    linear-gradient(180deg, var(--color-violet), var(--color-violet-deep));
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.32),
+    inset 0 -3px 0 rgb(0 0 0 / 0.2),
+    0 4px 0 color-mix(in oklab, var(--color-violet-deep) 62%, black),
+    0 12px 26px -8px rgb(123 92 255 / 0.75);
+  transform: translateY(-2px);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.2s ease;
+}
+.tb-play-face svg {
+  width: 22px;
+  height: 22px;
+}
+.tb-play-glyph {
+  margin-left: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .tb-play:not(:disabled):hover .tb-play-face {
+    filter: brightness(1.1);
+  }
+}
+.tb-play:not(:disabled):active .tb-play-face {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.25),
+    inset 0 -2px 0 rgb(0 0 0 / 0.2),
+    0 1px 0 color-mix(in oklab, var(--color-violet-deep) 62%, black),
+    0 6px 16px -8px rgb(123 92 255 / 0.7);
+}
+.tb[data-playing] .tb-play-face {
+  background:
+    radial-gradient(110% 80% at 30% 8%, rgb(255 255 255 / 0.35), transparent 55%),
+    linear-gradient(180deg, var(--color-magenta), color-mix(in oklab, var(--color-magenta) 72%, var(--color-violet-deep)));
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.32),
+    inset 0 -3px 0 rgb(0 0 0 / 0.2),
+    0 4px 0 color-mix(in oklab, var(--color-magenta) 45%, black),
+    0 12px 28px -8px rgb(255 63 209 / 0.8);
+}
+.tb-play:disabled .tb-play-face {
+  filter: grayscale(0.7) brightness(0.7);
+}
+.tb-play:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.tb-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.tb-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  line-height: 1;
+}
+.tb-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-100);
+}
+.tb-pos,
+.tb-time {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-400);
+}
+.tb-pos b {
+  color: #fff;
+  font-weight: 700;
+}
+.tb-time {
+  margin-left: auto;
+  color: #fff;
+}
+.tb-time-total {
+  color: var(--color-ink-400);
+}
+.tb-map {
+  display: flex;
+  min-width: 0;
+  height: 20px;
+  /* Cancels the cells' side padding: the outer bars line up with the text above. */
+  margin-inline: -2px;
+}
+/* Each cell is a 40px-tall, gapless hit area around its thin bar (the negative
+   margins keep the row 20px tall): 16 cells on a phone are still easy to tap. */
+.tb-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  margin-block: -10px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.tb-cell:disabled {
+  cursor: default;
+}
+.tb-cell-bar {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  transition:
+    height 0.22s var(--ease-spring),
+    box-shadow 0.22s ease,
+    background-color 0.2s ease;
+}
+.tb-cell[data-hued] .tb-cell-bar {
+  background: oklch(0.62 0.17 var(--h) / 0.38);
+}
+.tb-cell-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: #fff;
+}
+.tb-cell[data-hued] .tb-cell-fill {
+  background: oklch(0.84 0.14 var(--h));
+}
+.tb-cell[data-current] .tb-cell-bar {
+  height: 14px;
+  box-shadow: 0 0 14px oklch(0.75 0.19 var(--h, 300) / 0.75);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tb-cell:not(:disabled):hover .tb-cell-bar {
+    height: 12px;
+  }
+}
+.tb-cell:focus-visible {
+  outline: none;
+}
+.tb-cell:focus-visible .tb-cell-bar {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.tb-label-short {
+  display: none;
+}
+@container (max-width: 330px) {
+  .tb {
+    gap: 10px;
+  }
+  .tb-label {
+    font-size: 11px;
+  }
+}
+/* Phones: the shorter label, so it never ends in an ellipsis next to the time. */
+@container (max-width: 400px) {
+  .tb-label-long {
+    display: none;
+  }
+  .tb-label-short {
+    display: inline;
+  }
+}
+@container (max-width: 250px) {
+  .tb-label {
+    display: none;
+  }
+}
+
+/* ---------- read-only strip ---------- */
+.ss {
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+  --ss-h: 28px;
+}
+.ss[data-size='xs'] {
+  gap: 2px;
+  --ss-h: 18px;
+}
+.ss[data-size='md'] {
+  gap: 4px;
+  --ss-h: 42px;
+}
+.ss-cell {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 64px;
+  height: var(--ss-h);
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(165deg, oklch(0.74 0.165 var(--h)), oklch(0.5 0.18 var(--h)));
+  box-shadow:
+    inset 0 1px 0 oklch(0.95 0.06 var(--h) / 0.7),
+    inset 0 -2px 0 oklch(0.28 0.12 var(--h) / 0.45);
+}
+.ss[data-size='xs'] .ss-cell {
+  border-radius: 4px;
+}
+.ss[data-size='md'] .ss-cell {
+  border-radius: 9px;
+}
+.ss-wave {
+  position: absolute;
+  inset: 18% 10%;
+  opacity: 0.9;
+}
+.ss-letter {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  line-height: 1;
+  color: #fff;
+  transform: skewX(-7deg);
+  text-shadow: 0 1px 0 oklch(0.3 0.13 var(--h) / 0.6);
+}
+.ss[data-size='md'] .ss-wave {
+  inset: 38% 10% 14%;
+}
+.ss-cell[data-mark='correct'] {
+  box-shadow:
+    inset 0 0 0 2px var(--color-lime),
+    inset 0 1px 0 oklch(0.95 0.06 var(--h) / 0.7),
+    0 0 12px -3px var(--color-lime);
+}
+.ss-cell[data-mark='wrong'] {
+  filter: saturate(0.4) brightness(0.55);
+}
+.ss-cell[data-mark='wrong']::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-coral);
+}

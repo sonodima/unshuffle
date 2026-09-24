@@ -1,0 +1,101 @@
+{
+ "tick+duck1.5": {
+  "peakDb": -9.9,
+  "loud100ms": -20.3,
+  "loud400ms": -26.3,
+  "snrMedian": 5.9,
+  "snrP10": -1.8,
+  "shareAudible": 0.93,
+  "share2to5k": 1,
+  "shareBelow1k5": 0,
+  "topBandHz": 2560
+ },
+ "tickUrgent+duck2.5": {
+  "peakDb": -11.9,
+  "loud100ms": -20.6,
+  "loud400ms": -26.5,
+  "snrMedian": 6.7,
+  "snrP10": -1.5,
+  "shareAudible": 0.93,
+  "share2to5k": 0.98,
+  "shareBelow1k5": 0,
+  "topBandHz": 3225
+ },
+ "tick@g0.6+duck0.9": {
+  "peakDb": -14.7,
+  "loud100ms": -24.5,
+  "loud400ms": -30.5,
+  "snrMedian": 1.9,
+  "snrP10": -5.8,
+  "shareAudible": 0.76,
+  "share2to5k": 1,
+  "shareBelow1k5": 0,
+  "topBandHz": 2560
+ },
+ "tickUrgent@g0.6+duck1.5": {
+  "peakDb": -16.2,
+  "loud100ms": -24.8,
+  "loud400ms": -30.6,
+  "snrMedian": 2.2,
+  "snrP10": -6,
+  "shareAudible": 0.75,
+  "share2to5k": 0.98,
+  "shareBelow1k5": 0,
+  "topBandHz": 3225
+ },
+ "tick": {
+  "peakDb": -10.3,
+  "loud100ms": -20.3,
+  "loud400ms": -26.4,
+  "snrMedian": 4.3,
+  "snrP10": -3.3,
+  "shareAudible": 0.89,
+  "share2to5k": 1,
+  "shareBelow1k5": 0,
+  "topBandHz": 2560
+ },
+ "tickUrgent": {
+  "peakDb": -12.1,
+  "loud100ms": -20.7,
+  "loud400ms": -26.5,
+  "snrMedian": 4.2,
+  "snrP10": -4,
+  "shareAudible": 0.86,
+  "share2to5k": 0.98,
+  "shareBelow1k5": 0,
+  "topBandHz": 3225
+ },
+ "score@g0.7@p0.85": {
+  "peakDb": -17.1,
+  "loud100ms": -28.9,
+  "loud400ms": -34.9,
+  "snrMedian": -13.1,
+  "snrP10": -21.9,
+  "shareAudible": 0.18,
+  "share2to5k": 1,
+  "shareBelow1k5": 0,
+  "topBandHz": 2032
+ },
+ "score@g0.7@p1.2": {
+  "peakDb": -17,
+  "loud100ms": -28.3,
+  "loud400ms": -34.3,
+  "snrMedian": -12.4,
+  "snrP10": -20.6,
+  "shareAudible": 0.23,
+  "share2to5k": 1,
+  "shareBelow1k5": 0,
+  "topBandHz": 3225
+ },
+ "score@g0.7@p1.55": {
+  "peakDb": -17.1,
+  "loud100ms": -28.2,
+  "loud400ms": -34.2,
+  "snrMedian": -11.4,
+  "snrP10": -19.6,
+  "shareAudible": 0.24,
+  "share2to5k": 1,
+  "shareBelow1k5": 0,
+  "topBandHz": 4064
+ }
+}

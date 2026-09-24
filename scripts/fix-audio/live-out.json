@@ -1,0 +1,184 @@
+{
+ "stalls": [
+  {
+   "order": "correct",
+   "stallMs": 150,
+   "scheduled": 7,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.052,
+   "recLenS": 9.05,
+   "recStartVsPlayS": -0.052,
+   "joins": "first,gapless"
+  },
+  {
+   "order": "correct",
+   "stallMs": 350,
+   "scheduled": 7,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.073,
+   "recLenS": 9.26,
+   "recStartVsPlayS": -0.073,
+   "joins": "first,gapless"
+  },
+  {
+   "order": "correct",
+   "stallMs": 600,
+   "scheduled": 7,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.073,
+   "recLenS": 9.51,
+   "recStartVsPlayS": -0.073,
+   "joins": "first,gapless"
+  },
+  {
+   "order": "correct",
+   "stallMs": 900,
+   "scheduled": 8,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.071,
+   "recLenS": 9.8,
+   "recStartVsPlayS": -0.071,
+   "joins": "first,gapless"
+  },
+  {
+   "order": "correct",
+   "stallMs": 1300,
+   "scheduled": 8,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.073,
+   "recLenS": 10.22,
+   "recStartVsPlayS": -0.073,
+   "joins": "first,gapless"
+  },
+  {
+   "order": "shuffled",
+   "stallMs": 150,
+   "scheduled": 7,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.073,
+   "recLenS": 9.06,
+   "recStartVsPlayS": -0.073,
+   "joins": "first,crossfade"
+  },
+  {
+   "order": "shuffled",
+   "stallMs": 350,
+   "scheduled": 7,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.068,
+   "recLenS": 9.25,
+   "recStartVsPlayS": -0.068,
+   "joins": "first,crossfade"
+  },
+  {
+   "order": "shuffled",
+   "stallMs": 600,
+   "scheduled": 7,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.073,
+   "recLenS": 9.51,
+   "recStartVsPlayS": -0.073,
+   "joins": "first,crossfade"
+  },
+  {
+   "order": "shuffled",
+   "stallMs": 900,
+   "scheduled": 8,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.068,
+   "recLenS": 9.81,
+   "recStartVsPlayS": -0.068,
+   "joins": "first,crossfade"
+  },
+  {
+   "order": "shuffled",
+   "stallMs": 1300,
+   "scheduled": 8,
+   "maxGapMs": 0,
+   "resyncs": 0,
+   "longestZeroRunMs": 0,
+   "zeroAtS": -0.073,
+   "recLenS": 10.21,
+   "recStartVsPlayS": -0.073,
+   "joins": "first,crossfade"
+  }
+ ],
+ "reorders": [
+  {
+   "leadMs": 900,
+   "swapLeadActualMs": 868,
+   "landed": true,
+   "played": "0,1,5,3,4,2,6,7",
+   "contiguous": true,
+   "joinAt2": "tail → crossfade",
+   "longestZeroRunMs": 0,
+   "boundarySlopeVsBefore": 0.51
+  },
+  {
+   "leadMs": 400,
+   "swapLeadActualMs": 364,
+   "landed": true,
+   "played": "0,1,5,3,4,2,6,7",
+   "contiguous": true,
+   "joinAt2": "tail → crossfade",
+   "longestZeroRunMs": 0,
+   "boundarySlopeVsBefore": 0.51
+  },
+  {
+   "leadMs": 150,
+   "swapLeadActualMs": 116,
+   "landed": true,
+   "played": "0,1,5,3,4,2,6,7",
+   "contiguous": true,
+   "joinAt2": "tail → crossfade",
+   "longestZeroRunMs": 0,
+   "boundarySlopeVsBefore": 0.51
+  },
+  {
+   "leadMs": 90,
+   "swapLeadActualMs": 57,
+   "landed": false,
+   "played": "0,1,2,3,4,2,6,7",
+   "contiguous": true,
+   "joinAt2": "gapless → gapless",
+   "longestZeroRunMs": 0,
+   "boundarySlopeVsBefore": 0.55
+  },
+  {
+   "leadMs": 30,
+   "swapLeadActualMs": -12,
+   "landed": false,
+   "played": "0,1,2,3,4,2,6,7",
+   "contiguous": true,
+   "joinAt2": "gapless → gapless",
+   "longestZeroRunMs": 0,
+   "boundarySlopeVsBefore": 0.55
+  }
+ ],
+ "latency": {
+  "simulatedLatencyS": 0.2,
+  "measuredDelayS": 0.231,
+  "rawRiseMs": 33,
+  "outRiseMs": 267,
+  "riseLagMs": 233,
+  "fallLagMs": 551
+ }
+}

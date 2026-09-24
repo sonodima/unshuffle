@@ -1,0 +1,37 @@
+{
+ "at": "2026-09-24T03:50:17.778Z",
+ "results": [
+  {
+   "name": "11: host reclaimed the same code",
+   "ok": true,
+   "detail": "EUVFH"
+  },
+  {
+   "name": "11: confirm made while the host was reloading reaches the host",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "11: endsAt preserved across the host reload",
+   "ok": true,
+   "detail": "1790221835531 → 1790221835531"
+  },
+  {
+   "name": "11: first confirm (before the reload) kept",
+   "ok": true,
+   "detail": "{\"playerId\":\"qa-ada-mwag\",\"order\":[0,4,3,2,5,1],\"correct\":1,\"pairs\":0,\"points\":667,\"perfect\":false,\"timeMs\":4273,\"timedOut\":false}"
+  },
+  {
+   "name": "11: confirm made during the reload scored with the right order",
+   "ok": true,
+   "detail": "{\"playerId\":\"qa-leo-mwag\",\"order\":[4,1,3,0,2,5],\"correct\":2,\"pairs\":0,\"points\":1333,\"perfect\":false,\"timeMs\":8556,\"timedOut\":false}"
+  },
+  {
+   "name": "11: guests see the same results",
+   "ok": true,
+   "detail": ""
+  }
+ ],
+ "consoleLines": [],
+ "problems": []
+}

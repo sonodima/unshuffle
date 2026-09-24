@@ -1,0 +1,78 @@
+/* App-shell styles that utilities can't express cleanly (range slider parts). */
+
+.ushf-range {
+  --val: 50%;
+  --fill: var(--color-lime);
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.ushf-range:focus {
+  outline: none;
+}
+.ushf-range[data-muted='true'] {
+  --fill: var(--color-ink-400);
+}
+
+.ushf-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--fill) 0 var(--val), rgb(255 255 255 / 0.12) var(--val) 100%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.45);
+}
+.ushf-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border-radius: 999px;
+  border: 0;
+  background: radial-gradient(circle at 50% 35%, white 0 45%, var(--color-ink-100) 100%);
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--fill) 32%, transparent),
+    0 2px 6px rgb(0 0 0 / 0.55);
+  transition: box-shadow 0.15s ease, transform 0.15s var(--ease-spring);
+}
+.ushf-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+.ushf-range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 2px var(--color-ink-900),
+    0 0 0 4px var(--color-focus),
+    0 2px 6px rgb(0 0 0 / 0.55);
+}
+
+.ushf-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.45);
+}
+.ushf-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--fill);
+}
+.ushf-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 0;
+  background: radial-gradient(circle at 50% 35%, white 0 45%, var(--color-ink-100) 100%);
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--fill) 32%, transparent),
+    0 2px 6px rgb(0 0 0 / 0.55);
+}
+.ushf-range:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 2px var(--color-ink-900),
+    0 0 0 4px var(--color-focus);
+}

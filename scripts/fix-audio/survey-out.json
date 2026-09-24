@@ -1,0 +1,274 @@
+{
+ "sampleRate": 48000,
+ "rows": [
+  {
+   "label": "Vasco Rossi – Vita spericolata",
+   "lufs": -14.8,
+   "peakDb": -1.7,
+   "gainDb": 0.67,
+   "afterLufs": -14.2,
+   "afterPeakDb": -1,
+   "loadMs": 296,
+   "measureCpuMs": 12.7
+  },
+  {
+   "label": "Laura Pausini – La solitudine",
+   "lufs": -15.3,
+   "peakDb": -2.7,
+   "gainDb": 1.33,
+   "afterLufs": -14,
+   "afterPeakDb": -1.4,
+   "loadMs": 255,
+   "measureCpuMs": 13.6
+  },
+  {
+   "label": "Eros Ramazzotti – Più bella cosa",
+   "lufs": -11.8,
+   "peakDb": 0.1,
+   "gainDb": -2.16,
+   "afterLufs": -14,
+   "afterPeakDb": -2.1,
+   "loadMs": 268,
+   "measureCpuMs": 13.3
+  },
+  {
+   "label": "Måneskin – Zitti e buoni (rock)",
+   "lufs": -6.8,
+   "peakDb": 0.5,
+   "gainDb": -7.2,
+   "afterLufs": -14,
+   "afterPeakDb": -6.7,
+   "loadMs": 267,
+   "measureCpuMs": 13
+  },
+  {
+   "label": "Mahmood – Soldi",
+   "lufs": -9,
+   "peakDb": 0.5,
+   "gainDb": -4.96,
+   "afterLufs": -14,
+   "afterPeakDb": -4.5,
+   "loadMs": 272,
+   "measureCpuMs": 13.1
+  },
+  {
+   "label": "Blanco – Notti in bianco",
+   "lufs": -7.3,
+   "peakDb": 0.6,
+   "gainDb": -6.75,
+   "afterLufs": -14,
+   "afterPeakDb": -6.2,
+   "loadMs": 262,
+   "measureCpuMs": 14.3
+  },
+  {
+   "label": "Ultimo – Alba (ballad)",
+   "lufs": -5.9,
+   "peakDb": 0.7,
+   "gainDb": -8.06,
+   "afterLufs": -14,
+   "afterPeakDb": -7.3,
+   "loadMs": 253,
+   "measureCpuMs": 12.9
+  },
+  {
+   "label": "Elodie – Andromeda",
+   "lufs": -7.8,
+   "peakDb": 1.5,
+   "gainDb": -6.22,
+   "afterLufs": -14,
+   "afterPeakDb": -4.7,
+   "loadMs": 243,
+   "measureCpuMs": 13.4
+  },
+  {
+   "label": "Annalisa – Bellissima",
+   "lufs": -5.3,
+   "peakDb": 0.9,
+   "gainDb": -8.72,
+   "afterLufs": -14,
+   "afterPeakDb": -7.9,
+   "loadMs": 237,
+   "measureCpuMs": 12.8
+  },
+  {
+   "label": "Sfera Ebbasta – Tran Tran (trap)",
+   "lufs": -7.6,
+   "peakDb": 0.9,
+   "gainDb": -6.44,
+   "afterLufs": -14,
+   "afterPeakDb": -5.5,
+   "loadMs": 190,
+   "measureCpuMs": 11.9
+  },
+  {
+   "label": "Lazza – Cenere",
+   "lufs": -9.3,
+   "peakDb": 0.2,
+   "gainDb": -4.71,
+   "afterLufs": -14,
+   "afterPeakDb": -4.5,
+   "loadMs": 238,
+   "measureCpuMs": 13.1
+  },
+  {
+   "label": "Geolier – I p' me, tu p' te",
+   "lufs": -6.9,
+   "peakDb": 0.8,
+   "gainDb": -7.07,
+   "afterLufs": -14,
+   "afterPeakDb": -6.3,
+   "loadMs": 230,
+   "measureCpuMs": 13.1
+  },
+  {
+   "label": "Metallica – Enter Sandman (metal)",
+   "lufs": -12,
+   "peakDb": -0.1,
+   "gainDb": -2,
+   "afterLufs": -14,
+   "afterPeakDb": -2.1,
+   "loadMs": 226,
+   "measureCpuMs": 13.4
+  },
+  {
+   "label": "Guns N' Roses – Sweet Child O' Mine",
+   "lufs": -11.1,
+   "peakDb": -0.2,
+   "gainDb": -2.88,
+   "afterLufs": -14,
+   "afterPeakDb": -3,
+   "loadMs": 205,
+   "measureCpuMs": 12.9
+  },
+  {
+   "label": "Dave Brubeck – Take Five (jazz 5/4)",
+   "lufs": -16.8,
+   "peakDb": -0.8,
+   "gainDb": 0,
+   "afterLufs": -16.8,
+   "afterPeakDb": -0.8,
+   "loadMs": 230,
+   "measureCpuMs": 12.3
+  },
+  {
+   "label": "Miles Davis – So What (jazz)",
+   "lufs": -23.9,
+   "peakDb": -5.6,
+   "gainDb": 4.55,
+   "afterLufs": -19.3,
+   "afterPeakDb": -1,
+   "loadMs": 200,
+   "measureCpuMs": 12.9
+  },
+  {
+   "label": "Shakira – Hips Don't Lie (latin)",
+   "lufs": -7.5,
+   "peakDb": 0.7,
+   "gainDb": -6.5,
+   "afterLufs": -14,
+   "afterPeakDb": -5.8,
+   "loadMs": 241,
+   "measureCpuMs": 13.2
+  },
+  {
+   "label": "Bad Bunny – Tití Me Preguntó (latin)",
+   "lufs": -15.2,
+   "peakDb": 0,
+   "gainDb": 0,
+   "afterLufs": -15.2,
+   "afterPeakDb": 0,
+   "loadMs": 254,
+   "measureCpuMs": 13
+  },
+  {
+   "label": "BTS – Dynamite (k-pop)",
+   "lufs": -7.6,
+   "peakDb": 1,
+   "gainDb": -6.43,
+   "afterLufs": -14,
+   "afterPeakDb": -5.4,
+   "loadMs": 259,
+   "measureCpuMs": 13.1
+  },
+  {
+   "label": "BLACKPINK – How You Like That (k-pop)",
+   "lufs": -7.8,
+   "peakDb": 0.7,
+   "gainDb": -6.21,
+   "afterLufs": -14,
+   "afterPeakDb": -5.5,
+   "loadMs": 252,
+   "measureCpuMs": 13.2
+  },
+  {
+   "label": "Pendulum – Watercolour (dnb)",
+   "lufs": -6.2,
+   "peakDb": 1.2,
+   "gainDb": -7.85,
+   "afterLufs": -14,
+   "afterPeakDb": -6.6,
+   "loadMs": 261,
+   "measureCpuMs": 14.9
+  },
+  {
+   "label": "Netsky – Come Alive (dnb)",
+   "lufs": -13.1,
+   "peakDb": 0.6,
+   "gainDb": -0.86,
+   "afterLufs": -14,
+   "afterPeakDb": -0.3,
+   "loadMs": 272,
+   "measureCpuMs": 14.6
+  },
+  {
+   "label": "Eagles – Hotel California (live)",
+   "lufs": -19.2,
+   "peakDb": -0.6,
+   "gainDb": 0,
+   "afterLufs": -19.2,
+   "afterPeakDb": -0.6,
+   "loadMs": 260,
+   "measureCpuMs": 13.2
+  },
+  {
+   "label": "Queen – We Are the Champions (live)",
+   "lufs": -8.3,
+   "peakDb": 0.1,
+   "gainDb": -5.74,
+   "afterLufs": -14,
+   "afterPeakDb": -5.7,
+   "loadMs": 227,
+   "measureCpuMs": 12.8
+  },
+  {
+   "label": "Jeff Buckley – Hallelujah (6/8)",
+   "lufs": -16,
+   "peakDb": -1.8,
+   "gainDb": 0.85,
+   "afterLufs": -15.2,
+   "afterPeakDb": -1,
+   "loadMs": 237,
+   "measureCpuMs": 14.1
+  }
+ ],
+ "before": {
+  "min": -23.9,
+  "median": -9,
+  "max": -5.3,
+  "spread": 18.6
+ },
+ "after": {
+  "min": -19.3,
+  "median": -14,
+  "max": -14,
+  "spread": 5.3
+ },
+ "peaksAfter": {
+  "min": -7.9,
+  "median": -4.5,
+  "max": 0,
+  "spread": 7.9
+ },
+ "over0After": 0
+}

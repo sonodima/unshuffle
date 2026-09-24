@@ -1,0 +1,24 @@
+[  10.8s] [qa] room changed: phase,submissions,seq
+[  13.4s] click play-all
+[  13.4s] [qa] playSequence(track:7674865 tag=board) state={"playing":false,"mode":null,"key":null,"tag":null,"index":0} :: at /src/components/board/usePlayAll.ts:28:8 <- at /src/components/board/usePlayAll.ts:58:8 <- at executeDispatch (/node_modules/.vite-qa-audio/deps/react-dom_client.js:9906:5) <- at runWithFiberInDEV (/node_modules/.vite-qa-audio/deps/react-dom_client.js:944:66) <- at processDispatchQueue (/node_modules/.vite-qa-audio/deps/react-dom_client.js:9932:27) <- at /node_modules/.vite-qa-audio/deps/react-dom_client.js:10201:5 <- at batchedUpdates$1 (/node_modules/.vite-qa-audio/deps/react-dom_client.js:2145:12)
+[  13.4s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":0}
+[  17.4s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":1}
+[  19.4s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":2}
+[  23.4s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":3}
+[  27.3s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":4}
+[  31.2s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":5}
+[  33.2s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":6}
+[  37.1s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":7}
+[  41.0s] [qa] state {"playing":false,"mode":null,"key":null,"tag":null,"index":0}
+[  45.5s] done shuffled; now identity + play-all
+[  46.3s] [qa] playSequence(track:7674865 tag=board) state={"playing":false,"mode":null,"key":null,"tag":null,"index":0} :: at /src/components/board/usePlayAll.ts:28:8 <- at /src/components/board/usePlayAll.ts:58:8 <- at executeDispatch (/node_modules/.vite-qa-audio/deps/react-dom_client.js:9906:5) <- at runWithFiberInDEV (/node_modules/.vite-qa-audio/deps/react-dom_client.js:944:66) <- at processDispatchQueue (/node_modules/.vite-qa-audio/deps/react-dom_client.js:9932:27) <- at /node_modules/.vite-qa-audio/deps/react-dom_client.js:10201:5 <- at batchedUpdates$1 (/node_modules/.vite-qa-audio/deps/react-dom_client.js:2145:12)
+[  46.3s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":0}
+[  50.3s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":1}
+[  54.3s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":2}
+[  58.2s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":3}
+[  60.6s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":4}
+[  64.3s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":5}
+[  68.0s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":6}
+[  72.0s] [qa] state {"playing":true,"mode":"sequence","key":"track:7674865","tag":"board","index":7}
+[  73.9s] [qa] state {"playing":false,"mode":null,"key":null,"tag":null,"index":0}
+[  78.4s] last schedule 0:first/gapless 1:gapless/gapless 2:gapless/gapless 3:gapless/gapless 4:gapless/gapless 5:gapless/gapless 6:gapless/gapless 7:gapless/fade

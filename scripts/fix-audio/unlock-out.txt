@@ -1,0 +1,35 @@
+
+ios17 no-hold: nickname tap
+  boot         ctx=null unlocked=false session=auto soft=false legacy={"applies":false,"created":false,"playing":false}
+  tap #nick    ctx=running unlocked=true session=playback soft=false legacy={"applies":false,"created":false,"playing":false}
+
+ios17 hold: nickname + avatar taps
+  boot         ctx=null unlocked=false session=auto soft=true legacy={"applies":false,"created":false,"playing":false}
+  tap #nick    ctx=null unlocked=false session=auto soft=true legacy={"applies":false,"created":false,"playing":false}
+  tap #avatar  ctx=null unlocked=false session=auto soft=true legacy={"applies":false,"created":false,"playing":false}
+
+ios17 hold: nickname then CTA
+  boot         ctx=null unlocked=false session=auto soft=true legacy={"applies":false,"created":false,"playing":false}
+  tap #nick    ctx=null unlocked=false session=auto soft=true legacy={"applies":false,"created":false,"playing":false}
+  tap #cta     ctx=running unlocked=true session=playback soft=true legacy={"applies":false,"created":false,"playing":false}
+
+ios16 no-hold: nickname tap
+  boot         ctx=null unlocked=false session=n/a soft=false legacy={"applies":true,"created":false,"playing":false}
+  tap #nick    ctx=running unlocked=true session=n/a soft=false legacy={"applies":true,"created":true,"playing":true}
+  hidden       ctx=running unlocked=true session=n/a soft=false legacy={"applies":true,"created":true,"playing":false}
+  visible      ctx=running unlocked=true session=n/a soft=false legacy={"applies":true,"created":true,"playing":true}
+
+ios16 hold: nickname then CTA
+  boot         ctx=null unlocked=false session=n/a soft=true legacy={"applies":true,"created":false,"playing":false}
+  tap #nick    ctx=null unlocked=false session=n/a soft=true legacy={"applies":true,"created":false,"playing":false}
+  tap #cta     ctx=running unlocked=true session=n/a soft=true legacy={"applies":true,"created":true,"playing":true}
+  hidden       ctx=running unlocked=true session=n/a soft=true legacy={"applies":true,"created":true,"playing":false}
+  visible      ctx=running unlocked=true session=n/a soft=true legacy={"applies":true,"created":true,"playing":true}
+
+chrome desktop cpu x1: at load ctx=suspended → after idle ctx=suspended → after first tap ctx=running unlocked=true; first pointerdown capture→bubble 0.4 ms; console: clean
+
+chrome desktop cpu x4: at load ctx=suspended → after idle ctx=suspended → after first tap ctx=running unlocked=true; first pointerdown capture→bubble 3.4 ms; console: clean
+
+chrome android cpu x1: at load ctx=suspended → after idle ctx=suspended → after first tap ctx=running unlocked=true; first pointerdown capture→bubble 0.6 ms; console: clean
+
+chrome android cpu x4: at load ctx=suspended → after idle ctx=suspended → after first tap ctx=running unlocked=true; first pointerdown capture→bubble 4.3 ms; console: clean

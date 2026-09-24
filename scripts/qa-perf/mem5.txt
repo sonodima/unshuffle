@@ -1,0 +1,29 @@
+{"who":"desktop","label":"home","heapMB":15.9,"backingMB":10.8,"embedderMB":3.5,"nodes":684,"listeners":350,"docs":1,"detached":0,"rendererRssMB":434,"gpuRssMB":141,"buffers":0,"MB":0,"statusKeys":0,"round":null,"results":0}
+{"who":"phone","label":"home","heapMB":15.4,"backingMB":10.8,"embedderMB":2.9,"nodes":491,"listeners":352,"docs":1,"detached":0,"rendererRssMB":461,"gpuRssMB":142,"buffers":0,"MB":0,"statusKeys":0,"round":null,"results":0}
+{"who":"desktop","label":"lobby (before game)","heapMB":21.2,"backingMB":11.4,"embedderMB":5.2,"nodes":1174,"listeners":557,"docs":1,"detached":22,"rendererRssMB":486,"gpuRssMB":194,"buffers":0,"MB":0,"statusKeys":0,"phase":"lobby","round":null,"results":0}
+{"who":"phone","label":"lobby (before game)","heapMB":18.1,"backingMB":11.3,"embedderMB":3.2,"nodes":631,"listeners":443,"docs":1,"detached":0,"rendererRssMB":437,"gpuRssMB":168,"buffers":0,"MB":0,"statusKeys":0,"phase":"lobby","round":null,"results":0}
+{"who":"desktop","label":"main preparing+9s","heapMB":19.6,"backingMB":44.6,"embedderMB":3.3,"nodes":364,"listeners":384,"docs":1,"detached":23,"rendererRssMB":535,"gpuRssMB":194,"buffers":5,"MB":54.9,"statusKeys":5,"phase":"playing","round":0,"results":0}
+{"who":"phone","label":"main preparing+9s","heapMB":18.1,"backingMB":27.8,"embedderMB":2.5,"nodes":308,"listeners":368,"docs":1,"detached":0,"rendererRssMB":464,"gpuRssMB":179,"buffers":5,"MB":54.9,"statusKeys":5,"phase":"playing","round":0,"results":0}
+{"who":"desktop","label":"main r1 playing","heapMB":19.7,"backingMB":44.2,"embedderMB":3.2,"nodes":373,"listeners":384,"docs":1,"detached":23,"rendererRssMB":541,"gpuRssMB":189,"buffers":5,"MB":54.9,"statusKeys":5,"phase":"playing","round":0,"results":0}
+{"who":"phone","label":"main r1 playing","heapMB":18.6,"backingMB":27.8,"embedderMB":2.5,"nodes":317,"listeners":381,"docs":1,"detached":0,"rendererRssMB":466,"gpuRssMB":175,"buffers":5,"MB":54.9,"statusKeys":5,"phase":"playing","round":0,"results":0}
+[  24s] main: round 1/5 done
+[  35s] main: round 2/5 done
+{"who":"desktop","label":"main r3 playing","heapMB":20.7,"backingMB":44.3,"embedderMB":3.4,"nodes":373,"listeners":384,"docs":1,"detached":23,"rendererRssMB":616,"gpuRssMB":207,"buffers":3,"MB":32.9,"statusKeys":3,"phase":"playing","round":2,"results":2}
+{"who":"phone","label":"main r3 playing","heapMB":19.6,"backingMB":27.8,"embedderMB":2.7,"nodes":317,"listeners":381,"docs":1,"detached":0,"rendererRssMB":513,"gpuRssMB":191,"buffers":3,"MB":32.9,"statusKeys":3,"phase":"playing","round":2,"results":2}
+[  45s] main: round 3/5 done
+[  55s] main: round 4/5 done
+{"who":"desktop","label":"main r5 playing","heapMB":21,"backingMB":27.8,"embedderMB":2.8,"nodes":373,"listeners":384,"docs":1,"detached":23,"rendererRssMB":574,"gpuRssMB":208,"buffers":1,"MB":11,"statusKeys":1,"phase":"playing","round":4,"results":4}
+{"who":"phone","label":"main r5 playing","heapMB":20,"backingMB":27.8,"embedderMB":3.1,"nodes":317,"listeners":381,"docs":1,"detached":0,"rendererRssMB":518,"gpuRssMB":191,"buffers":1,"MB":11,"statusKeys":1,"phase":"playing","round":4,"results":4}
+[  65s] main: round 5/5 done
+{"who":"desktop","label":"final after main","heapMB":21.4,"backingMB":11.3,"embedderMB":3.5,"nodes":688,"listeners":386,"docs":1,"detached":23,"rendererRssMB":560,"gpuRssMB":208,"buffers":0,"MB":0,"statusKeys":0,"phase":"final","round":null,"results":5}
+{"who":"phone","label":"final after main","heapMB":20.4,"backingMB":11.3,"embedderMB":3.7,"nodes":666,"listeners":384,"docs":1,"detached":0,"rendererRssMB":515,"gpuRssMB":180,"buffers":0,"MB":0,"statusKeys":0,"phase":"final","round":null,"results":5}
+{"who":"desktop","label":"lobby after Rigioca #1","heapMB":23.6,"backingMB":11.3,"embedderMB":5.1,"nodes":1056,"listeners":543,"docs":1,"detached":23,"rendererRssMB":565,"gpuRssMB":222,"buffers":0,"MB":0,"statusKeys":0,"phase":"lobby","round":null,"results":0}
+{"who":"phone","label":"lobby after Rigioca #1","heapMB":21.4,"backingMB":11.3,"embedderMB":3.9,"nodes":631,"listeners":456,"docs":1,"detached":0,"rendererRssMB":517,"gpuRssMB":188,"buffers":0,"MB":0,"statusKeys":0,"phase":"lobby","round":null,"results":0}
+[  84s] replay1: round 1/3 done
+[  94s] replay1: round 2/3 done
+[ 104s] replay1: round 3/3 done
+{"who":"desktop","label":"final after replay 1","heapMB":22,"backingMB":11.3,"embedderMB":3.8,"nodes":584,"listeners":378,"docs":1,"detached":23,"rendererRssMB":526,"gpuRssMB":192,"buffers":0,"MB":0,"statusKeys":0,"phase":"final","round":null,"results":3}
+{"who":"phone","label":"final after replay 1","heapMB":21.1,"backingMB":11.3,"embedderMB":3.7,"nodes":562,"listeners":376,"docs":1,"detached":0,"rendererRssMB":478,"gpuRssMB":182,"buffers":0,"MB":0,"statusKeys":0,"phase":"final","round":null,"results":3}
+{"who":"desktop","label":"lobby at end","heapMB":24,"backingMB":11.3,"embedderMB":5.2,"nodes":1056,"listeners":543,"docs":1,"detached":23,"rendererRssMB":533,"gpuRssMB":197,"buffers":0,"MB":0,"statusKeys":0,"phase":"lobby","round":null,"results":0}
+{"who":"phone","label":"lobby at end","heapMB":22,"backingMB":11.3,"embedderMB":3.9,"nodes":631,"listeners":456,"docs":1,"detached":0,"rendererRssMB":478,"gpuRssMB":174,"buffers":0,"MB":0,"statusKeys":0,"phase":"lobby","round":null,"results":0}
+[ 112s] done

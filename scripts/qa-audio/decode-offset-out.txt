@@ -1,0 +1,6 @@
+Vasco Rossi – Vita spericolata       chrome len 1322496 webkit len 1322496 (Δ 0) offset webkit-chrome -529 samples = -12.00 ms (corr 1.000) first>1e-4 chrome 1842 webkit 1910
+Laura Pausini – La solitudine        chrome len 1322496 webkit len 1322496 (Δ 0) offset webkit-chrome -529 samples = -12.00 ms (corr 1.000) first>1e-4 chrome 1267 webkit 750
+Eros Ramazzotti – Più bella cosa     chrome len 1322496 webkit len 1322496 (Δ 0) offset webkit-chrome -529 samples = -12.00 ms (corr 1.000) first>1e-4 chrome 1266 webkit 737
+Måneskin – Zitti e buoni (rock)      chrome len 1323648 webkit len 1323648 (Δ 0) offset webkit-chrome -529 samples = -12.00 ms (corr 1.000) first>1e-4 chrome 1811 webkit 1861
+Mahmood – Soldi                      chrome len 1322496 webkit len 1322496 (Δ 0) offset webkit-chrome -529 samples = -12.00 ms (corr 1.000) first>1e-4 chrome 1828 webkit 1874
+Blanco – Notti in bianco             chrome len 1322496 webkit len 1322496 (Δ 0) offset webkit-chrome -529 samples = -12.00 ms (corr 1.000) first>1e-4 chrome 657 webkit 720

@@ -1,0 +1,3 @@
+[  42.8s] joins first,crossfade,crossfade,crossfade,crossfade,crossfade,crossfade,crossfade,gapless,crossfade,crossfade,crossfade,crossfade,crossfade,crossfade,resync
+[  42.8s] gaps ms 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32.6
+[  42.8s] long tasks (ms, desc) 326 310 282 267 258 250 250 246 241 224 224 206 191 185 179 153 145 129 125 120 count 172

@@ -1,0 +1,182 @@
+/* Final screen: podium metals, headline treatments, table scroll affordances. */
+
+.fp-slot {
+  --m: var(--color-gold);
+  --m-deep: var(--color-gold-deep);
+}
+.fp-slot[data-rank='2'] {
+  --m: var(--color-silver);
+  --m-deep: var(--color-ink-400);
+}
+.fp-slot[data-rank='0'] {
+  --m: var(--color-ink-400);
+  --m-deep: var(--color-ink-700);
+}
+.fp-slot[data-rank='3'] {
+  --m: var(--color-bronze);
+  --m-deep: color-mix(in oklab, var(--color-bronze) 62%, black);
+}
+
+.fp-block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+/* Perspective top face the avatar stands on. */
+.fp-top {
+  height: var(--top, 14px);
+  flex: none;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--m) 35%, white) 0%, color-mix(in oklab, var(--m) 80%, white) 100%);
+  clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%);
+}
+.fp-front {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0 0 10px 10px;
+  background:
+    repeating-linear-gradient(115deg, rgb(255 255 255 / 0.1) 0 9px, transparent 9px 22px),
+    linear-gradient(180deg, var(--m) 0%, color-mix(in oklab, var(--m) 70%, var(--m-deep)) 45%, color-mix(in oklab, var(--m-deep) 70%, black) 100%);
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.55),
+    inset 0 -18px 30px -10px rgb(0 0 0 / 0.35),
+    0 18px 60px -22px color-mix(in oklab, var(--m) 60%, transparent);
+}
+/* Fade the stripes toward the bottom. */
+.fp-front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 20%, color-mix(in oklab, var(--m-deep) 55%, black) 130%);
+  pointer-events: none;
+}
+/* One-shot shine sweep after the block rises. */
+.fp-front::after {
+  content: '';
+  position: absolute;
+  inset: -20% auto -20% 0;
+  width: 40%;
+  background: linear-gradient(100deg, transparent 0%, rgb(255 255 255 / 0.55) 50%, transparent 100%);
+  transform: translateX(-160%) skewX(-12deg);
+  animation: fp-shine 1.1s var(--ease-out-expo) var(--shine-delay, 1s) both;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+@keyframes fp-shine {
+  to {
+    transform: translateX(360%) skewX(-12deg);
+  }
+}
+
+.fp-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.8;
+  color: color-mix(in oklab, var(--m-deep) 55%, black);
+  text-shadow:
+    0 1px 0 color-mix(in oklab, var(--m) 40%, white),
+    0 -1px 0 rgb(0 0 0 / 0.25);
+  opacity: 0.85;
+}
+/* Engraved nameplate on the block front. */
+.fp-plate {
+  background: linear-gradient(180deg, rgb(6 4 15 / 0.62), rgb(6 4 15 / 0.78));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 1px 0 color-mix(in oklab, var(--m) 50%, white);
+}
+.fp-metal-text {
+  color: color-mix(in oklab, var(--m) 80%, white);
+}
+
+/* Stage floor glow. */
+.fp-floor {
+  background: radial-gradient(50% 100% at 50% 0%, color-mix(in oklab, var(--color-gold) 30%, transparent) 0%, color-mix(in oklab, var(--color-violet) 18%, transparent) 45%, transparent 75%);
+}
+
+/* Rotating rays behind the winner. */
+.fp-rays {
+  background: repeating-conic-gradient(from 0deg, color-mix(in oklab, var(--color-gold) 55%, transparent) 0deg 7deg, transparent 7deg 22deg);
+  -webkit-mask: radial-gradient(closest-side, black 18%, transparent 100%);
+  mask: radial-gradient(closest-side, black 18%, transparent 100%);
+  animation: fp-spin 18s linear infinite;
+}
+@keyframes fp-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Headline gradients with a hard 3D edge, like the logo. */
+.fp-title-gold {
+  background-image: linear-gradient(180deg, color-mix(in oklab, var(--color-gold) 35%, white) 0%, var(--color-gold) 52%, color-mix(in oklab, var(--color-gold-deep) 85%, var(--color-orange)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 color-mix(in oklab, var(--color-gold-deep) 45%, black)) drop-shadow(0 14px 30px rgb(255 210 63 / 0.35));
+}
+.fp-title-tie {
+  background-image: linear-gradient(180deg, color-mix(in oklab, var(--color-magenta) 35%, white) 0%, var(--color-magenta) 55%, var(--color-violet) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 color-mix(in oklab, var(--color-violet-deep) 55%, black)) drop-shadow(0 14px 30px rgb(255 63 209 / 0.3));
+}
+.fp-title-plain {
+  color: var(--color-ink-50);
+  filter: drop-shadow(0 3px 0 color-mix(in oklab, var(--color-violet-deep) 55%, black)) drop-shadow(0 14px 30px rgb(0 0 0 / 0.5));
+}
+
+/* Horizontal scroller with edge fades that only show where content is hidden. */
+.fp-scroll {
+  --fade-l: 0px;
+  --fade-r: 0px;
+  -webkit-mask: linear-gradient(90deg, transparent 0, black var(--fade-l), black calc(100% - var(--fade-r)), transparent 100%);
+  mask: linear-gradient(90deg, transparent 0, black var(--fade-l), black calc(100% - var(--fade-r)), transparent 100%);
+  overscroll-behavior-x: contain;
+}
+.fp-scroll[data-more-right='true'] {
+  --fade-r: 36px;
+}
+.fp-sticky {
+  transition: box-shadow 0.2s ease;
+}
+.fp-scroll[data-scrolled='true'] .fp-sticky {
+  box-shadow: 10px 0 18px -10px rgb(0 0 0 / 0.75), 1px 0 0 rgb(255 255 255 / 0.06);
+}
+
+/* Headline teaser ("E il vincitore è...") with a drum-roll ellipsis. */
+.fp-teaser {
+  display: inline-block;
+  text-shadow: 0 2px 0 color-mix(in oklab, var(--color-violet-deep) 60%, black), 0 10px 26px rgb(0 0 0 / 0.5);
+}
+.fp-dots i {
+  font-style: normal;
+  display: inline-block;
+  animation: fp-dot 0.9s ease-in-out infinite both;
+}
+.fp-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.fp-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes fp-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-0.12em);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fp-dots i {
+    animation: none;
+    opacity: 1;
+  }
+}

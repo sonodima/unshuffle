@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>UNSHUFFLE</title>
+    <meta name="description" content="UNSHUFFLE — la hit è stata fatta a pezzi. Rimettila in ordine prima degli altri. Multiplayer peer-to-peer." />
+    <meta name="theme-color" content="#06040f" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Icons + home-screen web app (files in public/, relative so any sub-path works) -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="application-name" content="UNSHUFFLE" />
+    <meta name="apple-mobile-web-app-title" content="UNSHUFFLE" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Link previews (invite links shared in chats). The og:image tags, the font
+         preloads and the preconnect hints are added by vite.config.ts. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="UNSHUFFLE" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:title" content="UNSHUFFLE — party game musicale" />
+    <meta property="og:description" content="La hit è stata fatta a pezzi. Rimettila in ordine prima degli altri: sfida gli amici dal browser, niente da installare." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <style>
+      /* Boot screen: shown between the stylesheet and React's first render (about 1 s
+         on a slow phone connection). It sits right after #root and hides as soon as
+         React renders into it. The fade starts late, so fast loads never see it.
+         Compositor-only animation (transform/opacity): the main thread is busy
+         evaluating the app bundle exactly while this is on screen. */
+      html { background: #06040f; }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(55% 45% at 50% 46%, rgb(123 92 255 / 0.2), transparent 72%), #06040f;
+        opacity: 0;
+        animation: boot-in 0.5s ease-out 0.15s forwards;
+        pointer-events: none;
+      }
+      #root:not(:empty) + #boot { display: none; }
+      #boot .bars { display: flex; align-items: flex-end; gap: 5px; height: 44px; }
+      /* Each bar: a rounded clip with a rounded pill sliding inside it, so both ends stay round. */
+      #boot i { width: 10px; height: var(--h); border-radius: 5px; overflow: hidden; }
+      #boot i::before {
+        content: '';
+        display: block;
+        height: 100%;
+        border-radius: 5px;
+        background: var(--c);
+        animation: boot-eq var(--t) ease-in-out var(--d) infinite alternate;
+      }
+      #boot noscript { position: absolute; top: calc(50% + 48px); left: 16px; right: 16px; color: #c9c3f0; font: 600 16px/1.4 system-ui, sans-serif; text-align: center; }
+      @keyframes boot-in { to { opacity: 1; } }
+      @keyframes boot-eq { from { transform: translateY(calc(100% - 10px)); } }
+      @media (prefers-reduced-motion: reduce) { #boot i::before { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="boot">
+      <div class="bars" aria-hidden="true">
+        <i style="--h: 24px; --t: 0.92s; --d: -0.3s; --c: linear-gradient(#ff3fd1, #7b5cff)"></i>
+        <i style="--h: 44px; --t: 1.18s; --d: -0.75s; --c: #2ee6ff"></i>
+        <i style="--h: 32px; --t: 0.78s; --d: -0.1s; --c: linear-gradient(#ff3fd1, #7b5cff)"></i>
+        <i style="--h: 18px; --t: 1.04s; --d: -0.55s; --c: #a6ff3f"></i>
+      </div>
+      <noscript>Per giocare a UNSHUFFLE serve JavaScript: attivalo e ricarica la pagina.</noscript>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+  100ms busy  97ms: ui-D3ExPxDv.js 58 | nm:react-dom/cjs/react-dom-client.production.js 10 | nm:scheduler/index.js 5
+  200ms busy  94ms: src/components/background/ShaderBackground.tsx 24 | nm:react-dom/cjs/react-dom-client.production.js 23 | nm:react/cjs/react.production.js 13
+  300ms busy 108ms: nm:react-dom/cjs/react-dom-client.production.js 67 | nm:motion-dom/dist/es/render/utils/is-controlling-variants.mjs 9 | nm:motion-dom/dist/es/render/html/utils/build-styles.mjs 8
+  400ms busy  93ms: nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 78 | nm:motion-dom/dist/es/render/html/utils/render.mjs 4 | nm:motion-dom/dist/es/render/VisualElement.mjs 3
+  500ms busy 105ms: nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 105
+  600ms busy  32ms: nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 21 | nm:react-dom/cjs/react-dom-client.production.js 4 | InjectedScript 4
+  700ms busy  97ms: src/components/background/runtime.ts 59 | src/components/background/renderer.ts 29 | nm:react-dom/cjs/react-dom-client.production.js 3
+  800ms busy  98ms: src/components/background/runtime.ts 24 | src/components/background/renderer.ts 20 | nm:react-dom/cjs/react-dom-client.production.js 17
+  900ms busy  68ms: nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs 18 | nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 14 | nm:react-dom/cjs/react-dom-client.production.js 7
+ 1000ms busy  53ms: nm:peerjs/dist/bundler.mjs 9 | query 8 | src/js/adapter_factory.js 7
+ 1100ms busy  40ms: src/net/runtime.ts 10 | RoundScreen-BKXZk_hk.js 5 | nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 5
+ 1400ms busy  37ms: nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 5 | nm:react-dom/cjs/react-dom-client.production.js 5 | nm:motion-dom/dist/es/render/VisualElement.mjs 3
+ 1500ms busy  37ms: nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs 6 | nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 5 | (garbage collector) 3
+ 1800ms busy  21ms: nm:motion-dom/dist/es/render/html/utils/render.mjs 4 | nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs 4 | nm:react-dom/cjs/react-dom-client.production.js 3
+ 2000ms busy  26ms: nm:react-dom/cjs/react-dom-client.production.js 10 | nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs 3 | nm:framer-motion/dist/es/components/AnimatePresence/PresenceChild.mjs 3
+ 3600ms busy  35ms: nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs 33 | nm:motion-dom/dist/es/projection/node/create-projection-node.mjs 2

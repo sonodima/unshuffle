@@ -1,0 +1,2 @@
+phone home: 17 drawing layers, est 94 MB; top: div.ushf-bg-grain 582x1036css 20.7MB | div.h-dvh.overflow-x-hidden 410x844css 11.9MB | ##document 390x844css 11.3MB | div.ushf-bg 390x844css 11.3MB | canvas. 390x844css 11.3MB | section.relative.rounded-panel 534x602css 11MB
+phone lobby: 94 drawing layers, est 201 MB; top: section.glass.scroll-mt-4 534x2656css 48.7MB | div.relative.flex 390x2977css 39.9MB | div.ushf-bg-grain 582x1036css 20.7MB | ##document 390x844css 11.3MB | div.ushf-bg 390x844css 11.3MB | canvas. 390x844css 11.3MB

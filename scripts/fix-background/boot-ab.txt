@@ -1,0 +1,28 @@
+desktop old fcp=380 ctx@209+175 statusWait=11 firstDraw=400 longtasks=[[209,211],[441,281]]
+desktop old fcp=464 ctx@292+172 statusWait=11 firstDraw=479 longtasks=[[291,209],[525,488]]
+desktop old fcp=416 ctx@235+184 statusWait=19 firstDraw=443 longtasks=[[234,231],[484,374]]
+desktop old fcp=540 ctx@322+220 statusWait=19 firstDraw=568 longtasks=[[263,56],[321,276],[631,455]]
+desktop old fcp=580 ctx@364+221 statusWait=23 firstDraw=614 longtasks=[[306,56],[363,280],[682,398]]
+desktop old MEDIAN fcp=464 statusWait=19 maxLongTask<1.5s=398 fcpBeforeCtx=0/5
+
+desktop new fcp=476 ctx@773+11 statusWait=0 firstDraw=801 longtasks=[[477,284]]
+desktop new fcp=292 ctx@503+7 statusWait=0 firstDraw=536 longtasks=[[292,205]]
+desktop new fcp=304 ctx@544+7 statusWait=0 firstDraw=579 longtasks=[[303,237]]
+desktop new fcp=336 ctx@624+8 statusWait=0 firstDraw=646 longtasks=[[336,283]]
+desktop new fcp=340 ctx@641+8 statusWait=0 firstDraw=672 longtasks=[[341,294]]
+desktop new MEDIAN fcp=336 statusWait=0 maxLongTask<1.5s=283 fcpBeforeCtx=5/5
+
+phone   old fcp=284 ctx@170+119 statusWait=10 firstDraw=302 longtasks=[[169,146],[330,230]]
+phone   old fcp=228 ctx@130+101 statusWait=8 firstDraw=242 longtasks=[[130,122],[262,190]]
+phone   old fcp=228 ctx@126+109 statusWait=8 firstDraw=247 longtasks=[[125,131],[267,201]]
+phone   old fcp=244 ctx@134+116 statusWait=8 firstDraw=261 longtasks=[[133,139],[284,207]]
+phone   old fcp=236 ctx@126+113 statusWait=9 firstDraw=251 longtasks=[[125,139],[290,215]]
+phone   old MEDIAN fcp=236 statusWait=8 maxLongTask<1.5s=207 fcpBeforeCtx=0/5
+
+phone   new fcp=224 ctx@357+8 statusWait=0 firstDraw=380 longtasks=[[141,211]]
+phone   new fcp=244 ctx@379+8 statusWait=0 firstDraw=408 longtasks=[[159,214]]
+phone   new fcp=276 ctx@455+9 statusWait=0 firstDraw=479 longtasks=[[181,268]]
+phone   new fcp=288 ctx@488+9 statusWait=0 firstDraw=511 longtasks=[[186,292]]
+phone   new fcp=236 ctx@240+18 statusWait=0 firstDraw=447 longtasks=[[262,183]]
+phone   new MEDIAN fcp=244 statusWait=0 maxLongTask<1.5s=214 fcpBeforeCtx=5/5
+

@@ -1,0 +1,171 @@
+/* ShaderBackground: root box, film grain overlay and the no-WebGL fallback. */
+
+@property --bg-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #7b5cff;
+}
+@property --bg-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff3fd1;
+}
+@property --bg-c {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2ee6ff;
+}
+
+.ushf-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: #06040f;
+  contain: strict;
+  transition:
+    --bg-a 1.2s ease-in-out,
+    --bg-b 1.2s ease-in-out,
+    --bg-c 1.2s ease-in-out;
+}
+/* Cover the large viewport so mobile toolbars showing/hiding don't resize the canvas. */
+@supports (height: 100lvh) {
+  .ushf-bg {
+    bottom: auto;
+    height: 100lvh;
+  }
+}
+
+.ushf-bg-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* ------------------------------------------------------------ film grain */
+
+/* The tile repeats every 128px (64px on retina), so a jitter of t is the same as t
+   mod one tile: the layer only overscans by one tile, up and left, and every
+   offset stays in [0, tile). That keeps the promoted layer close to the viewport
+   size (it used to be 1.8x the viewport area on phones). */
+.ushf-bg-grain {
+  position: absolute;
+  top: -128px;
+  left: -128px;
+  right: 0;
+  bottom: 0;
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  opacity: 0.045;
+  will-change: transform, opacity;
+  animation: ushf-grain 0.72s steps(1, end) infinite;
+}
+/* One grain per device pixel on retina screens (finer, more film-like). */
+@media (min-resolution: 2dppx) {
+  .ushf-bg-grain {
+    top: -64px;
+    left: -64px;
+    background-size: 64px 64px;
+    animation-name: ushf-grain-hd;
+  }
+}
+@keyframes ushf-grain {
+  0% { transform: translate3d(0, 0, 0); }
+  12.5% { transform: translate3d(91px, 21px, 0); }
+  25% { transform: translate3d(19px, 80px, 0); }
+  37.5% { transform: translate3d(67px, 115px, 0); }
+  50% { transform: translate3d(44px, 57px, 0); }
+  62.5% { transform: translate3d(120px, 71px, 0); }
+  75% { transform: translate3d(66px, 99px, 0); }
+  87.5% { transform: translate3d(76px, 38px, 0); }
+}
+@keyframes ushf-grain-hd {
+  0% { transform: translate3d(0, 0, 0); }
+  12.5% { transform: translate3d(27px, 21px, 0); }
+  25% { transform: translate3d(51px, 48px, 0); }
+  37.5% { transform: translate3d(3px, 51px, 0); }
+  50% { transform: translate3d(44px, 9px, 0); }
+  62.5% { transform: translate3d(14px, 39px, 0); }
+  75% { transform: translate3d(58px, 35px, 0); }
+  87.5% { transform: translate3d(12px, 5px, 0); }
+}
+
+/* ------------------------------------------------------------ CSS fallback (no WebGL) */
+
+.ushf-bg-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 55% at 50% 112%, color-mix(in oklab, var(--bg-a) 30%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg, #06040f 0%, #0b0820 55%, #120d2c 100%);
+}
+.ushf-bg-blob {
+  position: absolute;
+  width: 90vmax;
+  height: 90vmax;
+  border-radius: 50%;
+  will-change: transform;
+}
+.ushf-bg-blob[data-blob='a'] {
+  left: -45vmax;
+  top: -40vmax;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--bg-b) 34%, transparent), transparent);
+  animation: ushf-drift-a 26s ease-in-out infinite alternate;
+}
+.ushf-bg-blob[data-blob='b'] {
+  right: -50vmax;
+  top: 5vmax;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--bg-c) 15%, transparent), transparent);
+  animation: ushf-drift-b 31s ease-in-out infinite alternate;
+}
+.ushf-bg-blob[data-blob='c'] {
+  left: -10vmax;
+  bottom: -60vmax;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--bg-a) 40%, transparent), transparent);
+  animation: ushf-drift-c 23s ease-in-out infinite alternate;
+}
+.ushf-bg-pulse {
+  position: absolute;
+  left: 50%;
+  bottom: -30vmax;
+  width: 110vmax;
+  height: 60vmax;
+  margin-left: -55vmax;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--bg-b) 45%, transparent), color-mix(in oklab, var(--bg-a) 16%, transparent) 55%, transparent);
+  opacity: 0.35;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+.ushf-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(6 4 15 / 0.55) 0%, transparent 38%),
+    radial-gradient(120% 90% at 50% 50%, transparent 55%, rgb(6 4 15 / 0.75) 100%);
+}
+
+@keyframes ushf-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(22vmax, 16vmax, 0) scale(1.18); }
+}
+@keyframes ushf-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to { transform: translate3d(-20vmax, 24vmax, 0) scale(0.92); }
+}
+@keyframes ushf-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(0.95); }
+  to { transform: translate3d(30vmax, -8vmax, 0) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ushf-bg-grain,
+  .ushf-bg-blob {
+    animation: none;
+  }
+}
+.ushf-bg[data-reduced] .ushf-bg-grain,
+.ushf-bg[data-reduced] .ushf-bg-blob {
+  animation: none;
+}

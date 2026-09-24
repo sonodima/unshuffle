@@ -1,0 +1,24 @@
+desktop old fcp=304 ctx@152+31 statusWait=120 firstDraw=324 longtasks=[[152,194],[375,143]]
+desktop old fcp=292 ctx@160+127 statusWait=12 firstDraw=324 longtasks=[[159,185],[359,125]]
+desktop old fcp=292 ctx@154+52 statusWait=15 firstDraw=312 longtasks=[[153,178],[363,129]]
+desktop old fcp=316 ctx@176+32 statusWait=110 firstDraw=342 longtasks=[[175,187],[395,173]]
+desktop old MEDIAN fcp=304 statusWait=110 maxLongTask<1.5s=187 fcpBeforeCtx=0/4
+
+desktop new fcp=440 ctx@444+47 statusWait=0 firstDraw=509 longtasks=[[197,50],[443,51],[1329,318]]
+desktop new fcp=412 ctx@429+36 statusWait=0 firstDraw=486 longtasks=[[154,52],[1278,290]]
+desktop new fcp=432 ctx@458+30 statusWait=0 firstDraw=510 longtasks=[[159,54],[1286,332]]
+desktop new fcp=364 ctx@375+30 statusWait=0 firstDraw=424 longtasks=[[1264,367]]
+desktop new MEDIAN fcp=432 statusWait=0 maxLongTask<1.5s=332 fcpBeforeCtx=4/4
+
+phone   old fcp=432 ctx@231+198 statusWait=19 firstDraw=463 longtasks=[[230,250],[509,179]]
+phone   old fcp=344 ctx@176+165 statusWait=11 firstDraw=366 longtasks=[[175,206],[395,142]]
+phone   old fcp=268 ctx@137+127 statusWait=11 firstDraw=286 longtasks=[[136,162],[322,122]]
+phone   old fcp=300 ctx@161+143 statusWait=9 firstDraw=321 longtasks=[[160,174],[348,120]]
+phone   old MEDIAN fcp=344 statusWait=11 maxLongTask<1.5s=206 fcpBeforeCtx=0/4
+
+phone   new fcp=384 ctx@414+18 statusWait=0 firstDraw=459 longtasks=[[1300,339]]
+phone   new fcp=324 ctx@353+9 statusWait=0 firstDraw=390 longtasks=[[1254,195]]
+phone   new fcp=280 ctx@303+8 statusWait=0 firstDraw=338 longtasks=[[1250,206]]
+phone   new fcp=288 ctx@307+13 statusWait=0 firstDraw=342 longtasks=[[1258,209]]
+phone   new MEDIAN fcp=324 statusWait=0 maxLongTask<1.5s=209 fcpBeforeCtx=4/4
+

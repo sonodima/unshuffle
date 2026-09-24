@@ -1,0 +1,97 @@
+{
+ "at": "2026-09-24T03:49:27.130Z",
+ "results": [
+  {
+   "name": "8: phone: 16 blocks",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "8: phone: all 16 waveforms drawn",
+   "ok": true,
+   "detail": "16 drawn, 0 skeleton, ready after 35 ms"
+  },
+  {
+   "name": "8: phone: all blocks inside the viewport",
+   "ok": true,
+   "detail": "maxBottom 651 vh 844"
+  },
+  {
+   "name": "8: phone: blocks ≥ 44 px",
+   "ok": true,
+   "detail": "86×128 (4x4)"
+  },
+  {
+   "name": "8: phone: no horizontal overflow",
+   "ok": true,
+   "detail": "0"
+  },
+  {
+   "name": "8: phone: blocks don't overlap CONFERMA",
+   "ok": true,
+   "detail": "{\"top\":758,\"bottom\":826,\"h\":68}"
+  },
+  {
+   "name": "8: small: 16 blocks",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "8: small: all 16 waveforms drawn",
+   "ok": true,
+   "detail": "16 drawn, 0 skeleton, ready after 48 ms"
+  },
+  {
+   "name": "8: small: all blocks inside the viewport",
+   "ok": true,
+   "detail": "maxBottom 447 vh 640"
+  },
+  {
+   "name": "8: small: blocks ≥ 44 px",
+   "ok": true,
+   "detail": "78×77 (4x4)"
+  },
+  {
+   "name": "8: small: no horizontal overflow",
+   "ok": true,
+   "detail": "0"
+  },
+  {
+   "name": "8: small: blocks don't overlap CONFERMA",
+   "ok": true,
+   "detail": "{\"top\":554,\"bottom\":622,\"h\":68}"
+  },
+  {
+   "name": "8: phone: touch drag 0 → 15",
+   "ok": true,
+   "detail": "before 1,6,4,2,11,9,14,12,5,8,3,13,10,15,0,7 after 6,4,2,11,9,14,12,5,8,3,13,10,15,0,7,1"
+  },
+  {
+   "name": "8: phone: touch drag 12 → 1",
+   "ok": true,
+   "detail": "before 6,4,2,11,9,14,12,5,8,3,13,10,15,0,7,1 after 6,15,4,2,11,9,14,12,5,8,3,13,10,0,7,1"
+  },
+  {
+   "name": "8: phone: tap plays a snippet without reordering",
+   "ok": true,
+   "detail": "playing=true tag=block:9"
+  },
+  {
+   "name": "8: small: touch drag 0 → 15",
+   "ok": true,
+   "detail": "before 1,6,4,2,11,9,14,12,5,8,3,13,10,15,0,7 after 6,4,2,11,9,14,12,5,8,3,13,10,15,0,7,1"
+  },
+  {
+   "name": "8: small: touch drag 12 → 1",
+   "ok": true,
+   "detail": "before 6,4,2,11,9,14,12,5,8,3,13,10,15,0,7,1 after 6,15,4,2,11,9,14,12,5,8,3,13,10,0,7,1"
+  },
+  {
+   "name": "8: small: tap plays a snippet without reordering",
+   "ok": true,
+   "detail": "playing=true tag=block:9"
+  }
+ ],
+ "consoleLines": [],
+ "problems": []
+}

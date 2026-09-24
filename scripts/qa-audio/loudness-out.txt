@@ -1,0 +1,26 @@
+Vasco Rossi – Vita spericolata       LUFS -15 maxST -13.2 peak -1.7 over 0
+Laura Pausini – La solitudine        LUFS -15.4 maxST -14.2 peak -2.7 over 0
+Eros Ramazzotti – Più bella cosa     LUFS -12 maxST -10.4 peak 0.1 over 2
+Måneskin – Zitti e buoni (rock)      LUFS -6.9 maxST -5.5 peak 0.5 over 801
+Mahmood – Soldi                      LUFS -9.1 maxST -7.7 peak 0.5 over 191
+Blanco – Notti in bianco             LUFS -7.4 maxST -5.9 peak 0.6 over 24
+Ultimo – Alba (ballad)               LUFS -6.1 maxST -5.1 peak 0.7 over 895
+Elodie – Andromeda                   LUFS -8 maxST -5.9 peak 1.5 over 317
+Annalisa – Bellissima                LUFS -5.5 maxST -4.8 peak 0.9 over 1513
+Sfera Ebbasta – Tran Tran (trap)     LUFS -7.7 maxST -6.8 peak 0.9 over 165
+Lazza – Cenere                       LUFS -9.4 maxST -6.5 peak 0.2 over 13
+Geolier – I p' me, tu p' te          LUFS -7 maxST -5.4 peak 0.8 over 1000
+Metallica – Enter Sandman (metal)    LUFS -12.1 maxST -11.6 peak -0.1 over 0
+Guns N' Roses – Sweet Child O' Mine  LUFS -11.3 maxST -10.4 peak -0.2 over 0
+Dave Brubeck – Take Five (jazz 5/4)  LUFS -16.9 maxST -15.2 peak -0.8 over 0
+Miles Davis – So What (jazz)         LUFS -24 maxST -21.5 peak -5.6 over 0
+Shakira – Hips Don't Lie (latin)     LUFS -7.6 maxST -6.8 peak 0.7 over 831
+Bad Bunny – Tití Me Preguntó (latin) LUFS -15.4 maxST -13 peak 0 over 1
+BTS – Dynamite (k-pop)               LUFS -7.7 maxST -6.8 peak 1 over 1572
+BLACKPINK – How You Like That (k-pop LUFS -7.9 maxST -6.8 peak 0.7 over 337
+Pendulum – Watercolour (dnb)         LUFS -6.2 maxST -5.8 peak 1.2 over 1080
+Netsky – Come Alive (dnb)            LUFS -13.2 maxST -9.8 peak 0.6 over 41
+Eagles – Hotel California (live)     LUFS -19.2 maxST -18.2 peak -0.6 over 0
+Queen – We Are the Champions (live)  LUFS -8.4 maxST -7.1 peak 0.1 over 4
+Jeff Buckley – Hallelujah (6/8)      LUFS -16.1 maxST -13.3 peak -1.8 over 0
+min -24 median -9.1 max -5.5 spread 18.5

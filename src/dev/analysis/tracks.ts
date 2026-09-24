@@ -1,0 +1,54 @@
+// Reference tracks for the analysis lab (reference BPMs from public tempo databases).
+
+export interface LabTrack {
+  q: string
+  artist: string
+  /** Reference tempo, 0 = unknown. */
+  bpm: number
+  /** Acceptable metrical alternatives (half / double time). */
+  alt?: number[]
+  title?: string
+  label: string
+}
+
+export const LAB_TRACKS: LabTrack[] = [
+  { q: "daft punk harder better faster stronger", artist: "daft punk", bpm: 123.7, label: "Daft Punk – Harder Better Faster Stronger" },
+  { q: "michael jackson billie jean", artist: "michael jackson", bpm: 117, label: "Michael Jackson – Billie Jean" },
+  { q: "the weeknd blinding lights", artist: "the weeknd", bpm: 171, label: "The Weeknd – Blinding Lights" },
+  { q: "ed sheeran shape of you", artist: "ed sheeran", bpm: 96, label: "Ed Sheeran – Shape of You" },
+  { q: "nirvana smells like teen spirit", artist: "nirvana", bpm: 117, label: "Nirvana – Smells Like Teen Spirit" },
+  { q: "queen another one bites the dust", artist: "queen", bpm: 110, label: "Queen – Another One Bites the Dust" },
+  { q: "eminem lose yourself", artist: "eminem", bpm: 86, alt: [171], label: "Eminem – Lose Yourself" },
+  { q: "adele rolling in the deep", artist: "adele", bpm: 105, label: "Adele – Rolling in the Deep" },
+  { q: "maneskin beggin", artist: "maneskin", bpm: 134, label: "Måneskin – Beggin'" },
+  { q: "dua lipa levitating", artist: "dua lipa", bpm: 103, label: "Dua Lipa – Levitating" },
+  { q: "avicii levels", artist: "avicii", bpm: 126, label: "Avicii – Levels" },
+  { q: "bruno mars uptown funk", artist: "mark ronson", bpm: 115, label: "Mark Ronson, Bruno Mars – Uptown Funk" },
+  { q: "coldplay viva la vida death and all his friends", artist: "coldplay", bpm: 138, title: "viva la vida", label: "Coldplay – Viva La Vida" },
+  { q: "adele someone like you", artist: "adele", bpm: 67.5, alt: [135], label: "Adele – Someone Like You (ballad)" },
+  { q: "eiffel 65 blue da ba dee", artist: "eiffel 65", bpm: 128, label: "Eiffel 65 – Blue (Da Ba Dee)" },
+  { q: "erik satie gymnopedie no 1", artist: "satie", bpm: 0, label: "Satie – Gymnopédie No. 1 (classical)" },
+  { q: "daft punk get lucky", artist: "daft punk", bpm: 116, label: "Daft Punk – Get Lucky" },
+  { q: "white stripes seven nation army", artist: "white stripes", bpm: 124, label: "The White Stripes – Seven Nation Army" },
+  { q: "bee gees stayin alive", artist: "bee gees", bpm: 104, label: "Bee Gees – Stayin' Alive" },
+  { q: "a-ha take on me", artist: "a-ha", bpm: 169, alt: [84.5], title: "take on me", label: "a-ha – Take On Me" },
+  { q: "billie eilish bad guy", artist: "billie eilish", bpm: 135, label: "Billie Eilish – bad guy" },
+  { q: "pharrell williams happy", artist: "pharrell", bpm: 160, alt: [80], label: "Pharrell Williams – Happy" },
+  { q: "eurythmics sweet dreams", artist: "eurythmics", bpm: 126, label: "Eurythmics – Sweet Dreams" },
+  { q: "the killers mr brightside", artist: "the killers", bpm: 148, label: "The Killers – Mr. Brightside" },
+  { q: "toto africa", artist: "toto", bpm: 93, label: "Toto – Africa" },
+  { q: "the beatles let it be", artist: "the beatles", bpm: 72, alt: [144], label: "The Beatles – Let It Be (ballad)" },
+  { q: "survivor eye of the tiger", artist: "survivor", bpm: 109, label: "Survivor – Eye of the Tiger" },
+  { q: "ac/dc back in black", artist: "ac/dc", bpm: 94, label: "AC/DC – Back in Black" },
+  { q: "rick astley never gonna give you up", artist: "rick astley", bpm: 113, label: "Rick Astley – Never Gonna Give You Up" },
+  { q: "tones and i dance monkey", artist: "tones and i", bpm: 98, label: "Tones and I – Dance Monkey" },
+  { q: "debussy clair de lune", artist: "debussy", bpm: 0, label: "Debussy – Clair de lune (classical)" },
+  { q: "brian eno an ending ascent", artist: "brian eno", bpm: 0, label: "Brian Eno – An Ending (Ascent) (ambient)" },
+  { q: "gotye somebody that i used to know", artist: "gotye", bpm: 129, label: "Gotye – Somebody That I Used to Know" },
+  { q: "luis fonsi despacito", artist: "luis fonsi", bpm: 89, alt: [178], label: "Luis Fonsi – Despacito" },
+  { q: "lady gaga poker face", artist: "lady gaga", bpm: 119, label: "Lady Gaga – Poker Face" },
+  { q: "mahmood blanco brividi", artist: "mahmood", bpm: 0, label: "Mahmood, Blanco – Brividi (Italian ballad)" },
+  { q: "annalisa mon amour", artist: "annalisa", bpm: 0, label: "Annalisa – Mon Amour (Italian pop)" },
+  { q: "sarà perché ti amo ricchi e poveri", artist: "ricchi e poveri", bpm: 0, label: "Ricchi e Poveri – Sarà perché ti amo" },
+  { q: "umberto tozzi gloria", artist: "umberto tozzi", bpm: 0, label: "Umberto Tozzi – Gloria" },
+]

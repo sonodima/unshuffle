@@ -1,0 +1,541 @@
+{
+  "passed": 15,
+  "failed": 0,
+  "results": [
+    {
+      "name": "levels are zero before the AudioContext exists",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "bootHadContext": false,
+        "bootLevels": {
+          "bass": 0,
+          "mid": 0,
+          "treble": 0,
+          "energy": 0,
+          "beat": 0
+        }
+      }
+    },
+    {
+      "name": "load: real Deezer preview, dedupe, cache",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "loadMs": 304,
+        "track": "Daft Punk — Harder, Better, Faster, Stronger",
+        "duration": 29.99,
+        "sampleRate": 48000,
+        "ctxSampleRate": 48000,
+        "channels": 2
+      }
+    },
+    {
+      "name": "playSequence: correct order is sample-contiguous, positions 0..7 on time",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "outputLatencyMs": 31.15,
+        "onPosition": [
+          {
+            "pos": 0,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 0.98
+          },
+          {
+            "pos": 1,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 0.53
+          },
+          {
+            "pos": 2,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 0.49
+          },
+          {
+            "pos": 3,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 0.22
+          },
+          {
+            "pos": 4,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 0.19
+          },
+          {
+            "pos": 5,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 0.53
+          },
+          {
+            "pos": 6,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 0.99
+          },
+          {
+            "pos": 7,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 0.92
+          }
+        ],
+        "positions": "0,1,2,3,4,5,6,7",
+        "worstVsCurrentTimeMs": 33.33,
+        "worstVsAudibleMs": 0.99,
+        "onEndedVsCurrentTimeMs": 33.33,
+        "onEndedVsAudibleMs": 2.08,
+        "scheduledItems": 8,
+        "frames": "48000,48000,48000,48000,48000,48000,48000,48000",
+        "whenFrames": "37568,85568,133568,181568,229568,277568,325568,373568",
+        "maxStartGapSeconds": 0,
+        "joins": "first,gapless,gapless,gapless,gapless,gapless,gapless,gapless",
+        "outros": "gapless,gapless,gapless,gapless,gapless,gapless,gapless,fade",
+        "progress": {
+          "violations": 0,
+          "samples": 483
+        },
+        "levels": {
+          "max": {
+            "bass": 0.91,
+            "mid": 0.59,
+            "treble": 0.6,
+            "energy": 0.79
+          },
+          "mean": {
+            "bass": 0.37,
+            "mid": 0.29,
+            "treble": 0.31,
+            "energy": 0.42
+          },
+          "beats": 14,
+          "beatsPerSec": 1.74,
+          "seconds": 8.03
+        },
+        "stateEmissions": 9,
+        "stateIndexes": "0,1,2,3,4,5,6,7,idle"
+      }
+    },
+    {
+      "name": "usePlayback: React re-renders only on discrete state changes",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "rendersDuringPlayback": 10,
+        "statesSeen": "idle,sequence:0,sequence:1,sequence:2,sequence:3,sequence:4,sequence:5,sequence:6,sequence:7,idle",
+        "unlocked": true,
+        "volumeSeen": 0.6
+      }
+    },
+    {
+      "name": "output: recorded correct-order playback equals the original audio sample-for-sample",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "recorderLagFrames": 8192,
+        "comparedSamples": 383612,
+        "maxAbsError": 2.9802322387695312e-8,
+        "maxAbsErrorNearJoins": 7.450580596923828e-9,
+        "maxAbsErrorDb": -150.51
+      }
+    },
+    {
+      "name": "playSequence: shuffled + reordering mid-playback changes upcoming snippets",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "initialOrder": "5,2,7,0,3,6,1,4",
+        "finalOrder": "5,2,1,0,3,4,7,6",
+        "positions": "0,1,2,3,4,5,6,7",
+        "playedSegments": "5,2,1,0,3,4,7,6",
+        "joins": "first,crossfade,crossfade,crossfade,crossfade,gapless,crossfade,crossfade",
+        "outros": "tail,tail,tail,tail,gapless,tail,tail,fade",
+        "onPosition": [
+          {
+            "pos": 0,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 1.06
+          },
+          {
+            "pos": 1,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 1.53
+          },
+          {
+            "pos": 2,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 1.18
+          },
+          {
+            "pos": 3,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 1.23
+          },
+          {
+            "pos": 4,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 0.29
+          },
+          {
+            "pos": 5,
+            "vsCurrentTimeMs": 30.67,
+            "vsAudibleMs": 0.32
+          },
+          {
+            "pos": 6,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 4.59
+          },
+          {
+            "pos": 7,
+            "vsCurrentTimeMs": 36,
+            "vsAudibleMs": 3.77
+          }
+        ],
+        "outputLatencyMs": 32.94,
+        "worstVsCurrentTimeMs": 36,
+        "worstVsAudibleMs": 4.59,
+        "progress": {
+          "violations": 0,
+          "samples": 483
+        }
+      }
+    },
+    {
+      "name": "playSegment: single snippet, index/tag, progress, onEnded",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "stateAtStart": {
+          "playing": true,
+          "mode": "segment",
+          "key": "track:3135556",
+          "tag": "block:3",
+          "index": 3
+        },
+        "durationMs": 1001.51,
+        "onEndedVsEndMs": 1.51,
+        "progressFirst": 0,
+        "progressLast": 0.98,
+        "progress": {
+          "violations": 0,
+          "samples": 63
+        },
+        "states": "segment:3,idle"
+      }
+    },
+    {
+      "name": "playFull: range + fade-in, progress through the range, onEnded",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "durationMs": 2000.78,
+        "onEndedVsEndMs": 0.78,
+        "scheduled": [
+          {
+            "range": {
+              "start": 12,
+              "end": 14
+            },
+            "frames": 96000
+          }
+        ],
+        "progress": {
+          "violations": 0,
+          "samples": 123
+        },
+        "progressAt1s": 0.48,
+        "energyFirst100ms": 0.15,
+        "energyAt600ms": 0.36
+      }
+    },
+    {
+      "name": "stop: state idle immediately, levels decay to ~0",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "levelsWhilePlaying": {
+          "bass": 0.29,
+          "mid": 0.33,
+          "treble": 0.36,
+          "energy": 0.35,
+          "beat": 0.04
+        },
+        "stateAfterStop": {
+          "playing": false,
+          "mode": null,
+          "key": null,
+          "tag": null,
+          "index": 0
+        },
+        "decayToBelow002Ms": 611,
+        "levelsAfter1500ms": {
+          "bass": 0,
+          "mid": 0,
+          "treble": 0,
+          "energy": 0,
+          "beat": 0
+        }
+      }
+    },
+    {
+      "name": "supersede: a new play* replaces the current one without its onEnded",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "stateAfterSwitch": {
+          "playing": true,
+          "mode": "segment",
+          "key": "track:3135556",
+          "tag": "block:5",
+          "index": 5
+        }
+      }
+    },
+    {
+      "name": "suspended context: play* resumes first",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "stateBefore": "suspended",
+        "stateAfter": "running"
+      }
+    },
+    {
+      "name": "load: expired URL → refresh(); dead URL → Italian error after 3 retries",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "refreshRecoveredMs": 701,
+        "refreshes": 1,
+        "deadMs": 3934,
+        "deadRefreshCalls": 3,
+        "error": "AudioLoadError: Impossibile caricare l'audio del brano: link audio scaduto o non valido."
+      }
+    },
+    {
+      "name": "volume: clamped, persisted",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "stored": "0.5"
+      }
+    },
+    {
+      "name": "sfx: offline levels + live playback bypasses the analyser",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "offline": {
+          "click": {
+            "peakDb": -16.81,
+            "rmsDb": -29.69,
+            "durMs": 50,
+            "centroidHz": 995,
+            "above4kPct": 0
+          },
+          "hover": {
+            "peakDb": -30.71,
+            "rmsDb": -41.58,
+            "durMs": 18,
+            "centroidHz": 2100,
+            "above4kPct": 0
+          },
+          "pickup": {
+            "peakDb": -15.1,
+            "rmsDb": -28.34,
+            "durMs": 104,
+            "centroidHz": 501,
+            "above4kPct": 0.03
+          },
+          "drop": {
+            "peakDb": -14.86,
+            "rmsDb": -29.01,
+            "durMs": 78,
+            "centroidHz": 432,
+            "above4kPct": 0
+          },
+          "swap": {
+            "peakDb": -26.68,
+            "rmsDb": -38.73,
+            "durMs": 22,
+            "centroidHz": 1214,
+            "above4kPct": 0.03
+          },
+          "tick": {
+            "peakDb": -15.59,
+            "rmsDb": -29.59,
+            "durMs": 47,
+            "centroidHz": 894,
+            "above4kPct": 0
+          },
+          "tickUrgent": {
+            "peakDb": -13.19,
+            "rmsDb": -32.28,
+            "durMs": 156,
+            "centroidHz": 1277,
+            "above4kPct": 0.69
+          },
+          "go": {
+            "peakDb": -13.99,
+            "rmsDb": -30.8,
+            "durMs": 535,
+            "centroidHz": 764,
+            "above4kPct": 0.17
+          },
+          "submit": {
+            "peakDb": -13.99,
+            "rmsDb": -29.78,
+            "durMs": 330,
+            "centroidHz": 968,
+            "above4kPct": 0
+          },
+          "alarm": {
+            "peakDb": -14.35,
+            "rmsDb": -30.12,
+            "durMs": 496,
+            "centroidHz": 799,
+            "above4kPct": 0.03
+          },
+          "correct": {
+            "peakDb": -13.89,
+            "rmsDb": -29.06,
+            "durMs": 271,
+            "centroidHz": 1338,
+            "above4kPct": 0.09
+          },
+          "wrong": {
+            "peakDb": -14.31,
+            "rmsDb": -27.58,
+            "durMs": 135,
+            "centroidHz": 166,
+            "above4kPct": 0
+          },
+          "score": {
+            "peakDb": -25.93,
+            "rmsDb": -38.03,
+            "durMs": 18,
+            "centroidHz": 1823,
+            "above4kPct": 0.01
+          },
+          "fanfare": {
+            "peakDb": -9.24,
+            "rmsDb": -28.66,
+            "durMs": 1148,
+            "centroidHz": 768,
+            "above4kPct": 1.49
+          },
+          "join": {
+            "peakDb": -18.48,
+            "rmsDb": -31.31,
+            "durMs": 208,
+            "centroidHz": 1552,
+            "above4kPct": 0.14
+          },
+          "leave": {
+            "peakDb": -20.3,
+            "rmsDb": -32.54,
+            "durMs": 212,
+            "centroidHz": 534,
+            "above4kPct": 0
+          },
+          "pop": {
+            "peakDb": -16.42,
+            "rmsDb": -28.72,
+            "durMs": 64,
+            "centroidHz": 515,
+            "above4kPct": 0
+          }
+        },
+        "livePeakDb": {
+          "click": -16.74,
+          "hover": -30.71,
+          "pickup": -15.14,
+          "drop": -14.9,
+          "swap": -26.7,
+          "tick": -15.77,
+          "tickUrgent": -13.19,
+          "go": -14,
+          "submit": -14.06,
+          "alarm": -14.34,
+          "correct": -10.11,
+          "wrong": -14.24,
+          "score": -25.95,
+          "fanfare": -9.59,
+          "join": -18.34,
+          "leave": -20.25,
+          "pop": -16.44
+        },
+        "analyserLevelDuringSfx": 0,
+        "swapPlaysOutOf5": 2
+      }
+    },
+    {
+      "name": "long: 8 equal segments over the whole preview, correct order",
+      "pass": true,
+      "failures": [],
+      "details": {
+        "segmentSeconds": 3.75,
+        "onPosition": [
+          {
+            "pos": 0,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 2
+          },
+          {
+            "pos": 1,
+            "vsCurrentTimeMs": 28.77,
+            "vsAudibleMs": 0.64
+          },
+          {
+            "pos": 2,
+            "vsCurrentTimeMs": 29.52,
+            "vsAudibleMs": 0.08
+          },
+          {
+            "pos": 3,
+            "vsCurrentTimeMs": 30.29,
+            "vsAudibleMs": 1.05
+          },
+          {
+            "pos": 4,
+            "vsCurrentTimeMs": 31.04,
+            "vsAudibleMs": 1.29
+          },
+          {
+            "pos": 5,
+            "vsCurrentTimeMs": 31.81,
+            "vsAudibleMs": 0.88
+          },
+          {
+            "pos": 6,
+            "vsCurrentTimeMs": 32.58,
+            "vsAudibleMs": 1.65
+          },
+          {
+            "pos": 7,
+            "vsCurrentTimeMs": 33.33,
+            "vsAudibleMs": 2.08
+          }
+        ],
+        "totalFrames": 1439451,
+        "bufferFrames": 1439451,
+        "levels": {
+          "max": {
+            "bass": 0.9,
+            "mid": 0.59,
+            "treble": 0.6,
+            "energy": 0.78
+          },
+          "mean": {
+            "bass": 0.36,
+            "mid": 0.31,
+            "treble": 0.31,
+            "energy": 0.42
+          },
+          "beats": 51,
+          "beatsPerSec": 1.7,
+          "seconds": 30.02
+        }
+      }
+    }
+  ]
+}

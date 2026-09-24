@@ -1,0 +1,74 @@
+[
+ {
+  "gapsMs": [
+   0,
+   0
+  ],
+  "dbg": {
+   "n": 3,
+   "preLen": 435968,
+   "outLen": 436224,
+   "b1": 7.565166666666667,
+   "st": "running"
+  },
+  "stallMs": 150,
+  "joins": "first/gapless gapless/gapless gapless/open",
+  "longestSilenceMs": 192.7,
+  "silenceAtS": 8.87,
+  "outPeakDbfsAtVol1": -0.41
+ },
+ {
+  "gapsMs": [
+   0,
+   0
+  ],
+  "dbg": {
+   "n": 3,
+   "preLen": 442880,
+   "outLen": 442880,
+   "b1": 7.565166666666667,
+   "st": "running"
+  },
+  "stallMs": 300,
+  "joins": "first/gapless gapless/gapless gapless/open",
+  "longestSilenceMs": 192.7,
+  "silenceAtS": 9.014,
+  "outPeakDbfsAtVol1": -0.41
+ },
+ {
+  "gapsMs": [
+   0,
+   96.2
+  ],
+  "dbg": {
+   "n": 3,
+   "preLen": 450048,
+   "outLen": 450048,
+   "b1": 7.565166666666667,
+   "st": "running"
+  },
+  "stallMs": 450,
+  "joins": "first/gapless gapless/cut resync/open",
+  "longestSilenceMs": 192.7,
+  "silenceAtS": 9.163,
+  "outPeakDbfsAtVol1": -0.41
+ },
+ {
+  "gapsMs": [
+   0,
+   80.2
+  ],
+  "dbg": {
+   "n": 3,
+   "preLen": 449280,
+   "outLen": 449536,
+   "b1": 7.565166666666667,
+   "st": "running"
+  },
+  "stallMs": 800,
+  "joins": "first/gapless gapless/cut resync/open",
+  "longestSilenceMs": 192.7,
+  "silenceAtS": 9.147,
+  "outPeakDbfsAtVol1": -0.41
+ }
+]

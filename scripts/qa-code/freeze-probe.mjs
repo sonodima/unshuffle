@@ -1,0 +1,21 @@
+import { chromium } from 'playwright'
+const browser = await chromium.launch({ channel: 'chrome' })
+const ctx = await browser.newContext()
+const page = await ctx.newPage()
+await page.goto('http://127.0.0.1:5305/')
+await page.evaluate(() => { window.__ticks = []; setInterval(() => window.__ticks.push(Date.now()), 250) })
+const cdp = await ctx.newCDPSession(page)
+const other = await ctx.newPage() // bring another tab to front → first page hidden?
+await other.goto('about:blank')
+await other.bringToFront()
+console.log('vis', await page.evaluate(() => document.visibilityState))
+await cdp.send('Debugger.enable'); const r = await cdp.send('Debugger.pause')
+console.log('freeze result', JSON.stringify(r))
+const t = Date.now()
+await new Promise((r) => setTimeout(r, 5000))
+await cdp.send('Debugger.resume')
+const ticks = await page.evaluate(() => window.__ticks)
+let maxGap = 0
+for (let i = 1; i < ticks.length; i++) maxGap = Math.max(maxGap, ticks[i] - ticks[i - 1])
+console.log('ticks', ticks.length, 'maxGap', maxGap)
+await browser.close()

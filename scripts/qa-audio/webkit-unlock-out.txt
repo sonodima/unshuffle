@@ -1,0 +1,3 @@
+nickname-tap     before {"ctx":null,"unlocked":false,"ev":[],"audioSession":"auto"} → after {"ctx":"running","unlocked":true,"ev":["pointerdown","touchend","click"],"audioSession":"playback"}
+crea             before {"ctx":null,"unlocked":false,"ev":[],"audioSession":"auto"} → after {"ctx":"running","unlocked":true,"ev":["pointerdown","touchend","click"],"audioSession":"playback"}
+deeplink-entra   before {"ctx":null,"unlocked":false,"ev":[],"audioSession":"auto"} → after {"ctx":"running","unlocked":true,"ev":["pointerdown","touchend","click"],"audioSession":"playback"}

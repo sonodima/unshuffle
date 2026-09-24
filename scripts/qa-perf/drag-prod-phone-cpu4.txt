@@ -1,0 +1,25 @@
+board has 16 blocks, device phone, cpu 4x, base http://127.0.0.1:5318/
+
+## idle in playing phase 3s
+{"durMs":3005,"frames":181,"fps":60.2,"p50":16.7,"p95":16.7,"max":316.7,"over33":1,"over50":1,"longtasks":[],"ltTotal":0,"commits":19,"commitsPerSec":6.3,"componentRenders":869,"rendersPerFrame":4.8,"top":"ol:138 motion.span:48 $:32 motion.div:32 Anon:32 $c:29 Qc:29 Zc:29 dh:19 Rs:16 ks:16 js:16 motion.header:16 hh:16"}
+   profile busy 183ms: nm:react-dom/cjs/react-dom-client.production.js 45 | ((garbage collector)) 18 | src/components/ui/Timer.tsx 16 | (drawArrays) 14 | src/components/background/runtime.ts 7 | (requestAnimationFrame) 7 | nm:react/cjs/react.production.js 6 | (matchMedia) 5 | nm:@dnd-kit/core/dist/core.esm.js 4 | src/audio/engine.ts 4
+
+## drag pos0 -> pos15 (100 moves, zig-zag)
+{"durMs":4350,"frames":257,"fps":59.1,"p50":16.7,"p95":16.8,"max":83.3,"over33":3,"over50":2,"longtasks":[[15145,50],[18863,65]],"ltTotal":115,"commits":146,"commitsPerSec":33.6,"componentRenders":3018,"rendersPerFrame":11.7,"top":"Anon:748 ol:206 Ur:141 ui:139 Gr:139 Or:139 Mt:139 wt:139 Tt:139 ForwardRef:136 ta:87 motion.span:72 $:48 motion.div:48"}
+   profile busy 697ms: nm:react-dom/cjs/react-dom-client.production.js 230 | nm:@dnd-kit/core/dist/core.esm.js 142 | nm:@dnd-kit/utilities/dist/utilities.esm.js 40 | ((garbage collector)) 21 | src/components/board/SnippetBoard.tsx 20 | src/components/background/runtime.ts 16 | src/components/ui/Timer.tsx 15 | (postMessage) 14 | nm:react/cjs/react.production.js 13 | (getBoundingClientRect) 12
+
+## drag pos15 -> pos0 (100 moves)
+{"durMs":4962,"frames":293,"fps":59,"p50":16.7,"p95":16.8,"max":116.7,"over33":4,"over50":2,"longtasks":[[19750,50],[24026,67]],"ltTotal":117,"commits":148,"commitsPerSec":29.8,"componentRenders":3112,"rendersPerFrame":10.6,"top":"Anon:735 ol:224 Ur:143 ui:141 Gr:141 Or:141 Mt:141 wt:141 Tt:141 ForwardRef:140 ta:85 motion.span:78 $:52 motion.div:52"}
+   profile busy 723ms: nm:react-dom/cjs/react-dom-client.production.js 235 | nm:@dnd-kit/core/dist/core.esm.js 144 | nm:@dnd-kit/utilities/dist/utilities.esm.js 36 | ((garbage collector)) 23 | src/components/background/runtime.ts 22 | src/components/ui/Timer.tsx 18 | (getBoundingClientRect) 16 | (postMessage) 15 | nm:react/cjs/react.production.js 15 | nm:@dnd-kit/sortable/dist/sortable.esm.js 15
+
+## play-all 4s
+{"durMs":4004,"frames":241,"fps":60.2,"p50":16.7,"p95":16.7,"max":166.6,"over33":1,"over50":1,"longtasks":[],"ltTotal":0,"commits":27,"commitsPerSec":6.7,"componentRenders":1192,"rendersPerFrame":4.9,"top":"ol:185 motion.span:63 Anon:58 motion.div:42 $c:38 Qc:38 Zc:38 dh:25 na:25 Id:23 vm:23 dm:23 Mh:23 Da:23"}
+   profile busy 429ms: nm:react-dom/cjs/react-dom-client.production.js 61 | src/audio/engine.ts 47 | (getFloatFrequencyData) 43 | src/components/board/TransportBar.tsx 36 | src/components/ui/Timer.tsx 23 | ((garbage collector)) 22 | (roundRect) 20 | src/components/board/Waveform.tsx 15 | src/components/background/runtime.ts 15 | (drawArrays) 12
+
+## drag during play-all
+{"durMs":2885,"frames":173,"fps":60,"p50":16.7,"p95":16.8,"max":116.7,"over33":1,"over50":1,"longtasks":[],"ltTotal":0,"commits":94,"commitsPerSec":32.6,"componentRenders":2129,"rendersPerFrame":12.3,"top":"Anon:616 ol:137 Ur:92 ui:90 Gr:90 Or:90 Mt:90 wt:90 Tt:90 ForwardRef:88 ta:56 motion.span:45 Da:31 motion.div:30"}
+   profile busy 562ms: nm:react-dom/cjs/react-dom-client.production.js 147 | nm:@dnd-kit/core/dist/core.esm.js 87 | src/components/board/TransportBar.tsx 38 | (getFloatFrequencyData) 37 | src/audio/engine.ts 17 | nm:@dnd-kit/utilities/dist/utilities.esm.js 16 | src/components/ui/Timer.tsx 16 | ((garbage collector)) 11 | (getBoundingClientRect) 11 | (roundRect) 11
+
+## confirm -> reveal animation (8s)
+{"durMs":8443,"frames":485,"fps":57.4,"p50":16.7,"p95":16.8,"max":216.8,"over33":4,"over50":4,"longtasks":[[33205,198],[33479,80],[36136,70]],"ltTotal":348,"commits":91,"commitsPerSec":10.8,"componentRenders":3380,"rendersPerFrame":7,"top":"motion.div:704 motion.span:273 Anon:219 $:203 ol:184 Lo:170 motion.footer:128 motion.section:126 motion.header:90 hh:88 Fo:85 ke:85 Qo:66 Po:66"}
+   profile busy 1135ms: nm:react-dom/cjs/react-dom-client.production.js 198 | (getFloatFrequencyData) 78 | src/audio/engine.ts 67 | src/screens/round/reveal/BoardStage.tsx 63 | src/screens/round/reveal/SongCard.tsx 40 | src/components/background/runtime.ts 39 | nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs 37 | ((garbage collector)) 37 | (getBoundingClientRect) 34 | (drawImage) 28

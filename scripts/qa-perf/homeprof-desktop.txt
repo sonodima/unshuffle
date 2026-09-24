@@ -1,0 +1,23 @@
+home desktop cpu1x: JS busy 16ms/s | Task 168ms/s Script 15 Layout 16 Style 55 ms/s
+self by file:
+     5.9ms/s nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs
+     3.1ms/s ((garbage collector))
+     2.8ms/s nm:motion-dom/dist/es/projection/node/create-projection-node.mjs
+     1.3ms/s (viewport)
+     1.1ms/s nm:react-dom/cjs/react-dom-client.production.js
+     0.8ms/s nm:motion-dom/dist/es/value/index.mjs
+     0.3ms/s src/components/background/runtime.ts
+     0.2ms/s nm:motion-dom/dist/es/render/html/utils/render.mjs
+     0.1ms/s src/screens/home/ShuffleDemo.tsx
+     0.1ms/s src/components/ui/AnimatedNumber.tsx
+     0.0ms/s src/components/ui/Timer.tsx
+     0.0ms/s nm:framer-motion/dist/es/components/AnimatePresence/use-presence.mjs
+inclusive app functions:
+     1.7ms/s src/components/background/runtime.ts:324
+     1.3ms/s src/components/background/renderer.ts:184
+     1.3ms/s src/components/background/runtime.ts:348
+     0.1ms/s src/screens/home/ShuffleDemo.tsx:29
+     0.1ms/s src/components/ui/AnimatedNumber.tsx:75
+     0.0ms/s src/components/ui/Timer.tsx:238
+     0.0ms/s src/components/ui/Timer.tsx:32
+     0.0ms/s src/components/ui/Timer.tsx:55

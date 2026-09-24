@@ -1,0 +1,3 @@
+desktop final entry long tasks (first 6s): []
+running animations 12s after entry: {"anims":["1x ushf-grain on DIV.ushf-bg-grain","1x pulse-ring on SPAN.absolute.-inset-[3px].animate-pulse-ring"],"canvases":["ushf-bg-layer:1080x675"]}
+desktop final idle (12-20s after entry): renderer 5.9%  gpu 15.9%

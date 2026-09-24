@@ -1,0 +1,37 @@
+{
+  "at": "2026-09-24T03:41:47.444Z",
+  "results": [
+    {
+      "label": "elixir-webrtc udp:3478 (dev only)",
+      "server": {
+        "urls": "turn:turn.elixir-webrtc.org:3478?transport=udp",
+        "username": "1790223024:unshuffleqa",
+        "credential": "***"
+      },
+      "policy": "relay",
+      "gather": {
+        "ms": 210,
+        "firstRelayMs": 182,
+        "types": [
+          "relay(null)"
+        ],
+        "relayAddrs": [
+          "167.235.241.140"
+        ],
+        "errors": [
+          "701 STUN host lookup received error.",
+          "701 TURN host lookup received error."
+        ]
+      },
+      "connect": {
+        "ok": true,
+        "openMs": 593,
+        "rttMedian": 95,
+        "rttMax": 122,
+        "burst40x15kBms": 1019,
+        "path": "relay/udp 167.235.241.140:54465 ↔ relay 167.235.241.140:60303",
+        "sctpMaxMessageSize": 262144
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+visible draws/s 60
+hidden draws/s 0
+visible again draws/s 60

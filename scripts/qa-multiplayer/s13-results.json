@@ -1,0 +1,22 @@
+{
+ "at": "2026-09-24T03:54:38.160Z",
+ "results": [
+  {
+   "name": "13: remaining time agrees across skewed clocks (≤ 300 ms)",
+   "ok": true,
+   "detail": "remaining 56890,56889,56889 shown 57,57,57"
+  },
+  {
+   "name": "13: intro countdown agrees (≤ 300 ms)",
+   "ok": true,
+   "detail": "3959,3959,3959"
+  },
+  {
+   "name": "13: final-timer pull-in agrees across skewed clocks",
+   "ok": true,
+   "detail": "9551,9552,9545 shown 10,10,10"
+  }
+ ],
+ "consoleLines": [],
+ "problems": []
+}

@@ -1,0 +1,55 @@
+total sampled 3994 ms (cpu 4x)
+  1746.3 ms  ((idle))
+   794.2 ms  ((program))
+   287.5 ms  nm:motion-dom/dist/es/projection/node/create-projection-node.mjs
+   285.9 ms  src/components/background/renderer.ts
+   207.2 ms  nm:peerjs/dist/bundler.mjs
+   202.7 ms  nm:react-dom/cjs/react-dom-client.production.js
+    80.3 ms  src/components/background/runtime.ts
+    62.9 ms  ui-D3ExPxDv.js
+    27.7 ms  src/components/background/ShaderBackground.tsx
+    16.6 ms  nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs
+    13.1 ms  nm:motion-dom/dist/es/projection/utils/flat-tree.mjs
+    12.3 ms  nm:react/cjs/react.production.js
+    11.8 ms  ((garbage collector))
+    11.6 ms  nm:motion-dom/dist/es/frameloop/render-step.mjs
+    11.3 ms  nm:motion-dom/dist/es/value/index.mjs
+    10.6 ms  src/game/persist.ts
+    10.2 ms  src/components/brand/Logo.tsx
+     9.4 ms  (native)
+     9.0 ms  nm:motion-dom/dist/es/render/html/utils/render.mjs
+     8.8 ms  src/components/shell/ScreenRouter.tsx
+     7.3 ms  src/screens/home/HomeView.tsx
+     6.9 ms  nm:canvas-confetti/dist/confetti.module.mjs
+     6.9 ms  nm:scheduler/index.js
+     6.4 ms  nm:motion-dom/dist/es/animation/generators/spring.mjs
+     6.1 ms  RoundScreen-BKXZk_hk.js
+     5.5 ms  nm:motion-dom/dist/es/animation/interfaces/motion-value.mjs
+     5.4 ms  (query)
+     5.4 ms  (matchMedia)
+--- top functions
+   245.8 ms  src/components/background/renderer.ts:77 it
+   207.2 ms  nm:peerjs/dist/bundler.mjs:175 
+   190.2 ms  nm:motion-dom/dist/es/projection/node/create-projection-node.mjs:263 
+    62.9 ms  ui-D3ExPxDv.js 
+    58.1 ms  nm:react-dom/cjs/react-dom-client.production.js:10454 Ou
+    44.4 ms  src/components/background/runtime.ts:76 Et
+    22.3 ms  nm:react-dom/cjs/react-dom-client.production.js:4627 ts
+    19.5 ms  src/components/background/runtime.ts:115 update
+    17.7 ms  nm:motion-dom/dist/es/projection/node/create-projection-node.mjs:1328 applyProjectionStyles
+    16.6 ms  nm:motion-dom/dist/es/projection/node/DocumentProjectionNode.mjs:6 measureScroll
+    16.2 ms  src/components/background/renderer.ts:64 rt
+    15.1 ms  src/components/background/ShaderBackground.tsx:70 Vt
+    14.0 ms  src/components/background/renderer.ts:184 draw
+    13.1 ms  nm:motion-dom/dist/es/projection/utils/flat-tree.mjs:17 forEach
+    12.0 ms  nm:motion-dom/dist/es/projection/node/create-projection-node.mjs:1450 clearSnapshot
+    11.1 ms  nm:motion-dom/dist/es/value/index.mjs:67 setCurrent
+    10.8 ms  nm:motion-dom/dist/es/frameloop/render-step.mjs:26 s
+    10.7 ms  nm:motion-dom/dist/es/projection/node/create-projection-node.mjs:1249 getLead
+    10.5 ms  nm:react/cjs/react.production.js:256 oe
+    10.5 ms  nm:motion-dom/dist/es/projection/node/create-projection-node.mjs:1564 bc
+     9.5 ms  src/game/persist.ts:24 ko
+     9.2 ms  src/components/brand/Logo.tsx:62 
+     9.0 ms  nm:motion-dom/dist/es/render/html/utils/render.mjs:1 Zo
+     7.9 ms  nm:react-dom/cjs/react-dom-client.production.js:8335 W
+     7.3 ms  nm:react-dom/cjs/react-dom-client.production.js:2661 Ii

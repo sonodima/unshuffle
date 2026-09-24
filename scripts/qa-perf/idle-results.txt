@@ -1,0 +1,9 @@
+home desktop webgl                 vis=visible canvas=1080x675  renderer= 23.5%  gpu= 37.9%  browser= 3.1%  rAF/s= 66  main: script 13ms/s layout 15ms/s style 49ms/s task 142ms/s  layouts/s 40
+home desktop css-fallback          vis=visible canvas=css       renderer= 20.9%  gpu= 33.4%  browser= 0.3%  rAF/s= 60  main: script 11ms/s layout 13ms/s style 41ms/s task 126ms/s  layouts/s 41
+home desktop reduced-motion        vis=visible canvas=1080x675  renderer=  3.5%  gpu=  9.8%  browser= 0.2%  rAF/s= 60  main: script 3ms/s layout 0ms/s style 0ms/s task 14ms/s  layouts/s 0
+home phone webgl                   vis=visible canvas=195x422   renderer= 12.5%  gpu= 26.3%  browser= 0.3%  rAF/s= 61  main: script 12ms/s layout 1ms/s style 11ms/s task 66ms/s  layouts/s 4
+home desktop HIDDEN                vis=visible canvas=1080x675  renderer= 30.2%  gpu= 31.8%  browser= 2.2%  rAF/s= 53  main: script 41ms/s layout 40ms/s style 136ms/s task 429ms/s  layouts/s 36
+lobby desktop webgl                vis=visible canvas=907x567   renderer= 11.3%  gpu= 56.1%  browser= 2.7%  rAF/s= 57  main: script 16ms/s layout 0ms/s style 4ms/s task 44ms/s  layouts/s 0
+lobby desktop css-fallback         vis=visible canvas=css       renderer=  8.2%  gpu= 51.7%  browser= 0.3%  rAF/s= 59  main: script 4ms/s layout 0ms/s style 6ms/s task 28ms/s  layouts/s 0
+lobby phone webgl                  vis=visible canvas=195x422   renderer= 13.5%  gpu= 35.2%  browser= 0.2%  rAF/s= 61  main: script 5ms/s layout 0ms/s style 10ms/s task 65ms/s  layouts/s 0
+lobby desktop HIDDEN               vis=visible canvas=1080x675  renderer= 10.6%  gpu= 51.4%  browser= 0.3%  rAF/s= 60  main: script 5ms/s layout 0ms/s style 3ms/s task 29ms/s  layouts/s 0

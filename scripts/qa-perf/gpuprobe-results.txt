@@ -1,0 +1,8 @@
+(default) {
+  r: 'ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)',
+  timer: true
+}
+--use-angle=metal --enable-gpu --ignore-gpu-blocklist {
+  r: 'ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)',
+  timer: true
+}

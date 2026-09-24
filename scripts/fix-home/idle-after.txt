@@ -1,0 +1,9 @@
+desktop early (4-14s)                demo=run  renderer= 16.3%  gpu= 13.9%  main: layout 7ms/s style 31ms/s task 98ms/s  layouts/s 10
+desktop late (30-40s)                demo=rest  renderer=  7.8%  gpu=  8.5%  main: layout 0ms/s style 4ms/s task 33ms/s  layouts/s 0
+desktop late + mouse moving          demo=run  renderer= 19.8%  gpu= 16.8%  main: layout 9ms/s style 40ms/s task 126ms/s  layouts/s 10
+desktop reduced-motion               demo=rest  renderer=  3.8%  gpu=  4.3%  main: layout 0ms/s style 0ms/s task 16ms/s  layouts/s 0
+phone early (4-14s)                  demo=run  renderer= 12.6%  gpu= 13.2%  main: layout 1ms/s style 12ms/s task 73ms/s  layouts/s 4
+phone late (30-40s)                  demo=rest  renderer=  6.6%  gpu=  8.1%  main: layout 0ms/s style 3ms/s task 27ms/s  layouts/s 0
+desktop late (30-40s)                demo=rest  renderer=  5.1%  gpu=  6.2%  main: layout 0ms/s style 3ms/s task 19ms/s  layouts/s 0
+desktop late + mouse moving          demo=run  renderer= 14.7%  gpu= 12.1%  main: layout 6ms/s style 26ms/s task 90ms/s  layouts/s 10
+phone late (30-40s)                  demo=rest  renderer=  4.6%  gpu=  5.7%  main: layout 0ms/s style 3ms/s task 18ms/s  layouts/s 0

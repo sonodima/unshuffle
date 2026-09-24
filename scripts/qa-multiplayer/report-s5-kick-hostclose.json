@@ -1,0 +1,85 @@
+{
+  "name": "s5-kick-hostclose",
+  "pass": false,
+  "secs": 124.22,
+  "results": [
+    {
+      "ok": true,
+      "msg": "kicked player sees \"Sei stato rimosso\"",
+      "extra": [
+        "SEI STATO RIMOSSO\n\nSei stato rimosso dalla stanza.\n\nSTANZA QCCEE\n\nL’host ti ha tolto dalla stanza. Puoi sempre crearne una tua.\n\nOK"
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "kicked player is back home (hash #/)"
+    },
+    {
+      "ok": true,
+      "msg": "host roster without Kim"
+    },
+    {
+      "ok": true,
+      "msg": "other guest roster updated"
+    },
+    {
+      "ok": true,
+      "msg": "kicked profile cannot rejoin the same room",
+      "extra": {
+        "role": "none",
+        "error": null
+      }
+    },
+    {
+      "ok": true,
+      "msg": "a fresh profile on the kicked device can join (ban is per profile id)"
+    },
+    {
+      "ok": false,
+      "msg": "guests get a definitive \"host gone\" message quickly (39000,38010 ms)",
+      "extra": [
+        39000,
+        38010
+      ]
+    },
+    {
+      "ok": true,
+      "msg": "guest can go home after the host left"
+    }
+  ],
+  "problems": [
+    "CHECK FAILED: guests get a definitive \"host gone\" message quickly (39000,38010 ms) [39000,38010]"
+  ],
+  "console": [],
+  "timings": {
+    "kickedSeesMs": 1700,
+    "kickedRejoinError": null,
+    "guestNoticesLinkDownMs": [
+      10936,
+      10057
+    ],
+    "guestFinalDialogMs": [
+      39000,
+      38010
+    ],
+    "retryAfterHostGoneMs": 672,
+    "evaTimeline": [
+      {
+        "t": 1790210125884,
+        "k": "[\"playing\",0,1790210215227,null,0,\"open\",\"111\"]"
+      },
+      {
+        "t": 1790210137796,
+        "k": "[\"playing\",0,1790210215227,null,0,\"reconnecting\",\"111\"]"
+      },
+      {
+        "t": 1790210166402,
+        "k": "[\"playing\",0,1790210215227,null,0,\"closed\",\"111\"]"
+      },
+      {
+        "t": 1790210170346,
+        "k": "[null,null,null,null,0,\"idle\",null]"
+      }
+    ]
+  }
+}

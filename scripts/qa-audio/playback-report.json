@@ -1,0 +1,1563 @@
+{
+ "beforeGesture": {
+  "ctx": null,
+  "unlocked": false
+ },
+ "afterCrea": {
+  "ctx": "running",
+  "unlocked": true
+ },
+ "graph": {
+  "sampleRate": 48000,
+  "state": "running",
+  "taps": [
+   "GainNode",
+   "GainNode",
+   "AudioBufferSourceNode"
+  ],
+  "baseLatency": 0.005333333333333333,
+  "outputLatency": 0.032
+ },
+ "intro": {
+  "sfxOnsets": [
+   7.122,
+   8.122,
+   9.122,
+   10.142
+  ],
+  "timerChanges": [
+   {
+    "v": "Pronti",
+    "ct": 6.123
+   },
+   {
+    "v": "Si parte tra 3",
+    "ct": 7.115
+   },
+   {
+    "v": "Si parte tra 2",
+    "ct": 8.112
+   },
+   {
+    "v": "Si parte tra 1",
+    "ct": 9.115
+   },
+   {
+    "v": "Si parte tra 1|90 secondi rimasti",
+    "ct": 10.192
+   },
+   {
+    "v": "Pronti|90 secondi rimasti",
+    "ct": 10.229
+   },
+   {
+    "v": "90 secondi rimasti",
+    "ct": 10.645
+   },
+   {
+    "v": "89 secondi rimasti",
+    "ct": 11.123
+   }
+  ],
+  "loud": {
+   "integratedLUFS": -34.3,
+   "maxMomentaryLUFS": -29.3,
+   "peakDbfs": -15.8
+  }
+ },
+ "levelsPlayAll": {
+  "state": "board",
+  "shaderReadsPerSec": 60,
+  "max": {
+   "bass": 0.96,
+   "mid": 0.68,
+   "treble": 0.76,
+   "energy": 0.96,
+   "beat": 0.45
+  }
+ },
+ "levelsIdle": {
+  "state": null,
+  "shaderReadsPerSec": 60,
+  "max": {
+   "bass": 0.03,
+   "mid": 0.06,
+   "treble": 0.03,
+   "energy": 0.11,
+   "beat": 0
+  }
+ },
+ "shuffled": {
+  "label": "shuffled",
+  "items": [
+   {
+    "pos": 0,
+    "join": "first",
+    "outro": "tail",
+    "range": [
+     11.887,
+     15.033
+    ],
+    "sec": 3.146,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 1,
+    "join": "crossfade",
+    "outro": "tail",
+    "range": [
+     24.398,
+     27.528
+    ],
+    "sec": 3.13,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 2,
+    "join": "crossfade",
+    "outro": "tail",
+    "range": [
+     2.509,
+     5.649
+    ],
+    "sec": 3.14,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 3,
+    "join": "crossfade",
+    "outro": "tail",
+    "range": [
+     21.27,
+     24.398
+    ],
+    "sec": 3.127,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 4,
+    "join": "crossfade",
+    "outro": "tail",
+    "range": [
+     18.146,
+     21.27
+    ],
+    "sec": 3.124,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 5,
+    "join": "crossfade",
+    "outro": "tail",
+    "range": [
+     8.744,
+     11.887
+    ],
+    "sec": 3.142,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 6,
+    "join": "crossfade",
+    "outro": "tail",
+    "range": [
+     15.033,
+     18.146
+    ],
+    "sec": 3.113,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 7,
+    "join": "crossfade",
+    "outro": "fade",
+    "range": [
+     5.649,
+     8.744
+    ],
+    "sec": 3.096,
+    "residualDb": -300,
+    "maxErr": 0
+   }
+  ],
+  "joins": [
+   {
+    "at": 1,
+    "kind": "crossfade",
+    "excessDb": -7.9,
+    "naiveExcessDb": -8.3
+   },
+   {
+    "at": 2,
+    "kind": "crossfade",
+    "excessDb": -0.6,
+    "naiveExcessDb": -0.4
+   },
+   {
+    "at": 3,
+    "kind": "crossfade",
+    "excessDb": -3.1,
+    "naiveExcessDb": -3
+   },
+   {
+    "at": 4,
+    "kind": "crossfade",
+    "excessDb": -3.4,
+    "naiveExcessDb": -0.5
+   },
+   {
+    "at": 5,
+    "kind": "crossfade",
+    "excessDb": -1.5,
+    "naiveExcessDb": -1.6
+   },
+   {
+    "at": 6,
+    "kind": "crossfade",
+    "excessDb": 0.3,
+    "naiveExcessDb": -0.3
+   },
+   {
+    "at": 7,
+    "kind": "crossfade",
+    "excessDb": -3.4,
+    "naiveExcessDb": -0.8
+   }
+  ],
+  "sr": 48000,
+  "bufSr": 48000,
+  "recorded": [
+   636672,
+   1862912
+  ],
+  "count": 8,
+  "worstJoinExcessDb": 0.3,
+  "worstNaiveExcessDb": -0.3
+ },
+ "boardAfterIdentity": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "correct": {
+  "label": "correct",
+  "items": [
+   {
+    "pos": 0,
+    "join": "first",
+    "outro": "gapless",
+    "range": [
+     2.509,
+     5.649
+    ],
+    "sec": 3.14,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 1,
+    "join": "gapless",
+    "outro": "gapless",
+    "range": [
+     5.649,
+     8.744
+    ],
+    "sec": 3.096,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 2,
+    "join": "gapless",
+    "outro": "gapless",
+    "range": [
+     8.744,
+     11.887
+    ],
+    "sec": 3.142,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 3,
+    "join": "gapless",
+    "outro": "gapless",
+    "range": [
+     11.887,
+     15.033
+    ],
+    "sec": 3.146,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 4,
+    "join": "gapless",
+    "outro": "gapless",
+    "range": [
+     15.033,
+     18.146
+    ],
+    "sec": 3.113,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 5,
+    "join": "gapless",
+    "outro": "gapless",
+    "range": [
+     18.146,
+     21.27
+    ],
+    "sec": 3.124,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 6,
+    "join": "gapless",
+    "outro": "gapless",
+    "range": [
+     21.27,
+     24.398
+    ],
+    "sec": 3.127,
+    "residualDb": -300,
+    "maxErr": 0
+   },
+   {
+    "pos": 7,
+    "join": "gapless",
+    "outro": "fade",
+    "range": [
+     24.398,
+     27.528
+    ],
+    "sec": 3.13,
+    "residualDb": -300,
+    "maxErr": 0
+   }
+  ],
+  "joins": [
+   {
+    "at": 1,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   },
+   {
+    "at": 2,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   },
+   {
+    "at": 3,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   },
+   {
+    "at": 4,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   },
+   {
+    "at": 5,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   },
+   {
+    "at": 6,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   },
+   {
+    "at": 7,
+    "kind": "gapless",
+    "excessDb": 0,
+    "naiveExcessDb": 0
+   }
+  ],
+  "sr": 48000,
+  "bufSr": 48000,
+  "recorded": [
+   2001920,
+   3242240
+  ],
+  "count": 8,
+  "worstJoinExcessDb": 0,
+  "worstNaiveExcessDb": 0
+ },
+ "musicLevelMaster": {
+  "integratedLUFS": -9.1,
+  "maxMomentaryLUFS": -7,
+  "peakDbfs": -0.9
+ },
+ "tapState": {
+  "playing": true,
+  "mode": "segment",
+  "key": "track:7375556",
+  "tag": "block:2",
+  "index": 2
+ },
+ "tap": {
+  "label": "tap",
+  "items": [
+   {
+    "pos": 0,
+    "join": "first",
+    "outro": "fade",
+    "range": [
+     8.744,
+     11.887
+    ],
+    "sec": 3.142,
+    "residualDb": -300,
+    "maxErr": 0
+   }
+  ],
+  "joins": [],
+  "sr": 48000,
+  "bufSr": 48000,
+  "recorded": [
+   3385344,
+   4357632
+  ],
+  "count": 1,
+  "worstJoinExcessDb": null,
+  "worstNaiveExcessDb": null
+ },
+ "tapTwice": {
+  "playing": false,
+  "mode": null,
+  "key": null,
+  "tag": null,
+  "index": 0
+ },
+ "stopFade": {
+  "requestedFadeMs": 60,
+  "lastAudibleMsAfterStop": 60,
+  "env5ms": [
+   -8,
+   -8,
+   -10,
+   -10,
+   -10,
+   -11,
+   -10,
+   -12,
+   -14,
+   -15,
+   -17,
+   -19,
+   -22,
+   -23,
+   -27,
+   -37,
+   -200,
+   -200,
+   -200,
+   -200
+  ]
+ },
+ "volumeAfterSlider": {
+  "volume": 0.5,
+  "stored": "0.5"
+ },
+ "volumeGain": {
+  "masterVsPreDb": -12.04,
+  "expectedDb": -12.04
+ },
+ "afterMute": 0,
+ "afterUnmute": 0.5,
+ "sfxEnabledAfterToggle": false,
+ "sfxPeakWhenDisabled": 0,
+ "volumeRestored": 0.9,
+ "revealEarly": {
+  "state": {
+   "playing": true,
+   "mode": "full",
+   "key": "track:1109731",
+   "tag": "reveal",
+   "index": 0
+  },
+  "levels": {
+   "state": "reveal",
+   "shaderReadsPerSec": 59,
+   "max": {
+    "bass": 0.31,
+    "mid": 0.45,
+    "treble": 0.66,
+    "energy": 0.47,
+    "beat": 0.89
+   }
+  },
+  "schedule": [
+   {
+    "range": {
+     "start": 0,
+     "end": 29.9885625
+    },
+    "join": "first",
+    "when": 207.57733333333334
+   }
+  ]
+ },
+ "revealAtCt": 208.26133333333334,
+ "timerLog": [
+  {
+   "v": "Pronti",
+   "ct": 6.123
+  },
+  {
+   "v": "Si parte tra 3",
+   "ct": 7.115
+  },
+  {
+   "v": "Si parte tra 2",
+   "ct": 8.112
+  },
+  {
+   "v": "Si parte tra 1",
+   "ct": 9.115
+  },
+  {
+   "v": "Si parte tra 1|90 secondi rimasti",
+   "ct": 10.192
+  },
+  {
+   "v": "Pronti|90 secondi rimasti",
+   "ct": 10.229
+  },
+  {
+   "v": "90 secondi rimasti",
+   "ct": 10.645
+  },
+  {
+   "v": "89 secondi rimasti",
+   "ct": 11.123
+  },
+  {
+   "v": "88 secondi rimasti",
+   "ct": 12.123
+  },
+  {
+   "v": "87 secondi rimasti",
+   "ct": 13.12
+  },
+  {
+   "v": "86 secondi rimasti",
+   "ct": 14.117
+  },
+  {
+   "v": "85 secondi rimasti",
+   "ct": 15.12
+  },
+  {
+   "v": "84 secondi rimasti",
+   "ct": 16.128
+  },
+  {
+   "v": "83 secondi rimasti",
+   "ct": 17.12
+  },
+  {
+   "v": "82 secondi rimasti",
+   "ct": 18.123
+  },
+  {
+   "v": "81 secondi rimasti",
+   "ct": 19.12
+  },
+  {
+   "v": "80 secondi rimasti",
+   "ct": 20.123
+  },
+  {
+   "v": "79 secondi rimasti",
+   "ct": 21.125
+  },
+  {
+   "v": "78 secondi rimasti",
+   "ct": 22.128
+  },
+  {
+   "v": "77 secondi rimasti",
+   "ct": 23.131
+  },
+  {
+   "v": "76 secondi rimasti",
+   "ct": 24.123
+  },
+  {
+   "v": "75 secondi rimasti",
+   "ct": 25.128
+  },
+  {
+   "v": "74 secondi rimasti",
+   "ct": 26.123
+  },
+  {
+   "v": "73 secondi rimasti",
+   "ct": 27.125
+  },
+  {
+   "v": "72 secondi rimasti",
+   "ct": 28.128
+  },
+  {
+   "v": "71 secondi rimasti",
+   "ct": 29.131
+  },
+  {
+   "v": "70 secondi rimasti",
+   "ct": 30.133
+  },
+  {
+   "v": "69 secondi rimasti",
+   "ct": 31.125
+  },
+  {
+   "v": "68 secondi rimasti",
+   "ct": 32.128
+  },
+  {
+   "v": "67 secondi rimasti",
+   "ct": 33.125
+  },
+  {
+   "v": "66 secondi rimasti",
+   "ct": 34.128
+  },
+  {
+   "v": "65 secondi rimasti",
+   "ct": 35.131
+  },
+  {
+   "v": "64 secondi rimasti",
+   "ct": 36.128
+  },
+  {
+   "v": "63 secondi rimasti",
+   "ct": 37.125
+  },
+  {
+   "v": "62 secondi rimasti",
+   "ct": 38.128
+  },
+  {
+   "v": "61 secondi rimasti",
+   "ct": 39.12
+  },
+  {
+   "v": "60 secondi rimasti",
+   "ct": 40.123
+  },
+  {
+   "v": "59 secondi rimasti",
+   "ct": 41.125
+  },
+  {
+   "v": "58 secondi rimasti",
+   "ct": 42.123
+  },
+  {
+   "v": "57 secondi rimasti",
+   "ct": 43.125
+  },
+  {
+   "v": "56 secondi rimasti",
+   "ct": 44.128
+  },
+  {
+   "v": "55 secondi rimasti",
+   "ct": 45.136
+  },
+  {
+   "v": "54 secondi rimasti",
+   "ct": 46.128
+  },
+  {
+   "v": "53 secondi rimasti",
+   "ct": 47.131
+  },
+  {
+   "v": "52 secondi rimasti",
+   "ct": 48.123
+  },
+  {
+   "v": "51 secondi rimasti",
+   "ct": 49.125
+  },
+  {
+   "v": "50 secondi rimasti",
+   "ct": 50.128
+  },
+  {
+   "v": "49 secondi rimasti",
+   "ct": 51.131
+  },
+  {
+   "v": "48 secondi rimasti",
+   "ct": 52.128
+  },
+  {
+   "v": "47 secondi rimasti",
+   "ct": 53.125
+  },
+  {
+   "v": "46 secondi rimasti",
+   "ct": 54.123
+  },
+  {
+   "v": "45 secondi rimasti",
+   "ct": 55.131
+  },
+  {
+   "v": "44 secondi rimasti",
+   "ct": 56.123
+  },
+  {
+   "v": "43 secondi rimasti",
+   "ct": 57.125
+  },
+  {
+   "v": "42 secondi rimasti",
+   "ct": 58.128
+  },
+  {
+   "v": "41 secondi rimasti",
+   "ct": 59.12
+  },
+  {
+   "v": "40 secondi rimasti",
+   "ct": 60.128
+  },
+  {
+   "v": "39 secondi rimasti",
+   "ct": 61.12
+  },
+  {
+   "v": "38 secondi rimasti",
+   "ct": 62.123
+  },
+  {
+   "v": "37 secondi rimasti",
+   "ct": 63.123
+  },
+  {
+   "v": "36 secondi rimasti",
+   "ct": 64.123
+  },
+  {
+   "v": "35 secondi rimasti",
+   "ct": 65.12
+  },
+  {
+   "v": "34 secondi rimasti",
+   "ct": 66.128
+  },
+  {
+   "v": "33 secondi rimasti",
+   "ct": 67.125
+  },
+  {
+   "v": "32 secondi rimasti",
+   "ct": 68.125
+  },
+  {
+   "v": "31 secondi rimasti",
+   "ct": 69.12
+  },
+  {
+   "v": "30 secondi rimasti",
+   "ct": 70.123
+  },
+  {
+   "v": "29 secondi rimasti",
+   "ct": 71.136
+  },
+  {
+   "v": "28 secondi rimasti",
+   "ct": 72.123
+  },
+  {
+   "v": "27 secondi rimasti",
+   "ct": 73.125
+  },
+  {
+   "v": "26 secondi rimasti",
+   "ct": 74.128
+  },
+  {
+   "v": "25 secondi rimasti",
+   "ct": 75.12
+  },
+  {
+   "v": "24 secondi rimasti",
+   "ct": 76.123
+  },
+  {
+   "v": "23 secondi rimasti",
+   "ct": 77.125
+  },
+  {
+   "v": "22 secondi rimasti",
+   "ct": 78.123
+  },
+  {
+   "v": "21 secondi rimasti",
+   "ct": 79.125
+  },
+  {
+   "v": "20 secondi rimasti",
+   "ct": 80.128
+  },
+  {
+   "v": "19 secondi rimasti",
+   "ct": 81.125
+  },
+  {
+   "v": "18 secondi rimasti",
+   "ct": 82.123
+  },
+  {
+   "v": "17 secondi rimasti",
+   "ct": 83.12
+  },
+  {
+   "v": "16 secondi rimasti",
+   "ct": 84.128
+  },
+  {
+   "v": "15 secondi rimasti",
+   "ct": 85.125
+  },
+  {
+   "v": "14 secondi rimasti",
+   "ct": 86.123
+  },
+  {
+   "v": "13 secondi rimasti",
+   "ct": 87.12
+  },
+  {
+   "v": "12 secondi rimasti",
+   "ct": 88.123
+  },
+  {
+   "v": "11 secondi rimasti",
+   "ct": 89.12
+  },
+  {
+   "v": "10 secondi rimasti",
+   "ct": 90.123
+  },
+  {
+   "v": "9 secondi rimasti",
+   "ct": 91.131
+  },
+  {
+   "v": "8 secondi rimasti",
+   "ct": 92.123
+  },
+  {
+   "v": "7 secondi rimasti",
+   "ct": 93.12
+  },
+  {
+   "v": "6 secondi rimasti",
+   "ct": 94.133
+  },
+  {
+   "v": "5 secondi rimasti",
+   "ct": 95.125
+  },
+  {
+   "v": "4 secondi rimasti",
+   "ct": 96.128
+  },
+  {
+   "v": "3 secondi rimasti",
+   "ct": 97.12
+  },
+  {
+   "v": "2 secondi rimasti",
+   "ct": 98.128
+  },
+  {
+   "v": "1 secondi rimasti",
+   "ct": 99.12
+  },
+  {
+   "v": "0 secondi rimasti",
+   "ct": 100.299
+  },
+  {
+   "v": "",
+   "ct": 100.661
+  },
+  {
+   "v": "Pronti",
+   "ct": 125.131
+  },
+  {
+   "v": "Si parte tra 3",
+   "ct": 126.133
+  },
+  {
+   "v": "Si parte tra 2",
+   "ct": 127.125
+  },
+  {
+   "v": "Si parte tra 1",
+   "ct": 128.123
+  },
+  {
+   "v": "Si parte tra 1|90 secondi rimasti",
+   "ct": 129.195
+  },
+  {
+   "v": "Pronti|90 secondi rimasti",
+   "ct": 129.248
+  },
+  {
+   "v": "90 secondi rimasti",
+   "ct": 129.691
+  },
+  {
+   "v": "89 secondi rimasti",
+   "ct": 130.128
+  },
+  {
+   "v": "88 secondi rimasti",
+   "ct": 131.131
+  },
+  {
+   "v": "87 secondi rimasti",
+   "ct": 132.133
+  },
+  {
+   "v": "86 secondi rimasti",
+   "ct": 133.131
+  },
+  {
+   "v": "85 secondi rimasti",
+   "ct": 134.133
+  },
+  {
+   "v": "84 secondi rimasti",
+   "ct": 135.125
+  },
+  {
+   "v": "83 secondi rimasti",
+   "ct": 136.128
+  },
+  {
+   "v": "82 secondi rimasti",
+   "ct": 137.131
+  },
+  {
+   "v": "81 secondi rimasti",
+   "ct": 138.128
+  },
+  {
+   "v": "80 secondi rimasti",
+   "ct": 139.131
+  },
+  {
+   "v": "79 secondi rimasti",
+   "ct": 140.128
+  },
+  {
+   "v": "78 secondi rimasti",
+   "ct": 141.131
+  },
+  {
+   "v": "77 secondi rimasti",
+   "ct": 142.128
+  },
+  {
+   "v": "76 secondi rimasti",
+   "ct": 143.131
+  },
+  {
+   "v": "75 secondi rimasti",
+   "ct": 144.133
+  },
+  {
+   "v": "74 secondi rimasti",
+   "ct": 145.131
+  },
+  {
+   "v": "73 secondi rimasti",
+   "ct": 146.133
+  },
+  {
+   "v": "72 secondi rimasti",
+   "ct": 147.131
+  },
+  {
+   "v": "71 secondi rimasti",
+   "ct": 148.128
+  },
+  {
+   "v": "70 secondi rimasti",
+   "ct": 149.131
+  },
+  {
+   "v": "69 secondi rimasti",
+   "ct": 150.133
+  },
+  {
+   "v": "68 secondi rimasti",
+   "ct": 151.136
+  },
+  {
+   "v": "67 secondi rimasti",
+   "ct": 152.128
+  },
+  {
+   "v": "66 secondi rimasti",
+   "ct": 153.131
+  },
+  {
+   "v": "65 secondi rimasti",
+   "ct": 154.133
+  },
+  {
+   "v": "64 secondi rimasti",
+   "ct": 155.131
+  },
+  {
+   "v": "63 secondi rimasti",
+   "ct": 156.133
+  },
+  {
+   "v": "62 secondi rimasti",
+   "ct": 157.131
+  },
+  {
+   "v": "61 secondi rimasti",
+   "ct": 158.128
+  },
+  {
+   "v": "60 secondi rimasti",
+   "ct": 159.136
+  },
+  {
+   "v": "59 secondi rimasti",
+   "ct": 160.133
+  },
+  {
+   "v": "58 secondi rimasti",
+   "ct": 161.136
+  },
+  {
+   "v": "57 secondi rimasti",
+   "ct": 162.128
+  },
+  {
+   "v": "56 secondi rimasti",
+   "ct": 163.136
+  },
+  {
+   "v": "55 secondi rimasti",
+   "ct": 163.84
+  },
+  {
+   "v": "54 secondi rimasti",
+   "ct": 164.491
+  },
+  {
+   "v": "53 secondi rimasti",
+   "ct": 165.195
+  },
+  {
+   "v": "52 secondi rimasti",
+   "ct": 165.909
+  },
+  {
+   "v": "51 secondi rimasti",
+   "ct": 166.507
+  },
+  {
+   "v": "50 secondi rimasti",
+   "ct": 166.997
+  },
+  {
+   "v": "49 secondi rimasti",
+   "ct": 167.579
+  },
+  {
+   "v": "48 secondi rimasti",
+   "ct": 168.213
+  },
+  {
+   "v": "47 secondi rimasti",
+   "ct": 168.651
+  },
+  {
+   "v": "46 secondi rimasti",
+   "ct": 169.328
+  },
+  {
+   "v": "45 secondi rimasti",
+   "ct": 170.027
+  },
+  {
+   "v": "44 secondi rimasti",
+   "ct": 170.72
+  },
+  {
+   "v": "43 secondi rimasti",
+   "ct": 171.285
+  },
+  {
+   "v": "42 secondi rimasti",
+   "ct": 171.765
+  },
+  {
+   "v": "41 secondi rimasti",
+   "ct": 172.165
+  },
+  {
+   "v": "40 secondi rimasti",
+   "ct": 172.741
+  },
+  {
+   "v": "39 secondi rimasti",
+   "ct": 173.477
+  },
+  {
+   "v": "38 secondi rimasti",
+   "ct": 174.16
+  },
+  {
+   "v": "37 secondi rimasti",
+   "ct": 174.853
+  },
+  {
+   "v": "36 secondi rimasti",
+   "ct": 175.467
+  },
+  {
+   "v": "35 secondi rimasti",
+   "ct": 176.283
+  },
+  {
+   "v": "34 secondi rimasti",
+   "ct": 177.141
+  },
+  {
+   "v": "33 secondi rimasti",
+   "ct": 177.909
+  },
+  {
+   "v": "32 secondi rimasti",
+   "ct": 178.784
+  },
+  {
+   "v": "31 secondi rimasti",
+   "ct": 179.557
+  },
+  {
+   "v": "30 secondi rimasti",
+   "ct": 180.256
+  },
+  {
+   "v": "29 secondi rimasti",
+   "ct": 181.04
+  },
+  {
+   "v": "28 secondi rimasti",
+   "ct": 181.728
+  },
+  {
+   "v": "27 secondi rimasti",
+   "ct": 182.571
+  },
+  {
+   "v": "26 secondi rimasti",
+   "ct": 183.429
+  },
+  {
+   "v": "25 secondi rimasti",
+   "ct": 184.171
+  },
+  {
+   "v": "24 secondi rimasti",
+   "ct": 184.901
+  },
+  {
+   "v": "23 secondi rimasti",
+   "ct": 185.579
+  },
+  {
+   "v": "22 secondi rimasti",
+   "ct": 186.267
+  },
+  {
+   "v": "21 secondi rimasti",
+   "ct": 187.088
+  },
+  {
+   "v": "20 secondi rimasti",
+   "ct": 187.851
+  },
+  {
+   "v": "19 secondi rimasti",
+   "ct": 188.688
+  },
+  {
+   "v": "18 secondi rimasti",
+   "ct": 189.6
+  },
+  {
+   "v": "17 secondi rimasti",
+   "ct": 190.539
+  },
+  {
+   "v": "16 secondi rimasti",
+   "ct": 191.536
+  },
+  {
+   "v": "15 secondi rimasti",
+   "ct": 192.539
+  },
+  {
+   "v": "14 secondi rimasti",
+   "ct": 193.536
+  },
+  {
+   "v": "13 secondi rimasti",
+   "ct": 194.517
+  },
+  {
+   "v": "12 secondi rimasti",
+   "ct": 195.461
+  },
+  {
+   "v": "11 secondi rimasti",
+   "ct": 196.464
+  },
+  {
+   "v": "10 secondi rimasti",
+   "ct": 197.467
+  },
+  {
+   "v": "9 secondi rimasti",
+   "ct": 198.459
+  },
+  {
+   "v": "8 secondi rimasti",
+   "ct": 199.467
+  },
+  {
+   "v": "7 secondi rimasti",
+   "ct": 200.464
+  },
+  {
+   "v": "6 secondi rimasti",
+   "ct": 201.461
+  },
+  {
+   "v": "5 secondi rimasti",
+   "ct": 202.459
+  },
+  {
+   "v": "4 secondi rimasti",
+   "ct": 203.467
+  },
+  {
+   "v": "3 secondi rimasti",
+   "ct": 204.464
+  },
+  {
+   "v": "2 secondi rimasti",
+   "ct": 205.467
+  },
+  {
+   "v": "1 secondi rimasti",
+   "ct": 206.464
+  },
+  {
+   "v": "0 secondi rimasti",
+   "ct": 207.637
+  },
+  {
+   "v": "",
+   "ct": 207.984
+  }
+ ],
+ "revealTap": {
+  "hasBoard": true,
+  "before": {
+   "playing": true,
+   "mode": "full",
+   "key": "track:1109731",
+   "tag": "reveal",
+   "index": 0
+  },
+  "during": {
+   "playing": true,
+   "mode": "segment",
+   "key": "track:1109731",
+   "tag": "block:0",
+   "index": 0
+  },
+  "after": {
+   "playing": false,
+   "mode": null,
+   "key": null,
+   "tag": null,
+   "index": 0
+  },
+  "songButton": "Riascolta la canzone"
+ },
+ "sfxEvents": [
+  {
+   "ct": 194.853,
+   "sinceRevealS": -13.41,
+   "sfxPeakDb": -18.6,
+   "sfxMomLUFS": -37.4,
+   "musicMomLUFS": -13.1,
+   "sfxMinusMusicLU": -24.3,
+   "musicPeakDb": -4.8
+  },
+  {
+   "ct": 197.468,
+   "sinceRevealS": -10.79,
+   "sfxPeakDb": -18.4,
+   "sfxMomLUFS": -38.5,
+   "musicMomLUFS": -10.2,
+   "sfxMinusMusicLU": -28.3,
+   "musicPeakDb": -3.2
+  },
+  {
+   "ct": 198.473,
+   "sinceRevealS": -9.79,
+   "sfxPeakDb": -17.2,
+   "sfxMomLUFS": -38.1,
+   "musicMomLUFS": -11.5,
+   "sfxMinusMusicLU": -26.6,
+   "musicPeakDb": -2.5
+  },
+  {
+   "ct": 199.468,
+   "sinceRevealS": -8.79,
+   "sfxPeakDb": -17.1,
+   "sfxMomLUFS": -38.1,
+   "musicMomLUFS": -11.2,
+   "sfxMinusMusicLU": -26.9,
+   "musicPeakDb": -2.9
+  },
+  {
+   "ct": 200.468,
+   "sinceRevealS": -7.79,
+   "sfxPeakDb": -17.4,
+   "sfxMomLUFS": -38.1,
+   "musicMomLUFS": -14.8,
+   "sfxMinusMusicLU": -23.3,
+   "musicPeakDb": -5.5
+  },
+  {
+   "ct": 201.463,
+   "sinceRevealS": -6.8,
+   "sfxPeakDb": -17.5,
+   "sfxMomLUFS": -38.1,
+   "musicMomLUFS": -13.6,
+   "sfxMinusMusicLU": -24.5,
+   "musicPeakDb": -3.6
+  },
+  {
+   "ct": 202.473,
+   "sinceRevealS": -5.79,
+   "sfxPeakDb": -17.7,
+   "sfxMomLUFS": -38.1,
+   "musicMomLUFS": -14.6,
+   "sfxMinusMusicLU": -23.5,
+   "musicPeakDb": -4.4
+  },
+  {
+   "ct": 203.468,
+   "sinceRevealS": -4.79,
+   "sfxPeakDb": -17.5,
+   "sfxMomLUFS": -38.1,
+   "musicMomLUFS": -9.8,
+   "sfxMinusMusicLU": -28.3,
+   "musicPeakDb": -2.6
+  },
+  {
+   "ct": 204.468,
+   "sinceRevealS": -3.79,
+   "sfxPeakDb": -15,
+   "sfxMomLUFS": -34.6,
+   "musicMomLUFS": -10.4,
+   "sfxMinusMusicLU": -24.2,
+   "musicPeakDb": -2.7
+  },
+  {
+   "ct": 204.558,
+   "sinceRevealS": -3.7,
+   "sfxPeakDb": -21.9,
+   "sfxMomLUFS": -34.6,
+   "musicMomLUFS": -10.7,
+   "sfxMinusMusicLU": -23.9,
+   "musicPeakDb": -2.7
+  },
+  {
+   "ct": 205.463,
+   "sinceRevealS": -2.8,
+   "sfxPeakDb": -15,
+   "sfxMomLUFS": -34.6,
+   "musicMomLUFS": -12.4,
+   "sfxMinusMusicLU": -22.2,
+   "musicPeakDb": -5
+  },
+  {
+   "ct": 205.553,
+   "sinceRevealS": -2.71,
+   "sfxPeakDb": -21.9,
+   "sfxMomLUFS": -34.7,
+   "musicMomLUFS": -11.8,
+   "sfxMinusMusicLU": -22.9,
+   "musicPeakDb": -2.1
+  },
+  {
+   "ct": 206.468,
+   "sinceRevealS": -1.79,
+   "sfxPeakDb": -15,
+   "sfxMomLUFS": -34.6,
+   "musicMomLUFS": -9.6,
+   "sfxMinusMusicLU": -25,
+   "musicPeakDb": -1.8
+  },
+  {
+   "ct": 206.558,
+   "sinceRevealS": -1.7,
+   "sfxPeakDb": -21.9,
+   "sfxMomLUFS": -34.6,
+   "musicMomLUFS": -9.4,
+   "sfxMinusMusicLU": -25.1,
+   "musicPeakDb": -1.8
+  },
+  {
+   "ct": 208.413,
+   "sinceRevealS": 0.15,
+   "sfxPeakDb": -17.1,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -17.7,
+   "sfxMinusMusicLU": -12.8,
+   "musicPeakDb": -2.8
+  },
+  {
+   "ct": 208.613,
+   "sinceRevealS": 0.35,
+   "sfxPeakDb": -17.5,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -19.1,
+   "sfxMinusMusicLU": -11.4,
+   "musicPeakDb": -3.7
+  },
+  {
+   "ct": 208.813,
+   "sinceRevealS": 0.55,
+   "sfxPeakDb": -17.4,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -19,
+   "sfxMinusMusicLU": -11.5,
+   "musicPeakDb": -5.8
+  },
+  {
+   "ct": 209.023,
+   "sinceRevealS": 0.76,
+   "sfxPeakDb": -17.2,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -18.4,
+   "sfxMinusMusicLU": -12.2,
+   "musicPeakDb": -6.1
+  },
+  {
+   "ct": 209.213,
+   "sinceRevealS": 0.95,
+   "sfxPeakDb": -17.7,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -17.9,
+   "sfxMinusMusicLU": -12.6,
+   "musicPeakDb": -6.1
+  },
+  {
+   "ct": 209.413,
+   "sinceRevealS": 1.15,
+   "sfxPeakDb": -17.4,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -21.2,
+   "sfxMinusMusicLU": -9.3,
+   "musicPeakDb": -8.2
+  },
+  {
+   "ct": 209.613,
+   "sinceRevealS": 1.35,
+   "sfxPeakDb": -17.4,
+   "sfxMomLUFS": -30.5,
+   "musicMomLUFS": -21.3,
+   "sfxMinusMusicLU": -9.2,
+   "musicPeakDb": -9.8
+  },
+  {
+   "ct": 209.813,
+   "sinceRevealS": 1.55,
+   "sfxPeakDb": -17.4,
+   "sfxMomLUFS": -33.5,
+   "musicMomLUFS": -21.1,
+   "sfxMinusMusicLU": -12.4,
+   "musicPeakDb": -10
+  },
+  {
+   "ct": 210.338,
+   "sinceRevealS": 2.08,
+   "sfxPeakDb": -18.8,
+   "sfxMomLUFS": -35.6,
+   "musicMomLUFS": -13.6,
+   "sfxMinusMusicLU": -22,
+   "musicPeakDb": -3.2
+  },
+  {
+   "ct": 211.463,
+   "sinceRevealS": 3.2,
+   "sfxPeakDb": -23.3,
+   "sfxMomLUFS": -41.2,
+   "musicMomLUFS": -15.2,
+   "sfxMinusMusicLU": -26,
+   "musicPeakDb": -5.3
+  }
+ ],
+ "revealMusicLoud": {
+  "integratedLUFS": -13.4,
+  "maxMomentaryLUFS": -9.6,
+  "peakDbfs": -1.8
+ },
+ "revealSfxLoud": {
+  "integratedLUFS": -32.1,
+  "maxMomentaryLUFS": -30.4,
+  "peakDbfs": -17.1
+ }
+}

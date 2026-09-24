@@ -1,0 +1,2 @@
+without gesture: {"ctx":"running","unlocked":true,"state":{"playing":true,"mode":"full","key":"k","tag":"reveal","index":0},"pos":{"mode":"full","key":"k","tag":"reveal","index":0,"progress":0.048863523656480654,"elapsed":1.4653468331425985}}
+after a click: {"ctx":"running","unlocked":true,"state":{"playing":true,"mode":"full","key":"k","tag":"reveal","index":0},"elapsed":2.9866468333333334,"sched":[{"range":{"start":0,"end":29.9885625},"when":0.329}],"now":3.3333333333333335}

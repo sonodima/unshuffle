@@ -1,0 +1,38 @@
+events 28862 main [ '96839:145661341' ] sub 2690
+
+TASK @100ms dur 139ms
+     133.6  v8.evaluateModule 
+       2.2  RunMicrotasks
+       1.0  FunctionCall nm:react-dom/cjs/react-dom-client.production.js:13579
+       0.0  EventDispatch
+
+TASK @242ms dur 139ms
+     134.7  FunctionCall nm:scheduler/cjs/scheduler.production.js:121 te
+       4.0  MinorGC
+       2.7  RunMicrotasks
+       2.6  FunctionCall nm:motion-dom/dist/es/frameloop/batcher.mjs:20 h
+       0.0  FunctionCall nm:react-dom/cjs/react-dom-client.production.js:13579
+
+TASK @381ms dur 197ms
+     160.0  FireAnimationFrame
+     155.4  FunctionCall nm:motion-dom/dist/es/frameloop/batcher.mjs:20 h
+     132.1  Layout
+      49.6  Paint
+      21.8  UpdateLayoutTree
+      10.2  PrePaint
+       4.5  FunctionCall src/components/shell/ScreenRouter.tsx:149
+       3.5  EventDispatch
+
+TASK @599ms dur 311ms
+     279.2  FunctionCall nm:scheduler/cjs/scheduler.production.js:121 te
+      31.0  RunMicrotasks
+      25.5  FunctionCall nm:motion-dom/dist/es/frameloop/batcher.mjs:20 h
+       7.3  UpdateLayoutTree
+       4.2  MinorGC
+       1.8  Layout
+       1.1  FunctionCall nm:react-dom/cjs/react-dom-client.production.js:13579
+       0.0  FunctionCall nm:motion-dom/dist/es/frameloop/sync-time.mjs:5 je
+
+TASK @977ms dur 212ms
+     211.5  v8.evaluateModule 
+       0.0  RunMicrotasks

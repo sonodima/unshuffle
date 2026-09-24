@@ -1,0 +1,34 @@
+    <style>
+      /* Boot screen: shown between the stylesheet and React's first render (about 1 s
+         on a slow phone connection). It sits right after #root and hides as soon as
+         React renders into it. The fade starts late, so fast loads never see it.
+         Compositor-only animation (transform/opacity): the main thread is busy
+         evaluating the app bundle exactly while this is on screen. */
+      html { background: #06040f; }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(55% 45% at 50% 46%, rgb(123 92 255 / 0.2), transparent 72%), #06040f;
+        opacity: 0;
+        animation: boot-in 0.5s ease-out 0.15s forwards;
+        pointer-events: none;
+      }
+      #root:not(:empty) + #boot { display: none; }
+      #boot .bars { display: flex; align-items: flex-end; gap: 5px; height: 44px; }
+      /* Each bar: a rounded clip with a rounded pill sliding inside it, so both ends stay round. */
+      #boot i { width: 10px; height: var(--h); border-radius: 5px; overflow: hidden; }
+      #boot i::before {
+        content: '';
+        display: block;
+        height: 100%;
+        border-radius: 5px;
+        background: var(--c);
+        animation: boot-eq var(--t) ease-in-out var(--d) infinite alternate;
+      }
+      #boot noscript { position: absolute; top: calc(50% + 48px); left: 16px; right: 16px; color: #c9c3f0; font: 600 16px/1.4 system-ui, sans-serif; text-align: center; }
+      @keyframes boot-in { to { opacity: 1; } }
+      @keyframes boot-eq { from { transform: translateY(calc(100% - 10px)); } }
+      @media (prefers-reduced-motion: reduce) { #boot i::before { animation: none; } }
+    </style>

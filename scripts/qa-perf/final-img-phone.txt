@@ -1,0 +1,6 @@
+phone final entry long tasks (first 6s): []
+running animations 12s after entry: {"anims":["1x ushf-grain on DIV.ushf-bg-grain","1x pulse-ring on SPAN.absolute.-inset-[3px].animate-pulse-ring"],"canvases":["ushf-bg-layer:195x422"]}
+phone final idle (12-20s after entry): renderer 6.8%  gpu 17.5%
+cover images whole game by size: {"500x500":{"n":15,"KB":737},"250x250":{"n":9,"KB":52},"1000x1000":{"n":3,"KB":501}}
+cover images requested after entering final: {"500x500":{"n":1,"KB":0},"250x250":{"n":3,"KB":0},"1000x1000":{"n":3,"KB":501}}
+final <img> covers: ["500x500 natural 500 shown 24x24css@3","250x250 natural 250 shown 40x40css@3","250x250 natural 250 shown 40x40css@3","250x250 natural 250 shown 40x40css@3","1000x1000 natural 1000 shown 173x173css@3","1000x1000 natural 1000 shown 173x173css@3","1000x1000 natural 1000 shown 173x173css@3"]
