@@ -214,6 +214,9 @@
   }
   body {
     background-color: var(--color-page);
+    /* Own stacking context: the shader layer (fixed, z-index −1) paints above the
+       body's background instead of beneath it. */
+    isolation: isolate;
     overscroll-behavior: none;
   }
   ::selection {
