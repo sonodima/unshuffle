@@ -1,32 +1,30 @@
-// Network errors surfaced to the app. Messages are user-facing (Italian).
+// Network errors surfaced to the app. `message` is a catalog key (see NET_MESSAGES).
+
+import type { MessageKey } from '../i18n'
 
 export class NetError extends Error {
   readonly code: 'room-not-found' | 'network' | 'server' | 'timeout' | 'unsupported' | 'unknown'
-  constructor(code: NetError['code'], message: string) {
+  constructor(code: NetError['code'], message: MessageKey) {
     super(message)
     this.name = 'NetError'
     this.code = code
   }
 }
 
+/** Keys into the game.net catalog: the UI shows them in the viewer's language. */
 export const NET_MESSAGES = {
-  network: 'Connessione di rete non disponibile. Controlla la connessione e riprova.',
-  server: 'Il server di collegamento non risponde. Riprova tra qualche secondo.',
-  /** The device is online but the signaling server can't be reached at all (down, DNS, filtered). */
-  signaling: 'Server di collegamento irraggiungibile. Riprova tra poco o cambia rete (Wi‑Fi o dati mobili).',
-  createTimeout: 'Il server di collegamento non risponde. Riprova tra qualche secondo.',
-  /** Registered fine, the host answered, but no data path could be opened (NAT / firewall). */
-  joinTimeout:
-    'Impossibile collegarsi all’host. Riprova; se non funziona, prova un’altra rete (Wi‑Fi o dati mobili).',
-  /** Offers reached the room's id but nobody answered (host on a very slow link, or its tab asleep). */
-  hostNoAnswer: 'L’host non risponde. Controlla il codice, oppure riprova tra poco.',
-  roomNotFound: 'Stanza non trovata. Controlla il codice.',
-  invalidCode: 'Codice stanza non valido. Sono 5 lettere, ad esempio KXQPM.',
-  unsupported:
-    'Questo browser non supporta le connessioni peer-to-peer (WebRTC). Prova con Chrome, Safari o Firefox aggiornati.',
-  loadFailed: 'Impossibile caricare il modulo di rete. Ricarica la pagina.',
-  unknown: 'Errore di connessione imprevisto. Riprova.',
-} as const
+  network: 'game.net.network',
+  server: 'game.net.server',
+  signaling: 'game.net.signaling',
+  createTimeout: 'game.net.createTimeout',
+  joinTimeout: 'game.net.joinTimeout',
+  hostNoAnswer: 'game.net.hostNoAnswer',
+  roomNotFound: 'game.net.roomNotFound',
+  invalidCode: 'game.net.invalidCode',
+  unsupported: 'game.net.unsupported',
+  loadFailed: 'game.net.loadFailed',
+  unknown: 'game.net.unknown',
+} as const satisfies Record<string, MessageKey>
 
 /** PeerJS error types that are worth retrying (flaky network / public server hiccups). */
 const TRANSIENT = new Set(['network', 'server-error', 'socket-error', 'socket-closed', 'disconnected', 'timeout'])
@@ -38,7 +36,7 @@ export function isTransientPeerError(type: string): boolean {
 const isOffline = (): boolean => typeof navigator !== 'undefined' && navigator.onLine === false
 
 /** Maps a PeerJS error type (or our own 'timeout') to a NetError. */
-export function netErrorFromPeer(type: string, timeoutMessage: string = NET_MESSAGES.createTimeout): NetError {
+export function netErrorFromPeer(type: string, timeoutMessage: MessageKey = NET_MESSAGES.createTimeout): NetError {
   switch (type) {
     case 'network':
     case 'disconnected':

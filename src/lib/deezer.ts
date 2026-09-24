@@ -4,6 +4,7 @@
 // covers (cdn-images.dzcdn.net) DO send `Access-Control-Allow-Origin: *`, so
 // they can be fetched / decoded / drawn to canvas normally.
 
+import type { MessageKey } from '../i18n'
 import type { PlaylistRef, TrackInfo } from '../game/types'
 import { FEATURED_PLAYLIST_IDS } from './playlistCategories'
 
@@ -37,7 +38,7 @@ export class DeezerError extends Error {
   /** Deezer API error code, when the error came from an `{error}` payload. */
   readonly code: number | undefined
 
-  constructor(message: string, kind: DeezerErrorKind = 'api', code?: number) {
+  constructor(message: MessageKey, kind: DeezerErrorKind = 'api', code?: number) {
     super(message)
     this.name = 'DeezerError'
     this.kind = kind
@@ -45,21 +46,22 @@ export class DeezerError extends Error {
   }
 }
 
+/** Keys into the game.deezer catalog (DeezerError.message). */
 const MSG = {
-  timeout: 'Deezer non risponde. Controlla la connessione e riprova.',
-  network: 'Impossibile contattare Deezer. Controlla la connessione (o eventuali ad blocker) e riprova.',
-  invalid: 'Risposta inattesa da Deezer. Riprova tra poco.',
-  quota: 'Troppe richieste a Deezer in poco tempo. Aspetta qualche secondo e riprova.',
-  busy: 'Deezer è momentaneamente sovraccarico. Riprova tra poco.',
-  notFound: 'Contenuto non trovato su Deezer.',
-  forbidden: 'Contenuto non accessibile: potrebbe essere privato o non disponibile nel tuo paese.',
-  badRequest: 'Richiesta non valida per Deezer.',
-  api: 'Errore di Deezer. Riprova tra poco.',
-  playlistNotFound: 'Playlist non trovata: controlla il link (le playlist private non sono accessibili).',
-  noPreview: 'Anteprima non disponibile per questo brano.',
-  trackNotFound: 'Brano non più disponibile su Deezer.',
-  featured: 'Impossibile caricare le playlist in evidenza.',
-} as const
+  timeout: 'game.deezer.timeout',
+  network: 'game.deezer.network',
+  invalid: 'game.deezer.invalid',
+  quota: 'game.deezer.quota',
+  busy: 'game.deezer.busy',
+  notFound: 'game.deezer.notFound',
+  forbidden: 'game.deezer.forbidden',
+  badRequest: 'game.deezer.badRequest',
+  api: 'game.deezer.api',
+  playlistNotFound: 'game.deezer.playlistNotFound',
+  noPreview: 'game.deezer.noPreview',
+  trackNotFound: 'game.deezer.trackNotFound',
+  featured: 'game.deezer.featured',
+} as const satisfies Record<string, MessageKey>
 
 function apiError(code: number | undefined): DeezerError {
   switch (code) {

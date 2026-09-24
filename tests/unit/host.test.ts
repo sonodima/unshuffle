@@ -18,6 +18,7 @@ mock.module('../../src/audio/analysis', () => ({ analyzeAndCut: untouchable('ana
 
 import type { GameEvent, PlaylistRef, RoomState } from '../../src/game/types'
 import type { HostMsg } from '../../src/net/protocol'
+import type { Msg } from '../../src/i18n'
 import {
   FakeClock,
   FakeHostServer,
@@ -36,6 +37,7 @@ const { ARRIVAL_GRACE_MS, INTRO_MS, MAX_PLAYERS, PROTOCOL_VERSION, READY_TIMEOUT
   '../../src/game/constants'
 )
 const { scoreArrangement } = await import('../../src/game/scoring')
+const { tm } = await import('../../src/i18n')
 const { loadHostSnapshot } = await import('../../src/game/persist')
 
 type Game = InstanceType<typeof HostGame>
@@ -320,9 +322,11 @@ describe('starting', () => {
     w.game.updateSettings({ playlist: PLAYLIST, rounds: 5 })
     const phases: string[] = []
     w.game.subscribe((s) => phases.push(s.phase.kind))
-    await expect(w.game.startGame()).rejects.toThrow(
-      'Questa playlist non ha abbastanza brani con anteprima (servono almeno 5).',
+    const err = await w.game.startGame().then(
+      () => null,
+      (e: unknown) => e,
     )
+    expect(tm((err as { msg?: Msg }).msg)).toBe('Questa playlist non ha abbastanza brani con anteprima (servono almeno 5).')
     expect(phases).toEqual(['preparing', 'lobby'])
     expect(w.game.state).toMatchObject({ phase: { kind: 'lobby' }, tracks: [], rounds: [] })
     // Clients learn why; the host UI gets the rejection instead of a duplicate toast.

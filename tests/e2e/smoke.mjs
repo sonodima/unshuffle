@@ -34,7 +34,7 @@ const browser = await chromium.launch({
 })
 
 async function openPlayer(name, opts) {
-  const ctx = await browser.newContext(opts)
+  const ctx = await browser.newContext({ locale: 'it-IT', ...opts })
   await ctx.addInitScript(() => {
     try {
       localStorage.setItem('unshuffle:onboarded', String(Date.now()))

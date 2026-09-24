@@ -28,6 +28,7 @@ export { TimerRing, TimerBar, type TimerRingProps, type TimerBarProps, type Time
 export { AnimatedNumber, type AnimatedNumberProps } from './AnimatedNumber'
 export { ProgressDots, type ProgressDotsProps, type DotState } from './ProgressDots'
 export { Kbd, type KbdProps } from './Kbd'
+export { LanguagePicker, type LanguagePickerProps } from './LanguagePicker'
 export { Spinner, type SpinnerProps } from './Spinner'
 
 // Brand pieces are re-exported for convenience.

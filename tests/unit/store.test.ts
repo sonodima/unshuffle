@@ -260,7 +260,8 @@ const persist = await import('../../src/game/persist')
 const clock = await import('../../src/game/clock')
 const names = await import('../../src/game/names')
 const selectors = await import('../../src/game/selectors')
-const { REJECT_MESSAGES, } = await import('../../src/net/protocol')
+const { REJECT_MESSAGES } = await import('../../src/net/protocol')
+const { AppError, t, tm } = await import('../../src/i18n')
 const { MAX_NAME_LENGTH, PROTOCOL_VERSION, DEFAULT_SETTINGS } = await import('../../src/game/constants')
 
 // ---- fixtures ------------------------------------------------------------------
@@ -466,9 +467,9 @@ describe('host', () => {
     expect(game.calls).toEqual(['settings:{"rounds":7}', 'next', 'kick:p2', 'lobby'])
 
     game.startGameImpl = async () => {
-      throw new Error('La playlist non ha abbastanza brani.')
+      throw new AppError({ key: 'game.host.notEnoughTracks', params: { count: 5 } })
     }
-    await expect(st().startGame()).rejects.toThrow('La playlist non ha abbastanza brani.')
+    await expect(st().startGame()).rejects.toThrow('game.host.notEnoughTracks')
 
     // Signaling drop is a soft warning, never a game over.
     net.servers[0].status.emit('reconnecting')
@@ -489,12 +490,13 @@ describe('host', () => {
     expect(st().room).toBeNull()
   })
 
-  test('createRoom failure maps NetError to Italian', async () => {
+  test('createRoom failure maps NetError codes to messages', async () => {
     net.hostError = new MockNetError('server')
-    await expect(st().createRoom()).rejects.toThrow('Server di collegamento non raggiungibile. Riprova tra poco.')
+    await expect(st().createRoom()).rejects.toThrow('game.net.short.server')
+    expect(t('game.net.short.server')).toBe('Server di collegamento non raggiungibile. Riprova tra poco.')
     expect(st().role).toBe('none')
     expect(st().connection).toBe('error')
-    expect(st().error).toBe('Server di collegamento non raggiungibile. Riprova tra poco.')
+    expect(st().error).toBe('game.net.short.server')
   })
 
   test('host ready + arrangement go through handleLocal', async () => {
@@ -593,11 +595,11 @@ describe('client', () => {
   })
 
   test('transport NetError messages are kept as they are', async () => {
-    const err = new MockNetError('timeout', 'Impossibile collegarsi alla stanza. Riprova.')
+    const err = new MockNetError('timeout', 'game.net.joinTimeout')
     err.name = 'NetError'
     net.joinError = err
-    await expect(st().joinRoom('KXQPM')).rejects.toThrow('Impossibile collegarsi alla stanza. Riprova.')
-    expect(st().error).toBe('Impossibile collegarsi alla stanza. Riprova.')
+    await expect(st().joinRoom('KXQPM')).rejects.toThrow('game.net.joinTimeout')
+    expect(st().error).toBe('game.net.joinTimeout')
   })
 
   test('join errors: invalid code, room not found, welcome timeout', async () => {
@@ -605,7 +607,7 @@ describe('client', () => {
     expect(st().role).toBe('none')
 
     net.joinError = new MockNetError('room-not-found')
-    await expect(st().joinRoom('ABCDE')).rejects.toThrow('Stanza non trovata. Controlla il codice.')
+    await expect(st().joinRoom('ABCDE')).rejects.toThrow('game.net.short.roomNotFound')
     expect(st().connection).toBe('error')
     expect(st().role).toBe('none')
     net.joinError = null
@@ -906,9 +908,9 @@ describe('toasts', () => {
     expect(new Set(ids).size).toBe(ids.length)
     st().dismissToast(ids[0])
     expect(st().toasts.length).toBe(STORE_TIMINGS.maxToasts - 1)
-    st().notify('  Link copiato ')
-    expect(st().toasts.at(-1)?.event).toEqual({ type: 'info', message: 'Link copiato' })
-    expect(conn.sent.some((m) => JSON.stringify(m).includes('Link copiato'))).toBe(false)
+    st().notify('game.store.actionFailed')
+    expect(st().toasts.at(-1)?.event).toEqual({ type: 'info', message: 'game.store.actionFailed' })
+    expect(conn.sent.some((m) => JSON.stringify(m).includes('game.store.actionFailed'))).toBe(false)
     jest.advanceTimersByTime(STORE_TIMINGS.toastMs + 1)
     expect(st().toasts.length).toBe(0)
   })
@@ -988,7 +990,7 @@ describe('resumeSession', () => {
     }
     expect(await failing).toBe(false)
     expect(persist.loadSession()).toBeNull()
-    expect(st().error).toBe('Stanza non trovata. Controlla il codice.')
+    expect(st().error).toBe('game.net.short.roomNotFound')
   })
 
   test('client resume survives a host that is reloading too (room briefly not found)', async () => {
@@ -1105,7 +1107,7 @@ describe('moves near the deadline and across link drops', () => {
       await tick()
       conn.deliver({ t: 'state', state: { ...st().room!, seq: st().room!.seq + 1 }, hostNow: 0 })
     }
-    const messages = st().toasts.map((x) => (x.event.type === 'info' ? x.event.message : ''))
+    const messages = st().toasts.map((x) => (x.event.type === 'info' ? tm(x.event.message) : ''))
     expect(messages).toEqual(['Audio di questo round non disponibile: puoi comunque giocare.'])
     expect(messages.join()).not.toContain(a.title)
   })

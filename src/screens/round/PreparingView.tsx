@@ -1,5 +1,6 @@
 // Between rounds / before the first one: the host picks and slices the song while
 // every peer downloads it. A spinning record, a live checklist, who's ready.
+import { t } from '../../i18n'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -68,7 +69,7 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
     ? allReady
       ? 'Tutti pronti, si parte!'
       : 'Aspetto che tutti siano pronti…'
-    : (phase.kind === 'preparing' && phase.message) || 'Preparo il round…'
+    : (phase.kind === 'preparing' && phase.message ? t(phase.message) : '') || 'Preparo il round…'
 
   const retry = () => {
     if (!onRetryAudio || retrying) return

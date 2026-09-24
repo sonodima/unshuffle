@@ -3,6 +3,7 @@
 // All messages are JSON-serializable and discriminated by `t`.
 
 import type { GameEvent, PlayerId, PlayerProfile, RoomState } from '../game/types'
+import type { MessageKey } from '../i18n'
 
 /** Client → Host */
 export type ClientMsg =
@@ -43,12 +44,12 @@ export type HostMsg =
 
 export type RejectReason = 'full' | 'version' | 'kicked' | 'closed' | 'duplicate'
 
-export const REJECT_MESSAGES: Record<RejectReason, string> = {
-  full: 'La stanza è piena.',
-  version: 'Versione del gioco diversa da quella dell’host. Ricarica la pagina.',
-  kicked: 'L’host ti ha rimosso dalla stanza.',
-  closed: 'L’host ha chiuso la stanza.',
-  duplicate: 'Il tuo profilo è già in questa stanza da un’altra scheda o un altro dispositivo.',
+export const REJECT_MESSAGES: Record<RejectReason, MessageKey> = {
+  full: 'game.reject.full',
+  version: 'game.reject.version',
+  kicked: 'game.reject.kicked',
+  closed: 'game.reject.closed',
+  duplicate: 'game.reject.duplicate',
 }
 
 export function isClientMsg(x: unknown): x is ClientMsg {

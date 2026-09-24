@@ -1,3 +1,4 @@
+import { msgOf, t, tm } from '../../i18n'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Avatar, AvatarGroup, Button, Equalizer, Icon, cn } from '../../components/ui'
@@ -55,13 +56,13 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
     try {
       await onStart()
     } catch (err) {
-      if (mounted.current) setError(err instanceof Error && err.message ? err.message : 'Impossibile avviare la partita. Riprova.')
+      if (mounted.current) setError(tm(msgOf(err, 'game.store.startFailed')))
     } finally {
       if (mounted.current) setBusy(false)
     }
   }
 
-  const difficulty = SNIPPET_DIFFICULTY[settings.snippets]
+  const difficulty = SNIPPET_DIFFICULTY[settings.snippets] ? t(SNIPPET_DIFFICULTY[settings.snippets]) : undefined
   const rules = (
     <>
       {/* Gold when fewer rounds would fix a too-short playlist. */}

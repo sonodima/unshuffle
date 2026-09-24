@@ -46,7 +46,7 @@ const problems = []
 
 async function runCheck(label, base, { solo }) {
   log(`== ${label}: ${base}`)
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'it-IT' })
   await ctx.addInitScript(() => {
     try {
       localStorage.setItem('unshuffle:onboarded', '1')

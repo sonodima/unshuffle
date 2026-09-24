@@ -7,6 +7,7 @@
 //   a failed "Riprova" turns the same dialog into "the room is gone" (no second dialog);
 // - notice after being dropped out of a room (kicked, room closed, …).
 
+import { msgKey, tm } from '../../i18n'
 import { AnimatePresence, motion, useIsPresent } from 'motion/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -346,7 +347,7 @@ export function ConnectionOverlay() {
     () =>
       useGame.subscribe((s, prev) => {
         if (prev.room && !s.room && s.role === 'none' && s.error) {
-          const next: ExitNotice = { reason: exitReasonFor(s.error, s.connection, HOST_GONE_MESSAGES), message: s.error, code: prev.room.code }
+          const next: ExitNotice = { reason: exitReasonFor(msgKey(s.error) ?? '', s.connection, HOST_GONE_MESSAGES), message: tm(s.error), code: prev.room.code }
           // Our own "Riprova" failed: the lost dialog turns into the answer (no second dialog).
           if (retryingRef.current) setFailure(next)
           else {
@@ -360,11 +361,11 @@ export function ConnectionOverlay() {
 
   const linkDown = inRoom && role !== 'none' && (connection === 'reconnecting' || connection === 'connecting')
   const lost = inRoom && role !== 'none' && (connection === 'closed' || connection === 'error')
-  const cause: LostCause = error && HOST_GONE_MESSAGES.has(error) ? 'host-gone' : 'network'
+  const cause: LostCause = error && HOST_GONE_MESSAGES.has(msgKey(error) ?? '') ? 'host-gone' : 'network'
   const context = lostContextFor(phaseKind ? { kind: phaseKind } : null)
   const dialogOpen = lost || retrying || failure !== null
   const hostWarningActive = inRoom && role === 'host' && connection === 'open' && !!error
-  const hostWarning = useAutoHide(hostWarningActive ? error : null, HOST_WARNING_MS)
+  const hostWarning = useAutoHide(hostWarningActive ? tm(error) : null, HOST_WARNING_MS)
   const elapsed = useElapsedSeconds(linkDown && !dialogOpen)
 
   const leave = () => {
@@ -401,7 +402,7 @@ export function ConnectionOverlay() {
   const clearShownError = (message: string | null | undefined) => {
     try {
       const st = useGame.getState()
-      if (message && st.error === message) st.clearError()
+      if (message && st.error && tm(st.error) === message) st.clearError()
     } catch {
       // ignore
     }
@@ -462,8 +463,8 @@ export function ConnectionOverlay() {
         tone="warning"
         icon={signaling ? 'wifi-off' : 'alert'}
         title={signaling ? 'Nuovi ingressi in pausa' : 'Attenzione'}
-        detail={signaling ? 'Server di collegamento perso: chi è già dentro continua a giocare.' : error}
-        onDismiss={() => clearShownError(error)}
+        detail={signaling ? 'Server di collegamento perso: chi è già dentro continua a giocare.' : tm(error)}
+        onDismiss={() => clearShownError(tm(error))}
         belowHud={hud}
         onMeasure={setBannerBox}
       />
@@ -477,7 +478,7 @@ export function ConnectionOverlay() {
         open={dialogOpen}
         role={role}
         code={code}
-        message={error}
+        message={error ? tm(error) : null}
         retrying={retrying}
         onRetry={retry}
         onHome={failure ? closeFailure : leave}

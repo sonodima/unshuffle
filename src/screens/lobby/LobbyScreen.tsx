@@ -1,3 +1,4 @@
+import type { MessageKey } from '../../i18n'
 import { ReactionBar } from '../../components/reactions/ReactionBar'
 import { useGame } from '../../game/store'
 import { LobbyView } from './LobbyView'
@@ -24,7 +25,7 @@ export function LobbyScreen() {
       onStart={startGame}
       onKick={kick}
       onLeave={leave}
-      onNotify={notify}
+      onNotify={(text: string) => notify(text as MessageKey)}
       onEditProfile={setProfile}
       reactions={<ReactionBar compact />}
     />

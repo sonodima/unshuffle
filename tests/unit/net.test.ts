@@ -5,6 +5,7 @@ import { DOWNSTREAM_LIMITS, Reassembler, UPSTREAM_LIMITS, encodeMessage } from '
 import { NET_MESSAGES, signalingError } from '../../src/net/errors'
 import { getIceServers, parseTurnResponse, sanitizeIceServers } from '../../src/net/peer'
 import { NET_TIMING } from '../../src/net/timing'
+import { t } from '../../src/i18n'
 
 function framesOf(msg: unknown) {
   let id = 0
@@ -78,10 +79,11 @@ describe('signalingError', () => {
       if (desc) Object.defineProperty(Object.getPrototypeOf(nav), 'onLine', desc)
     }
   })
-  test('messages are Italian and distinct', () => {
-    expect(NET_MESSAGES.signaling.toLowerCase()).toContain('server di collegamento')
-    expect(NET_MESSAGES.hostNoAnswer).toContain('L’host non risponde')
-    expect(new Set([NET_MESSAGES.signaling, NET_MESSAGES.joinTimeout, NET_MESSAGES.hostNoAnswer, NET_MESSAGES.roomNotFound]).size).toBe(4)
+  test('messages are catalog keys with distinct texts', () => {
+    expect(t(NET_MESSAGES.signaling).toLowerCase()).toContain('server di collegamento')
+    expect(t(NET_MESSAGES.hostNoAnswer)).toContain('L’host non risponde')
+    const texts = [NET_MESSAGES.signaling, NET_MESSAGES.joinTimeout, NET_MESSAGES.hostNoAnswer, NET_MESSAGES.roomNotFound].map((k) => t(k))
+    expect(new Set(texts).size).toBe(4)
   })
 })
 

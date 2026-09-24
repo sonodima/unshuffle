@@ -10,6 +10,8 @@ import { audioEngine, evictAudio } from '../audio/engine'
 import { sfx } from '../audio/sfx'
 import type { SfxName } from '../audio/sfx'
 import { refreshPreview } from '../lib/deezer'
+import { AppError, isMessageKey, msgOf } from '../i18n'
+import type { MessageKey, Msg } from '../i18n'
 import { REJECT_MESSAGES } from '../net/protocol'
 import type { ClientMsg, HostMsg, RejectReason } from '../net/protocol'
 import { createHost, joinRoom as connectToRoom, normalizeRoomCode } from '../net/transport'
@@ -54,7 +56,7 @@ export interface GameStore {
   role: Role
   connection: Connection
   /** Human-readable (Italian) error for the current connection problem, if any. */
-  error: string | null
+  error: Msg | null
   room: RoomState | null
   /** Code of the room being hosted / joined (set while connecting, before `room` exists). */
   roomCode: string | null
@@ -93,7 +95,7 @@ export interface GameStore {
   submit(): void
   react(emoji: string): void
   /** Local info toast (e.g. "Link copiato"); never sent to anyone. */
-  notify(message: string): void
+  notify(message: Msg): void
   dismissToast(id: number): void
 
   // ---- host only (no-ops for clients) ----
@@ -136,26 +138,27 @@ export const STORE_TIMINGS = {
   resumeRetryMs: 15000,
 } as const
 
+/** Catalog keys (game.store): shown in the viewer's language. */
 export const STORE_MESSAGES = {
-  invalidCode: 'Codice stanza non valido.',
-  cancelled: 'Operazione annullata.',
-  hostLost: 'Connessione con l’host persa.',
-  /** The host left for good (closed its tab or the room): nothing to retry. */
-  hostGone: 'L’host ha lasciato la partita.',
-  welcomeTimeout: 'L’host non risponde. Riprova tra poco.',
-  joinFailed: 'Impossibile entrare nella stanza. Riprova.',
-  createFailed: 'Impossibile creare la stanza. Riprova.',
-  startFailed: 'Impossibile avviare la partita.',
-  rejected: 'L’host ha rifiutato la connessione.',
-  signalingLost: 'Connessione al server persa: i nuovi giocatori non possono entrare.',
-} as const
+  invalidCode: 'game.store.invalidCode',
+  cancelled: 'game.store.cancelled',
+  hostLost: 'game.store.hostLost',
+  hostGone: 'game.store.hostGone',
+  welcomeTimeout: 'game.store.welcomeTimeout',
+  joinFailed: 'game.store.joinFailed',
+  createFailed: 'game.store.createFailed',
+  startFailed: 'game.store.startFailed',
+  rejected: 'game.store.rejected',
+  signalingLost: 'game.store.signalingLost',
+  actionFailed: 'game.store.actionFailed',
+} as const satisfies Record<string, MessageKey>
 
-const NET_ERROR_MESSAGES: Record<string, string> = {
-  'room-not-found': 'Stanza non trovata. Controlla il codice.',
-  network: 'Problema di rete. Controlla la connessione e riprova.',
-  server: 'Server di collegamento non raggiungibile. Riprova tra poco.',
-  timeout: 'Nessuna risposta dal server di collegamento. Riprova.',
-  unsupported: 'Il tuo browser non supporta le connessioni peer-to-peer (WebRTC).',
+const NET_ERROR_MESSAGES: Record<string, MessageKey> = {
+  'room-not-found': 'game.net.short.roomNotFound',
+  network: 'game.net.short.network',
+  server: 'game.net.short.server',
+  timeout: 'game.net.short.timeout',
+  unsupported: 'game.net.short.unsupported',
 }
 
 /** Audio buffer key convention shared by every module. */
@@ -308,10 +311,10 @@ function errorCode(err: unknown): string | null {
   return typeof code === 'string' ? code : null
 }
 
-/** The transport's NetErrors already carry Italian, context-specific messages; anything else is mapped by code. */
-function netErrorMessage(err: unknown, fallback: string): string {
+/** The transport's NetErrors carry context-specific message keys; anything else is mapped by code. */
+function netErrorMessage(err: unknown, fallback: MessageKey): MessageKey {
   const code = errorCode(err)
-  if (code && err instanceof Error && err.name === 'NetError' && err.message) return err.message
+  if (code && err instanceof Error && err.name === 'NetError' && isMessageKey(err.message)) return err.message
   return (code && NET_ERROR_MESSAGES[code]) || fallback
 }
 
@@ -394,14 +397,14 @@ function shutdown(s: Session, notify: boolean): void {
   }
 }
 
-function rejectWelcome(s: Session, message: string): void {
+function rejectWelcome(s: Session, message: Msg): void {
   const pending = s.welcome
   s.welcome = null
-  pending?.reject(new Error(message))
+  pending?.reject(new AppError(message))
 }
 
 /** Joining / hosting failed before we got in: back to the home screen with an error. */
-function failSession(s: Session, message: string): void {
+function failSession(s: Session, message: Msg): void {
   if (session !== s) return
   shutdown(s, false)
   session = null
@@ -504,7 +507,7 @@ function dismissToast(id: number): void {
   if (toasts.some((t) => t.id === id)) set({ toasts: toasts.filter((t) => t.id !== id) })
 }
 
-function infoToast(message: string): void {
+function infoToast(message: Msg): void {
   pushToast({ type: 'info', message })
 }
 
@@ -878,8 +881,8 @@ async function loadTrack(s: Session, track: TrackInfo): Promise<void> {
     // The title is the answer: never name the song before its reveal.
     infoToast(
       room.phase.kind === 'reveal'
-        ? `Audio di “${track.title}” non disponibile.`
-        : 'Audio di questo round non disponibile: puoi comunque giocare.',
+        ? { key: 'game.store.audioUnavailableTitled', params: { title: track.title } }
+        : 'game.store.audioUnavailable',
     )
   }
   pumpPrefetch(s)
@@ -942,11 +945,11 @@ async function openHost(s: Session, profile: PlayerProfile, reclaim?: { code: st
   } catch (err) {
     const message = netErrorMessage(err, STORE_MESSAGES.createFailed)
     failSession(s, message)
-    throw new Error(message)
+    throw new AppError(message)
   }
   if (session !== s) {
     safe(() => server.close())
-    throw new Error(STORE_MESSAGES.cancelled)
+    throw new AppError(STORE_MESSAGES.cancelled)
   }
   s.server = server
   s.code = server.code
@@ -956,14 +959,14 @@ async function openHost(s: Session, profile: PlayerProfile, reclaim?: { code: st
     const { HostGame } = await hostModule
     if (session !== s) {
       safe(() => server.close())
-      throw new Error(STORE_MESSAGES.cancelled)
+      throw new AppError(STORE_MESSAGES.cancelled)
     }
     game = new HostGame({ server, hostProfile: { ...profile }, restore: reclaim?.restore ?? null })
   } catch (err) {
     if (err instanceof Error && err.message === STORE_MESSAGES.cancelled) throw err
     console.error('[store] HostGame failed to start', err)
     failSession(s, STORE_MESSAGES.createFailed)
-    throw new Error(STORE_MESSAGES.createFailed)
+    throw new AppError(STORE_MESSAGES.createFailed)
   }
   s.game = game
   s.linkOpen = true
@@ -1027,7 +1030,7 @@ function withHostGame(action: (game: HostGame) => void): void {
     action(game)
   } catch (err) {
     console.warn('[store] host action failed', err)
-    infoToast(err instanceof Error && err.message ? err.message : 'Azione non riuscita.')
+    infoToast(msgOf(err, STORE_MESSAGES.actionFailed))
   }
 }
 
@@ -1035,7 +1038,7 @@ function withHostGame(action: (game: HostGame) => void): void {
 
 function joinAsClient(input: string, keepRoom = false): Promise<void> {
   const code = toRoomCode(input)
-  if (!code) return Promise.reject(new Error(STORE_MESSAGES.invalidCode))
+  if (!code) return Promise.reject(new AppError(STORE_MESSAGES.invalidCode))
 
   const current = session
   const connection = get().connection
@@ -1089,11 +1092,11 @@ function joinAsClient(input: string, keepRoom = false): Promise<void> {
       const message = netErrorMessage(err, STORE_MESSAGES.joinFailed)
       failSession(s, message)
       // Keep the transport's error code: resume() retries the transient ones.
-      throw Object.assign(new Error(message), { netCode: errorCode(err) })
+      throw Object.assign(new AppError(message), { netCode: errorCode(err) })
     }
     if (session !== s) {
       safe(() => conn.close())
-      throw new Error(STORE_MESSAGES.cancelled)
+      throw new AppError(STORE_MESSAGES.cancelled)
     }
     s.conn = conn
     s.linkOpen = true
@@ -1211,7 +1214,7 @@ function handleClientStatus(s: Session, status: ConnStatus, detail?: string): vo
 }
 
 /** The transport gave up reconnecting: keep the last state on screen, offer rejoin() / leave(). */
-function connectionLost(s: Session, message: string = STORE_MESSAGES.hostLost): void {
+function connectionLost(s: Session, message: Msg = STORE_MESSAGES.hostLost): void {
   shutdown(s, false)
   set({ connection: 'closed', error: message })
 }
@@ -1378,7 +1381,7 @@ export const useGame = create<GameStore>()(() => ({
   },
 
   notify(message) {
-    if (typeof message === 'string' && message.trim()) infoToast(message.trim())
+    if (message) infoToast(message)
   },
 
   dismissToast,
@@ -1393,7 +1396,7 @@ export const useGame = create<GameStore>()(() => ({
     try {
       await s.game.startGame()
     } catch (err) {
-      throw err instanceof Error && err.message ? err : new Error(STORE_MESSAGES.startFailed)
+      throw err instanceof AppError ? err : new AppError(STORE_MESSAGES.startFailed)
     }
   },
 

@@ -1,7 +1,8 @@
+import type { MessageKey } from '../i18n'
 import type { GameSettings } from './types'
 
 /** Bump when the wire protocol changes incompatibly. */
-export const PROTOCOL_VERSION = 1
+export const PROTOCOL_VERSION = 2
 /** Prefix for host peer ids on the public PeerJS server (namespaces our rooms). */
 export const PEER_PREFIX = 'unshuffle-v1-'
 
@@ -38,11 +39,11 @@ export const SETTINGS_OPTIONS = {
 } as const
 
 /** Human labels for snippet counts (difficulty). */
-export const SNIPPET_DIFFICULTY: Record<number, string> = {
-  6: 'Facile',
-  8: 'Normale',
-  12: 'Difficile',
-  16: 'Folle',
+export const SNIPPET_DIFFICULTY: Record<number, MessageKey> = {
+  6: 'game.difficulty.easy',
+  8: 'game.difficulty.normal',
+  12: 'game.difficulty.hard',
+  16: 'game.difficulty.insane',
 }
 
 export const DEFAULT_SETTINGS: GameSettings = {

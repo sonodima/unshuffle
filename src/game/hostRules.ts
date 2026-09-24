@@ -3,6 +3,7 @@
 
 import type { CutPlan } from '../audio/analysis'
 import { AVATARS, DEFAULT_SETTINGS, PLAYER_COLORS, SETTINGS_OPTIONS } from './constants'
+import { isMessageKey, t } from '../i18n'
 import { sanitizeName } from './names'
 import { isPermutation, isPlayerId } from './persist'
 import { scoreArrangement } from './scoring'
@@ -22,7 +23,6 @@ import type {
 
 export { isPermutation }
 
-const DEFAULT_PLAYER_NAME = 'Giocatore'
 /** Shortest snippet we accept from the analysis (seconds). */
 const MIN_SEGMENT_SEC = 0.4
 /** Max gap/overlap tolerated between two analysis segments before they count as non-contiguous. */
@@ -53,7 +53,7 @@ export function clampIndex(value: unknown, length: number): number {
 
 /** Trimmed, whitespace-collapsed, ≤ MAX_NAME_LENGTH; falls back to "Giocatore". */
 export function cleanPlayerName(raw: unknown): string {
-  return sanitizeName(raw) || DEFAULT_PLAYER_NAME
+  return sanitizeName(raw) || t('game.host.defaultPlayer')
 }
 
 /** Sanitized copy of an untrusted profile, or null when the id is unusable. */
@@ -168,7 +168,7 @@ export function sanitizePhase(raw: unknown, roundCount: number): Phase | null {
     case 'final':
       return roundCount > 0 ? { kind: 'final' } : null
     case 'preparing':
-      return validRound ? { kind: 'preparing', round, ...(typeof raw.message === 'string' ? { message: raw.message } : {}) } : null
+      return validRound ? { kind: 'preparing', round, ...(isMessageKey(raw.message) ? { message: raw.message } : {}) } : null
     case 'intro':
       return validRound && roundCount > 0 && isFiniteNumber(raw.endsAt) ? { kind: 'intro', round, endsAt: raw.endsAt } : null
     case 'playing': {

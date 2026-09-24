@@ -1,6 +1,7 @@
 // Boot-time session resume: after a refresh the tab re-enters its previous
 // room (store.resumeSession). A tiny external store drives ResumeOverlay.
 
+import { tm } from '../../i18n'
 import { useSyncExternalStore } from 'react'
 import { loadSession } from '../../game/persist'
 import { useGame } from '../../game/store'
@@ -74,7 +75,7 @@ export function startResume(): void {
 function settle(resumed: boolean): void {
   if (cancelled) return
   const st = useGame.getState()
-  const failure = !resumed && state.code && st.connection === 'error' && st.error ? st.error : null
+  const failure = !resumed && state.code && st.connection === 'error' && st.error ? tm(st.error) : null
   patch({ phase: 'done', failure })
 }
 

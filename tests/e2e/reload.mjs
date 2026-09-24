@@ -6,7 +6,7 @@ const BASE = process.argv[2] ?? 'http://localhost:5173/'
 const b = await chromium.launch({ channel: 'chrome', args: ['--autoplay-policy=no-user-gesture-required'] })
 const errors = []
 async function open(name, opts) {
-  const ctx = await b.newContext(opts)
+  const ctx = await b.newContext({ locale: 'it-IT', ...opts })
   await ctx.addInitScript(() => localStorage.setItem('unshuffle:onboarded', '1'))
   const p = await ctx.newPage()
   p.on('console', (m) => m.type() === 'error' && errors.push(`[${name}] ${m.text().slice(0, 200)}`))

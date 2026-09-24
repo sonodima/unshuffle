@@ -1,5 +1,6 @@
 // Playlist data source for the lobby picker, backed by the Deezer API.
 
+import { isMessageKey, t } from '../../i18n'
 import type { PlaylistRef } from '../../game/types'
 import { DeezerError, getFeaturedPlaylists, getPlaylist, isDeezerShortLink, parsePlaylistInput, searchPlaylists } from '../../lib/deezer'
 
@@ -41,6 +42,6 @@ export const deezerCatalog: PlaylistCatalog = {
 
 /** Italian message for any rejection coming out of a catalog (DeezerError messages are user-facing). */
 export function catalogErrorMessage(err: unknown): string {
-  if ((err instanceof DeezerError || (err instanceof Error && err.name === 'DeezerError')) && err.message) return err.message
-  return 'Qualcosa è andato storto con Deezer. Riprova tra poco.'
+  if ((err instanceof DeezerError || (err instanceof Error && err.name === 'DeezerError')) && isMessageKey(err.message)) return t(err.message)
+  return t('game.deezer.api')
 }

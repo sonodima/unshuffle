@@ -39,6 +39,8 @@ import {
   settingsEqual,
   uniformSegments,
 } from './hostRules'
+import { AppError, msgOf } from '../i18n'
+import type { Msg } from '../i18n'
 import { localDigest, sanitizeDigest } from './history'
 import type { HistoryDigest } from './history'
 import { isPlayerSecret, STORAGE_KEYS } from './persist'
@@ -117,16 +119,17 @@ const MAX_SPARE_RETRIES = 3
 /** seq jump on restore, so reconnecting clients never see our seq go backwards. */
 const RESTORE_SEQ_JUMP = 1000
 
+/** Catalog keys: every peer shows them in its own language. */
 export const HOST_MESSAGES = {
-  picking: 'Scelgo le canzoni…',
-  slicing: 'Sto affettando la traccia…',
-  syncing: 'Aspetto che tutti siano pronti…',
-  noPlaylist: 'Scegli una playlist prima di iniziare.',
-  alreadyStarted: 'La partita è già iniziata.',
-  closed: 'La stanza è stata chiusa.',
-  playlistFailed: 'Non riesco a caricare la playlist da Deezer. Controlla la connessione e riprova.',
-  prepareFailed: 'Non sono riuscito a preparare le canzoni di questa playlist, torniamo alla lobby. Prova con un’altra playlist.',
-  notEnoughTracks: (n: number) => `Questa playlist non ha abbastanza brani con anteprima (servono almeno ${n}).`,
+  picking: 'game.prep.picking',
+  slicing: 'game.prep.slicing',
+  syncing: 'game.prep.syncing',
+  noPlaylist: 'game.host.noPlaylist',
+  alreadyStarted: 'game.host.alreadyStarted',
+  closed: 'game.host.closed',
+  playlistFailed: 'game.host.playlistFailed',
+  prepareFailed: 'game.host.prepareFailed',
+  notEnoughTracks: (count: number): Msg => ({ key: 'game.host.notEnoughTracks', params: { count } }),
 } as const
 
 /** Window events after which timers may have been throttled or frozen (see catchUp). */
@@ -411,10 +414,10 @@ export class HostGame {
   }
 
   private async runStart(): Promise<void> {
-    if (this.destroyed) throw new Error(HOST_MESSAGES.closed)
+    if (this.destroyed) throw new AppError(HOST_MESSAGES.closed)
     const s = this.current
-    if (s.phase.kind !== 'lobby') throw new Error(HOST_MESSAGES.alreadyStarted)
-    if (!s.settings.playlist) throw new Error(HOST_MESSAGES.noPlaylist)
+    if (s.phase.kind !== 'lobby') throw new AppError(HOST_MESSAGES.alreadyStarted)
+    if (!s.settings.playlist) throw new AppError(HOST_MESSAGES.noPlaylist)
 
     this.gen++
     this.cancelFlow()
@@ -441,11 +444,11 @@ export class HostGame {
       await this.pickTracks(gen)
     } catch (err) {
       if (gen !== this.gen) return
-      const message = err instanceof Error ? err.message : HOST_MESSAGES.playlistFailed
+      const message = msgOf(err, HOST_MESSAGES.playlistFailed)
       this.resetToLobby(false)
       // The host sees the rejection; clients just saw the room bounce back to the lobby.
       this.emit({ type: 'info', message }, true)
-      throw err instanceof Error ? err : new Error(message)
+      throw err instanceof AppError ? err : new AppError(message)
     }
     if (gen !== this.gen) return
     void this.runRound(0, gen)
@@ -1025,12 +1028,12 @@ export class HostGame {
   private async pickTracks(gen: number): Promise<void> {
     const settings = this.current.settings
     const playlist = settings.playlist
-    if (!playlist) throw new Error(HOST_MESSAGES.noPlaylist)
+    if (!playlist) throw new AppError(HOST_MESSAGES.noPlaylist)
     let all: TrackInfo[]
     try {
       all = await this.deps.getPlaylistTracks(playlist.id)
     } catch {
-      throw new Error(HOST_MESSAGES.playlistFailed)
+      throw new AppError(HOST_MESSAGES.playlistFailed)
     }
     if (gen !== this.gen) return
     const seen = new Set<number>()
@@ -1045,7 +1048,7 @@ export class HostGame {
     }
     const picked = new Set<number>()
     picks = (Array.isArray(picks) ? picks : []).filter((t) => isTrackInfo(t) && !picked.has(t.id) && picked.add(t.id))
-    if (picks.length < settings.rounds) throw new Error(HOST_MESSAGES.notEnoughTracks(settings.rounds))
+    if (picks.length < settings.rounds) throw new AppError(HOST_MESSAGES.notEnoughTracks(settings.rounds))
     this.spares = picks.slice(settings.rounds)
     const tracks = picks.slice(0, settings.rounds)
     // Broadcast right away: clients start prefetching every preview while we cut round 0.
@@ -1478,7 +1481,7 @@ export class HostGame {
     } catch (err) {
       if (gen !== this.gen) return
       this.resetToLobby(false)
-      this.emit({ type: 'info', message: err instanceof Error ? err.message : HOST_MESSAGES.playlistFailed })
+      this.emit({ type: 'info', message: msgOf(err, HOST_MESSAGES.playlistFailed) })
       return
     }
     if (gen === this.gen) void this.runRound(0, gen)

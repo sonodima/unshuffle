@@ -1,5 +1,6 @@
 // Pure helpers shared by the round views (no React, no store): everything the
 // HUD derives from RoomState lives here so it can be unit-tested headless.
+import { t } from '../../i18n'
 import { SNIPPET_DIFFICULTY } from '../../game/constants'
 import { compareStanding } from '../../game/standing'
 import type { RankKey } from '../../game/standing'
@@ -37,7 +38,7 @@ export function roundInfo(room: RoomState, index: number): RoundInfo {
     snippets,
     roundTimeSec: room.settings.roundTime,
     finalTimerSec: room.settings.finalTimer,
-    difficulty: SNIPPET_DIFFICULTY[snippets] ?? '',
+    difficulty: SNIPPET_DIFFICULTY[snippets] ? t(SNIPPET_DIFFICULTY[snippets]) : '',
     data,
     track: data?.track ?? room.tracks[index] ?? null,
   }

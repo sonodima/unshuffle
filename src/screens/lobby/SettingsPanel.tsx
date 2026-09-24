@@ -1,3 +1,4 @@
+import { t } from '../../i18n'
 import { useId } from 'react'
 import { Icon, Panel, Segmented, cn, type IconName, type SegmentedTone } from '../../components/ui'
 import { SETTINGS_OPTIONS, SNIPPET_DIFFICULTY } from '../../game/constants'
@@ -35,7 +36,7 @@ const ROWS: Row[] = [
     icon: 'scissors',
     tone: 'magenta',
     label: (v) => String(v),
-    sublabel: (v) => SNIPPET_DIFFICULTY[v] ?? '',
+    sublabel: (v) => (SNIPPET_DIFFICULTY[v] ? t(SNIPPET_DIFFICULTY[v]) : ''),
   },
   { key: 'roundTime', title: 'Tempo per round', hint: 'Per riordinare', icon: 'clock', tone: 'cyan', label: (v) => `${v}s` },
   {

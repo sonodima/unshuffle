@@ -2,6 +2,8 @@
 // the network layer and the UI. Keep it dependency-free and serializable:
 // everything in RoomState travels over the wire as JSON.
 
+import type { MessageKey, Msg } from '../i18n'
+
 export type PlayerId = string
 
 /** What a player chooses about themselves; persisted in localStorage. */
@@ -102,7 +104,7 @@ export interface RoundPublic {
 export type Phase =
   | { kind: 'lobby' }
   /** Host is picking tracks / downloading / analyzing; peers download audio. */
-  | { kind: 'preparing'; round: number; message?: string }
+  | { kind: 'preparing'; round: number; message?: MessageKey }
   /** Round intro card + 3-2-1 countdown. */
   | { kind: 'intro'; round: number; endsAt: number }
   | {
@@ -173,4 +175,4 @@ export type GameEvent =
   | { type: 'submitted'; playerId: PlayerId; name: string }
   | { type: 'reaction'; playerId: PlayerId; emoji: string }
   | { type: 'kicked'; playerId: PlayerId }
-  | { type: 'info'; message: string }
+  | { type: 'info'; message: Msg }

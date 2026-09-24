@@ -11,6 +11,7 @@
 // a tap on a block jumps the song there (see revealAudio). Spectators (late
 // joiners) get the song and the leaderboard only. The header hosts the inline
 // sound control, so the shell's floating one never covers the page.
+import { t } from '../../../i18n'
 import { MotionConfig, motion, useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { SfxName } from '../../../audio/sfx'
@@ -309,7 +310,7 @@ function RevealContent({
   const canHover = useCanHover()
   const facts = useMemo(() => {
     const out = [`${n} spezzoni`]
-    if (SNIPPET_DIFFICULTY[n]) out.push(SNIPPET_DIFFICULTY[n])
+    if (SNIPPET_DIFFICULTY[n]) out.push(t(SNIPPET_DIFFICULTY[n]))
     if (data && data.bpm > 0) out.push(`${Math.round(data.bpm)} BPM`)
     return out
   }, [n, data])

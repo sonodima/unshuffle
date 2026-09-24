@@ -2,6 +2,8 @@
 // iOS needs; other taps only soft-unlock, see useSoftAudioUnlock), maps async failures to inline Italian errors, pre-fills the code
 // from an invite link (#/r/CODE) and shows "Come si gioca" on the first visit.
 // Screen switching is the shell's job: once the store has a room, we're gone.
+import { msgKey, msgOf, tm } from '../../i18n'
+import type { Msg } from '../../i18n'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { audioEngine } from '../../audio/engine'
 import { useSoftAudioUnlock } from '../../audio/usePlayback'
@@ -51,8 +53,8 @@ function attempt<T>(action: () => Promise<T>): Promise<T> {
   }
 }
 
-function messageOf(err: unknown, fallback: string): string {
-  return err instanceof Error && err.message ? err.message : fallback
+function messageOf(err: unknown, fallback: Msg): Msg {
+  return msgOf(err, fallback)
 }
 
 export function HomeScreen() {
@@ -143,8 +145,8 @@ export function HomeScreen() {
         if (!alive.current) return
         setAction(null)
         const message = messageOf(err, STORE_MESSAGES.createFailed)
-        if (message === STORE_MESSAGES.cancelled) return
-        setCreateError(message)
+        if (msgKey(message) === STORE_MESSAGES.cancelled) return
+        setCreateError(tm(message))
         clearError()
       },
     )
@@ -165,8 +167,8 @@ export function HomeScreen() {
         if (!alive.current) return
         setAction(null)
         const message = messageOf(err, STORE_MESSAGES.joinFailed)
-        if (message === STORE_MESSAGES.cancelled) return
-        setJoinError(message)
+        if (msgKey(message) === STORE_MESSAGES.cancelled) return
+        setJoinError(tm(message))
         clearError()
       },
     )
@@ -192,7 +194,7 @@ export function HomeScreen() {
       pending={pending}
       joinError={joinError}
       createError={createError}
-      notice={pending ? null : error}
+      notice={pending || !error ? null : tm(error)}
       onDismissNotice={clearError}
       invited={invited}
       offline={offline}

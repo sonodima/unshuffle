@@ -1,44 +1,25 @@
-// Fun default nicknames ("DJ Pinguino", "MC Lasagna", "Lady Vinile"…) and
-// nickname sanitizing. Every generated name fits MAX_NAME_LENGTH.
+// Fun default nicknames from the current language's catalog ("DJ Pinguino",
+// "MC Lasagna"…) and nickname sanitizing. Every generated name fits MAX_NAME_LENGTH.
 
+import { t, tl } from '../i18n'
 import { MAX_NAME_LENGTH } from './constants'
 import { randomInt } from './shuffle'
-
-const NAME_TITLES = [
-  'DJ', 'MC', 'Lady', 'Mister', 'Miss', 'Capitan', 'Dottor', 'Maestro', 'Zio', 'Zia',
-  'Baby', 'Lil', 'Big', 'King', 'Queen', 'Sir', 'Don', 'Mega', 'Super', 'Prof',
-  'Conte', 'Duca', 'Madame', 'Signor', 'Nonna',
-] as const
-
-const NAME_NOUNS = [
-  // cibo
-  'Lasagna', 'Tortellino', 'Cannolo', 'Pistacchio', 'Arancino', 'Gnocco', 'Espresso',
-  'Maritozzo', 'Carbonara', 'Panettone', 'Gorgonzola', 'Grissino', 'Tiramisù', 'Zucchina',
-  'Melanzana', 'Cornetto', 'Babà', 'Bombolone', 'Carciofo', 'Lupino', 'Pomodoro',
-  'Limone', 'Peperoncino', 'Basilico', 'Mozzarella', 'Frittata', 'Piadina', 'Cantucci',
-  // animali
-  'Pinguino', 'Bassotto', 'Fenicottero', 'Riccio', 'Polpo', 'Bradipo', 'Koala', 'Criceto',
-  'Alpaca', 'Panda', 'Tucano', 'Geco', 'Castoro', 'Procione', 'Delfino', 'Capibara',
-  'Orsetto', 'Gufo', 'Lama', 'Gattone', 'Fagiano', 'Lumaca', 'Axolotl',
-  // musica
-  'Vinile', 'Mandolino', 'Tamburello', 'Cassetta', 'Subwoofer', 'Giradischi', 'Ukulele',
-  'Triangolo', 'Maracas', 'Theremin', 'Ottavino', 'Metronomo', 'Kazoo', 'Bongo',
-  'Falsetto', 'Ritornello', 'Assolo', 'Bemolle', 'Diesis', 'Remix', 'Karaoke', 'Jukebox',
-  'Cuffietta', 'Vocoder', 'Glitter', 'Stereo',
-] as const
 
 function pick<T>(list: readonly T[]): T {
   return list[randomInt(list.length)]
 }
 
-/** A random fun Italian nickname, always ≤ MAX_NAME_LENGTH characters. */
+/** A random fun nickname in the current language, always ≤ MAX_NAME_LENGTH characters. */
 export function randomPlayerName(): string {
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const title = pick(NAME_TITLES)
-    const fitting = NAME_NOUNS.filter((n) => nameLength(title) + 1 + nameLength(n) <= MAX_NAME_LENGTH)
-    if (fitting.length) return `${title} ${pick(fitting)}`
+  const titles = tl('names.titles')
+  const nouns = tl('names.nouns')
+  const compose = (title: string, noun: string) => t('names.pattern', { title, noun })
+  for (let attempt = 0; attempt < 20 && titles.length && nouns.length; attempt++) {
+    const title = pick(titles)
+    const fitting = nouns.filter((n) => nameLength(compose(title, n)) <= MAX_NAME_LENGTH)
+    if (fitting.length) return compose(title, pick(fitting))
   }
-  return 'DJ Pinguino'
+  return sanitizeName(titles.length && nouns.length ? compose(titles[0], nouns[0]) : 'DJ')
 }
 
 /** Length in user-perceived characters (code points), matching sanitizeName's cut. */

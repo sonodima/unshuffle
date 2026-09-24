@@ -1,5 +1,6 @@
 // Italian toast copy for store events (pure: no React), used by ToastLayer.
 
+import { tm } from '../../i18n'
 import { AVATARS } from '../../game/constants'
 import type { ToastItem } from '../../game/store'
 import type { Player, PlayerId } from '../../game/types'
@@ -82,9 +83,10 @@ export function toastForEvent(toast: ToastItem, ctx: ToastCopyContext): ToastCop
       return { id: toast.id, tone: 'neutral', icon: 'kick', title: who ? `L’host ha rimosso ${who}` : 'L’host ha rimosso un giocatore' }
     }
     case 'info': {
-      const { title, body } = splitMessage(e.message)
-      const warn = WARN_RE.test(e.message)
-      const ok = !warn && OK_RE.test(e.message)
+      const text = tm(e.message)
+      const { title, body } = splitMessage(text)
+      const warn = WARN_RE.test(text)
+      const ok = !warn && OK_RE.test(text)
       return { id: toast.id, tone: warn ? 'warning' : ok ? 'success' : 'info', icon: warn ? 'alert' : ok ? 'check' : 'info', title, body }
     }
     case 'reaction':
