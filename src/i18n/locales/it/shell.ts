@@ -25,7 +25,8 @@ export default {
 
   /**
    * Floating status pill at the top while the link is down. On phones it sits between
-   * the corner buttons (~230px): titles ≤ 24 characters, details ≤ 40.
+   * the corner buttons (~230px): titles ≤ 24 characters (one line), details ≤ 40 where
+   * possible (they wrap to 2 lines at most, then are cut).
    */
   banner: {
     /** aria-label of the pill's close button. */

@@ -20,8 +20,18 @@ export type { Locale } from './locales'
 
 const STORAGE_KEY = 'unshuffle:locale'
 
-/** Lazily loaded catalogs (Italian is bundled). */
-const LOADERS: Partial<Record<Locale, () => Promise<{ default: Catalog }>>> = {}
+/** Lazily loaded catalogs (Italian is bundled), one chunk per language. */
+const LOADERS: Partial<Record<Locale, () => Promise<{ default: Catalog }>>> = {
+  en: () => import('./locales/en'),
+  es: () => import('./locales/es'),
+  fr: () => import('./locales/fr'),
+  de: () => import('./locales/de'),
+  pt: () => import('./locales/pt'),
+  ru: () => import('./locales/ru'),
+  ja: () => import('./locales/ja'),
+  ko: () => import('./locales/ko'),
+  zh: () => import('./locales/zh'),
+}
 
 interface I18nState {
   locale: Locale

@@ -1,10 +1,14 @@
 // Messages produced away from the UI (host, store, network, Deezer) and shown in
 // the viewer's language, plus shared game vocabulary.
 export default {
-  /** Host preparation steps (the preparing screen). */
+  /**
+   * Host preparation steps: the big headline of the preparing screen. It sits right
+   * above the checklist (round.preparing.steps), so don't repeat the step labels.
+   */
   prep: {
-    picking: 'Scelgo le canzoni…',
-    slicing: 'Sto affettando la traccia…',
+    picking: 'Mescolo la playlist…',
+    slicing: 'Faccio a pezzi la hit…',
+    /** Same text as round.preparing.waiting: either one is the headline, never both. */
     syncing: 'Aspetto che tutti siano pronti…',
   },
   host: {

@@ -53,7 +53,7 @@ export default {
   footer: {
     /** {count} = maximum number of players (10). */
     players: {
-      one: '1 giocatore',
+      one: '{count} giocatore',
       other: 'Da 1 a {count} giocatori',
     },
     noAccount: 'Nessun account, si gioca nel browser',

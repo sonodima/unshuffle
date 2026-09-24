@@ -110,7 +110,7 @@ export default {
     title: 'Classifica',
     /** Next to the title (small, uppercase). */
     players: { one: '{count} giocatore', other: '{count} giocatori' },
-    /** Screen readers, before a row: "Posizione 2". */
+    /** Screen readers, before a row: "Posizione 2". {rank} is a plain number here, not an ordinal (ui.ordinal). */
     position: 'Posizione {rank}',
     /** Badge on a disconnected player. Short. */
     offline: 'Offline',

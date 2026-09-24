@@ -71,7 +71,7 @@ export default {
     /** Fact pills. <b> = the number (white). */
     snippets: { one: '<b>{count}</b> spezzone', other: '<b>{count}</b> spezzoni' },
     /** Round duration; "s" = seconds. */
-    seconds: '<b>{seconds}</b> s',
+    seconds: '<b>{seconds}</b> s',
     spectator: 'Questo round lo guardi: giocherai dal prossimo.',
     howToHover: 'Clicca un blocco per ascoltarlo, poi trascinalo al suo posto.',
     howToTouch: 'Tocca un blocco per ascoltarlo, poi trascinalo al suo posto.',
@@ -82,7 +82,7 @@ export default {
     countdownLabel: 'Si parte tra {seconds}',
   },
 
-  /** Full-screen slam when the round starts. Very short (1 word, huge type). */
+  /** Full-screen slam when the round starts. Very short: 1 word, huge type (only ~4 characters fit a phone). */
   go: 'Via!',
   /** Shown while the board data for the round arrives. */
   syncing: 'Sincronizzo il round…',
@@ -115,16 +115,16 @@ export default {
 
   /** "Giulia ha confermato!" — the final-countdown banner in the HUD. */
   banner: {
-    /** Player without a name. */
+    /** Stands in for {name} in confirmedBy when the player has no name. */
     someone: 'Qualcuno',
     mine: 'Hai confermato per primo!',
     /** <name> is the player's name: on phones only the name is shortened (one line). */
     confirmedBy: '<name>{name}</name> ha confermato!',
-    /** Line under the title; <n> is the live seconds count (animated). "s" = seconds. */
-    othersLeft: 'Gli altri hanno ancora <n>{seconds}</n> s',
-    youLeft: { one: 'Ti resta <n>{count}</n> secondo!', other: 'Ti restano <n>{count}</n> secondi' },
+    /** Line under the title; <n> is the live seconds count (animated). "s" = seconds, after a no-break space. */
+    othersLeft: 'Gli altri hanno ancora <n>{seconds}</n> s',
+    youLeft: { one: 'Ti resta <n>{count}</n> secondo', other: 'Ti restano <n>{count}</n> secondi' },
     /** For players who can't act any more (already confirmed, spectators). */
-    finalTimer: 'Timer finale: <n>{seconds}</n> s',
+    finalTimer: 'Timer finale: <n>{seconds}</n> s',
   },
 
   /** Bottom dock: play-all transport + CONFERMA / status. Status lines are one line (truncated). */

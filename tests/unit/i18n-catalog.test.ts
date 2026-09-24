@@ -1,5 +1,7 @@
 // The shape of the translation catalog (src/i18n/locales/it, the source every other
-// locale mirrors) and that every key is read from the CURRENT language.
+// locale mirrors), that every registered language mirrors it (the checks of
+// tests/support/i18n-check.ts: params, tags, plural categories, list / data shapes)
+// and that every key is read from the CURRENT language.
 // Run: bun test ./tests/unit/i18n-catalog.test.ts
 //
 // Catalogs are pure data: strings, plurals (objects keyed by Intl.PluralRules
@@ -7,9 +9,11 @@
 // numbers). No functions, no computed text: translators edit them by hand.
 
 import { afterAll, describe, expect, test } from 'bun:test'
+import { readdirSync } from 'node:fs'
 import it from '../../src/i18n/locales/it'
-import { SOURCE_LOCALE, registerCatalog, setLocale, t, td, tl } from '../../src/i18n'
+import { LOCALE_INFO, SOURCE_LOCALE, availableLocales, registerCatalog, setLocale, t, td, tl, useI18n } from '../../src/i18n'
 import type { Catalog, DataKey, ListKey, MessageKey } from '../../src/i18n'
+import { checkCatalog } from '../support/i18n-validate'
 
 const CATEGORIES = new Set(['zero', 'one', 'two', 'few', 'many', 'other'])
 
@@ -88,6 +92,34 @@ describe('the Italian catalog', () => {
     const bad = messages.flatMap(({ key, texts }) => texts.filter((s) => s !== s.trim() && key !== 'ui.listSeparator').map(() => key))
     expect(bad).toEqual([])
   })
+})
+
+// ---- every registered language mirrors the source -------------------------------------
+
+// Before the switching test below: it installs a stand-in German catalog.
+describe('every registered language', () => {
+  const registered = availableLocales().filter((l) => l !== SOURCE_LOCALE)
+
+  test('every locales/<code>/ folder has a loader, and every loader a folder', () => {
+    const dirs = readdirSync(new URL('../../src/i18n/locales/', import.meta.url), { withFileTypes: true })
+      .filter((d) => d.isDirectory() && d.name !== SOURCE_LOCALE)
+      .map((d) => d.name)
+      .sort()
+    expect([...registered].sort()).toEqual(dirs)
+  })
+
+  for (const code of registered) {
+    test(`${code}: loads through LOADERS and matches the Italian params, tags, plurals and data`, async () => {
+      await setLocale(code, false)
+      const { locale, catalog } = useI18n.getState()
+      expect(locale).toBe(code)
+      expect(catalog).not.toBe(it as unknown as Catalog)
+      expect(checkCatalog(it, catalog, LOCALE_INFO[code].tag)).toEqual([])
+      // Not a copy of Italian with a few strings changed: loanwords and key caps only.
+      const identical = checkCatalog(it, catalog, LOCALE_INFO[code].tag, { strict: true }).filter((p) => p.includes('identical to Italian'))
+      expect(identical.length).toBeLessThan(messages.length * 0.05)
+    })
+  }
 })
 
 // ---- every key goes through the current language -------------------------------------

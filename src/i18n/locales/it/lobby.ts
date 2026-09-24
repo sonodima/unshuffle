@@ -43,10 +43,10 @@ export default {
     players: 'Giocatori',
     playlist: 'Playlist',
     rules: 'Regole',
-    /** Screen readers, read after the tab name ("Playlist, da scegliere"): the host still has to pick one. */
-    toPick: ', da scegliere',
-    /** Screen readers, read after the tab name ("Giocatori, 3 giocatori"). */
-    playerCount: { one: ', {count} giocatore', other: ', {count} giocatori' },
+    /** Screen-reader name of the playlist tab while the host still has to pick one. {tab} = the tab label. */
+    tabToPick: '{tab}, da scegliere',
+    /** Screen-reader name of the players tab. {tab} = the tab label, {count} = players in the room. */
+    tabPlayers: { one: '{tab}, {count} giocatore', other: '{tab}, {count} giocatori' },
   },
 
   /** Invite link (the "Invita" button and the free seats). */
@@ -173,7 +173,7 @@ export default {
       title: 'Incolla il link completo della playlist',
       body: 'I link brevi (link.deezer.com) non si possono aprire da qui. Aprilo nel browser o nell’app Deezer e copia l’indirizzo completo: deezer.com/…/playlist/123456.',
     },
-    /** A link that is not a Deezer playlist was pasted. */
+    /** A link that is not a Deezer playlist was pasted. Adapt the example's country part (/it/) to your language, or drop it. */
     foreignLink: {
       title: 'Questo link non è una playlist',
       body: 'Incolla il link di una playlist pubblica di Deezer, tipo deezer.com/it/playlist/123456 — oppure cerca per nome, artista o genere.',

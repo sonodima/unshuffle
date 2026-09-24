@@ -142,7 +142,7 @@ export const ScorePanel = memo(function ScorePanel({
             <span className="font-bold text-ink-300">{t('reveal.score.total')}</span>
             <span className="flex items-center gap-2">
               <span className="rv-tnum text-base font-extrabold text-white">{formatPoints(row.totalAfter)}</span>
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-extrabold text-ink-100">{formatOrdinal(row.rank)}</span>
+              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-extrabold text-ink-100">{t('reveal.score.rank', { rank: formatOrdinal(row.rank) })}</span>
               {row.rankDelta !== 0 && <RankDelta delta={row.rankDelta} />}
             </span>
           </motion.div>

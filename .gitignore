@@ -23,8 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# End-to-end test screenshots
+# End-to-end test screenshots and i18n bounds reports
 tests/e2e/shots/
+tests/e2e/i18n-report/
 
 # Never commit audio (Deezer previews are copyrighted)
 *.mp3

@@ -400,6 +400,9 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
         {TABS.map((item) => {
           const selected = item.id === tab
           const badge = item.id === 'players' ? formatNumber(playerCount) : item.id === 'playlist' && needsPlaylist ? '!' : null
+          const label = t(item.label)
+          // A badge changes the tab's name for screen readers: one whole message per case.
+          const name = item.id === 'players' ? t('lobby.tabs.tabPlayers', { tab: label, count: playerCount }) : badge === '!' ? t('lobby.tabs.tabToPick', { tab: label }) : undefined
           return (
             <button
               key={item.id}
@@ -411,6 +414,7 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
               id={`lobby-tab-${item.id}`}
               aria-selected={selected}
               aria-controls={`lobby-panel-${item.id}`}
+              aria-label={name}
               tabIndex={selected ? 0 : -1}
               onClick={() => onTab(item.id)}
               className="relative flex h-11 min-w-0 flex-1 basis-0 items-center justify-center gap-1.5 rounded-[16px] px-1 tap-none"
@@ -424,7 +428,7 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
                 />
               )}
               <Icon name={item.icon} size={15} strokeWidth={2.4} className={cn('relative shrink-0 max-[419px]:hidden', selected ? 'text-white' : 'text-ink-400')} />
-              <span className={cn('relative truncate font-display text-[11px] font-bold tracking-wide uppercase max-[379px]:text-[10px] max-[379px]:tracking-normal', selected ? 'text-white' : 'text-ink-200')}>{t(item.label)}</span>
+              <span className={cn('relative truncate font-display text-[11px] font-bold tracking-wide uppercase max-[379px]:text-[10px] max-[379px]:tracking-normal', selected ? 'text-white' : 'text-ink-200')}>{label}</span>
               {badge && (
                 <span
                   className={cn(
@@ -433,7 +437,6 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
                   )}
                 >
                   <span aria-hidden>{badge}</span>
-                  <span className="sr-only">{badge === '!' ? t('lobby.tabs.toPick') : t('lobby.tabs.playerCount', { count: playerCount })}</span>
                 </span>
               )}
             </button>

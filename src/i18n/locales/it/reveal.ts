@@ -65,7 +65,7 @@ export default {
     tallyCorrect: { one: '{count} al posto giusto', other: '{count} al posto giusto' },
     tallyWrong: { one: '{count} sbagliato', other: '{count} sbagliati' },
     /**
-     * Tiny chips in the corner of a misplaced block (~6 characters).
+     * Tiny chips in the corner of a misplaced block (~6 characters; ~10 still fit, in a small monospace font).
      * `was`: on the right order, where the player had put that snippet.
      * `goes`: on the player's order, where the snippet belongs.
      * {pos} = the position, already an ordinal (ui.ordinal: "5º").
@@ -141,6 +141,11 @@ export default {
     pairs: { one: 'coppia in sequenza', other: 'coppie in sequenza' },
     /** My overall total after this round. */
     total: 'Totale partita',
+    /**
+     * Small pill after the game total: my place after this round. {rank} = the place,
+     * already an ordinal (ui.ordinal); add the counter word if yours has none. Very short.
+     */
+    rank: '{rank}',
     /** Stamp on a perfect round (big, slanted). */
     stamp: 'Perfetto!',
   },
@@ -160,7 +165,7 @@ export default {
   rankDown: { one: 'Scende di {count} posizione', other: 'Scende di {count} posizioni' },
 
   /** A duration in seconds; {seconds} is already formatted (“55,8”). */
-  seconds: '{seconds} s',
+  seconds: '{seconds} s',
 
   /** Screen-reader summary once my points are shown. */
   announce: {
@@ -192,7 +197,9 @@ export default {
     noAnswer: 'Nessuna risposta',
     /** Round stats under the leaderboard (tiny labels, one line each, three columns). */
     stats: {
+      /** Average points of the round. */
       average: 'Media',
+      /** How many players got the whole order right this round (the number is shown above). */
       perfect: 'Perfetti',
       fastest: 'Più veloce',
     },
@@ -218,11 +225,11 @@ export default {
     next: 'Prossimo round',
     final: 'Classifica finale',
     /** Auto-advance countdown beside the host's button; <num> wraps the seconds. */
-    nextIn: { one: 'Prossimo round tra <num>{count}</num> s', other: 'Prossimo round tra <num>{count}</num> s' },
-    finalIn: { one: 'Classifica finale tra <num>{count}</num> s', other: 'Classifica finale tra <num>{count}</num> s' },
+    nextIn: { one: 'Prossimo round tra <num>{count}</num> s', other: 'Prossimo round tra <num>{count}</num> s' },
+    finalIn: { one: 'Classifica finale tra <num>{count}</num> s', other: 'Classifica finale tra <num>{count}</num> s' },
     /** Guests, while the host decides. */
     waiting: 'In attesa dell’host…',
     /** Guests, with the auto-advance countdown; <num> is the dimmed seconds. */
-    waitingIn: { one: 'In attesa dell’host…<num>({count} s)</num>', other: 'In attesa dell’host…<num>({count} s)</num>' },
+    waitingIn: { one: 'In attesa dell’host…<num>({count} s)</num>', other: 'In attesa dell’host…<num>({count} s)</num>' },
   },
 }
