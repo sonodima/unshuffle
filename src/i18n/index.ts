@@ -131,6 +131,9 @@ function render(value: unknown, params?: Params): string | undefined {
   if (typeof value === 'string') return interpolate(value, params)
   if (isPlural(value)) {
     const count = Number(params?.count ?? 0)
+    // `zero` is an explicit form for exactly 0 in every language (like ICU "=0"): some
+    // languages' rules put 0 in "one" ("0 ponto" in Portuguese) where players expect otherwise.
+    if (count === 0 && typeof value.zero === 'string') return interpolate(value.zero, params)
     const category = rulesFor(localeTag()).select(count) as keyof Plural
     return interpolate(value[category] ?? value.other, params)
   }

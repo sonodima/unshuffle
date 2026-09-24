@@ -78,7 +78,7 @@ export function checkCatalog(source: unknown, target: unknown, tag: string, opti
     if (isPlural(src) !== isPlural(dst)) problems.push(`${path}: the source is ${isPlural(src) ? 'a plural' : 'a plain string'}, the translation is not`)
     if (isPlural(dst)) {
       const rules = path === 'ui.ordinal' ? ordinal : cardinal
-      for (const k of Object.keys(dst)) if (!rules.has(k)) problems.push(`${path}: plural category "${k}" does not exist in ${tag}`)
+      for (const k of Object.keys(dst)) if (k !== 'zero' && !rules.has(k)) problems.push(`${path}: plural category "${k}" does not exist in ${tag}`)
     }
     if (options.strict && typeof src === 'string' && src === dst && /[a-zà-ù]{4,}/i.test(ownWords(src))) problems.push(`${path}: identical to Italian: "${src}"`)
   }

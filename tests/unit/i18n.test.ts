@@ -226,6 +226,15 @@ describe('plurals (Intl.PluralRules)', () => {
     registerCatalog('ru', RU)
   })
 
+  test('an explicit zero form wins for exactly 0, in any language', async () => {
+    registerCatalog('fr', fake({ apples: { zero: 'aucune pomme', one: '{count} pomme', other: '{count} pommes' } }))
+    await setLocale('fr', false)
+    expect(t(K.apples, { count: 0 })).toBe('aucune pomme')
+    expect(t(K.apples, { count: 1 })).toBe('1 pomme')
+    expect(t(K.apples, { count: 0.5 })).toBe('0,5 pomme')
+    registerCatalog('fr', FR)
+  })
+
   test('no count picks the plural of 0', async () => {
     await setLocale('en', false)
     expect(t(K.apples)).toBe('{count} apples')

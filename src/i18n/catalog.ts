@@ -10,6 +10,7 @@ import type it from './locales/it'
  * Japanese other only…). Avoid naming a catalog key `other` elsewhere.
  */
 export interface Plural {
+  /** Exactly 0, in every language (checked before the language's rules). */
   zero?: string
   one?: string
   two?: string
