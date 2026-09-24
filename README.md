@@ -2,6 +2,8 @@
 
 > *La hit è stata fatta a pezzi. Rimettila in ordine prima degli altri.*
 
+**▶ Gioca: [pages.arm.re/unshuffle](https://pages.arm.re/unshuffle/)**
+
 A browser-only, peer-to-peer multiplayer music game. A famous song's 30 s Deezer
 preview is cut on beats / bar lines into 6–16 snippets, shuffled, and every player
 races to drag them back into the right order. GeoGuessr-style rounds: a time

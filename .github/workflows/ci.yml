@@ -50,10 +50,14 @@ jobs:
       # Deploy options (README → Deploy) come from repository variables
       # (Settings → Secrets and variables → Actions → Variables). They end up in
       # the public bundle by design, so variables, not secrets.
+      # Pages serves every site over HTTPS; its base_url can still say http:// while a
+      # custom domain waits for "Enforce HTTPS", and share cards want the https URL.
       - name: Build
-        run: npx vite build
+        run: |
+          if [ -n "$PAGES_BASE_URL" ]; then export VITE_SITE_URL="https://${PAGES_BASE_URL#*://}/"; fi
+          npx vite build
         env:
-          VITE_SITE_URL: ${{ steps.pages.outputs.base_url && format('{0}/', steps.pages.outputs.base_url) || '' }}
+          PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
           VITE_TURN_CREDENTIALS_URL: ${{ vars.VITE_TURN_CREDENTIALS_URL }}
           VITE_TURN_CREDENTIALS_METHOD: ${{ vars.VITE_TURN_CREDENTIALS_METHOD }}
           VITE_TURN_CREDENTIALS_TTL: ${{ vars.VITE_TURN_CREDENTIALS_TTL }}
