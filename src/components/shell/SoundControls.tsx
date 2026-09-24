@@ -241,7 +241,7 @@ export function SoundControls({ placement = 'floating', align = 'end', className
             style={
               dock === 'bottom-right'
                 ? { bottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--shell-edge))', right: 'calc(env(safe-area-inset-right, 0px) + var(--shell-edge))' }
-                : { top: 'calc(env(safe-area-inset-top, 0px) + var(--shell-edge))', right: 'calc(env(safe-area-inset-right, 0px) + var(--shell-edge))' }
+                : { top: 'calc(var(--safe-top) + var(--shell-edge))', right: 'calc(env(safe-area-inset-right, 0px) + var(--shell-edge))' }
             }
           >
             <FloatingDock dock={dock} screen={screen} />

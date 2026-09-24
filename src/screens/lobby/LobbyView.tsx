@@ -372,7 +372,7 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
   return (
     <>
     <div ref={sentinel} aria-hidden className="h-px" />
-    <div className="sticky top-0 z-20 -mx-4 mt-3 px-4 pt-[max(env(safe-area-inset-top),8px)] pb-2 sm:-mx-6 sm:px-6">
+    <div className="sticky top-0 z-20 -mx-4 mt-3 px-4 pt-[max(var(--safe-top),8px)] pb-2 sm:-mx-6 sm:px-6">
       <div
         aria-hidden
         className={cn(

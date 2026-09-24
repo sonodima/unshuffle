@@ -151,8 +151,25 @@
   #root {
     height: 100%;
   }
+  :root {
+    /* Page colour behind the shader. Safari 26 ignores theme-color and tints its
+       Liquid Glass bars from the html/body background, so it matches the shader's
+       dark violet rather than the near-black ink-950. */
+    --color-page: #160b26;
+    /* Top safe area. In an iOS Safari tab the page runs under the status bar, which
+       Safari 26 blurs: keep content a bit further down there (only where the inset
+       is non-zero). */
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+  @supports (-webkit-touch-callout: none) {
+    @media (display-mode: browser) {
+      :root {
+        --safe-top: calc(env(safe-area-inset-top, 0px) * 1.3);
+      }
+    }
+  }
   html {
-    background: var(--color-ink-950);
+    background: var(--color-page);
     color: var(--color-ink-50);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -164,6 +181,7 @@
     scrollbar-color: rgb(255 255 255 / 0.16) transparent;
   }
   body {
+    background-color: var(--color-page);
     overscroll-behavior: none;
   }
   ::selection {
@@ -334,7 +352,7 @@
 
 /* Safe-area padding (notch / home indicator). pb-safe-4 = 1rem + inset. */
 @utility pt-safe {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--safe-top);
 }
 @utility pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -344,7 +362,7 @@
   padding-right: env(safe-area-inset-right, 0px);
 }
 @utility pt-safe-* {
-  padding-top: calc(--spacing(--value(integer)) + env(safe-area-inset-top, 0px));
+  padding-top: calc(--spacing(--value(integer)) + var(--safe-top));
 }
 @utility pb-safe-* {
   padding-bottom: calc(--spacing(--value(integer)) + env(safe-area-inset-bottom, 0px));
@@ -357,7 +375,7 @@
   bottom: calc(--spacing(--value(integer)) + env(safe-area-inset-bottom, 0px));
 }
 @utility top-safe-* {
-  top: calc(--spacing(--value(integer)) + env(safe-area-inset-top, 0px));
+  top: calc(--spacing(--value(integer)) + var(--safe-top));
 }
 
 @utility shimmer {
