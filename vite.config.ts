@@ -6,8 +6,8 @@ import type { HtmlTagDescriptor, Logger, Plugin } from 'vite'
 // ---- index.html head tags ------------------------------------------------------
 //
 // The font preloads, resource hints and share-image tags of index.html are
-// generated here, so they follow the deploy configuration (VITE_* variables,
-// README → Deploy) and the hashed file names of the build.
+// generated here, so they follow the deploy configuration (the VITE_* variables
+// of src/net/peer.ts, VITE_SITE_URL) and the hashed file names of the build.
 
 /**
  * Fonts the home screen paints with: Unbounded (logo, buttons) and Manrope (text).

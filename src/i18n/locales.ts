@@ -1,5 +1,9 @@
 // Supported languages. Italian is the source catalog (always bundled); the others
 // are loaded on demand. Right-to-left scripts are not supported by the layout.
+//
+// Adding a language: copy locales/en/ to locales/<code>/ and translate it (the type
+// checker lists what's missing), add it below and a loader to LOADERS in index.ts,
+// then check it with `bun tests/support/i18n-check.ts <code>`.
 
 export const LOCALES = ['it', 'en', 'es', 'fr', 'de', 'pt', 'ru', 'ja', 'ko', 'zh'] as const
 export type Locale = (typeof LOCALES)[number]

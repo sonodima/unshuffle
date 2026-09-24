@@ -1,4 +1,4 @@
-// Finds user-facing text that bypasses the translation catalog (docs/I18N.md, rule 1).
+// Finds user-facing text that bypasses the translation catalog (src/i18n/locales).
 // Used by tests/unit/i18n-hardcoded.test.ts; also runs on its own:
 //
 //   bun tests/support/i18n-scan.ts          # grouped report, exit code 1 on findings
@@ -41,7 +41,7 @@ export interface ScanOptions {
   isKey?: (s: string) => boolean
 }
 
-/** Words that may appear untranslated (docs/I18N.md, rule 6). */
+/** Words that may appear untranslated: the brand and "BPM". */
 const ALLOWED_WORDS = ['UNSHUFFLE', 'BPM']
 
 /** Attribute / property names whose value is shown or read to the user. */
@@ -287,7 +287,7 @@ export function formatReport(findings: Finding[]): string {
   const out = [
     `${findings.length} hardcoded user-facing string(s) in ${files.length} file(s): ` +
       [...byRule.entries()].map(([r, n]) => `${r} ${n}`).join(', '),
-    'Move them to src/i18n/locales/it/<namespace>.ts and read them with t() / tm() (docs/I18N.md),',
+    'Move them to src/i18n/locales/it/<namespace>.ts and read them with t() / tm(),',
     'or, when deliberate, add `// i18n-ignore: <reason>` on the line or the line above.',
   ]
   for (const [file, list] of files) {

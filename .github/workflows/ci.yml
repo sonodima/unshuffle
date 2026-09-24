@@ -47,7 +47,7 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v5
 
-      # Deploy options (README → Deploy) come from repository variables
+      # Deploy options (the VITE_* variables of src/net/peer.ts) come from repository variables
       # (Settings → Secrets and variables → Actions → Variables). They end up in
       # the public bundle by design, so variables, not secrets.
       # Pages serves every site over HTTPS; its base_url can still say http:// while a

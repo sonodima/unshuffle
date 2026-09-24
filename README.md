@@ -1,288 +1,113 @@
-# UNSHUFFLE
+<p align="center">
+  <a href="https://pages.arm.re/unshuffle/">
+    <img src="public/og-image.jpg" alt="UNSHUFFLE, a music party game" width="760">
+  </a>
+</p>
 
-> *La hit è stata fatta a pezzi. Rimettila in ordine prima degli altri.*
+<p align="center">
+  <b><a href="https://pages.arm.re/unshuffle/">Play it at pages.arm.re/unshuffle</a></b><br>
+  <sub>Free · no sign-up · phone or computer · 1 to 10 players</sub>
+</p>
 
-**▶ Gioca: [pages.arm.re/unshuffle](https://pages.arm.re/unshuffle/)**
+<br>
 
-A browser-only, peer-to-peer multiplayer music game. A famous song's 30 s Deezer
-preview is cut on beats / bar lines into 6–16 snippets, shuffled, and every player
-races to drag them back into the right order. GeoGuessr-style rounds: a time
-limit, and as soon as the first player confirms, a short final timer starts for
-everyone else. Phone and desktop; the interface is translatable (Italian is the
-source language) and follows the browser's language.
+UNSHUFFLE is a music game you play with friends, right in the browser. Each round
+takes a song, cuts it into pieces on the beat and shuffles them. You listen to the
+pieces, drag them back into order and lock in your answer. As soon as someone
+locks in, everyone else has a few seconds left.
 
-- 100 % static SPA (Vite + React 19 + TypeScript) — no backend. Networking is
-  WebRTC (PeerJS, rooms brokered by the public PeerJS cloud); music metadata comes
-  from the public Deezer API over JSONP. A public deployment needs a TURN relay
-  for players on mobile data: see [Deploy](#deploy).
-- How the code fits together (modules, protocol, host state machine, audio
-  pipeline, networking): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-- Translations (catalogs, rules, adding a language): [`docs/I18N.md`](docs/I18N.md).
+Setting up takes a minute: one person creates a room, the others join from their
+own phone with the code, the link or the QR code. You can also play on your own.
 
-## Features
+## How a game goes
 
-- **Rooms without accounts**: a 5-letter code, an invite link (`#/r/CODE`) and a
-  QR code; up to 10 players; late joiners watch the current round and play from
-  the next. Solo play works too.
-- **Any Deezer playlist**: search, category chips, featured playlists, or paste a
-  playlist link. Settings: 3/5/7/10 rounds, 6/8/12/16 snippets
-  (Facile → Folle), 60–180 s per round, 10–30 s final timer.
-- **Fresh songs**: every browser remembers the songs it has heard in a game
-  (locally, fading over a few weeks) and shares a small summary with the host,
-  who picks the songs nobody in the room has heard lately first, the most famous
-  among equals.
-- **Musical cuts**: beat and bar tracking (4/4, plus 3/4 and 5/4 when clear) in a
-  Web Worker. Cuts avoid chopping held vocal notes, snippets have near-even
-  lengths, and every guest re-aligns the host's cuts to its own browser's decode
-  (Safari/iOS decode MP3s ~12 ms earlier than Chrome).
-- **Gapless playback**: in the right order the snippets sound exactly like the
-  original. Every track is loudness-normalised (−14 LUFS), so rounds sound
-  equally loud.
-- **Reveal**: the song plays while your blocks flip ✓/✗ and slide into place. Tap
-  a block to jump the song there, and switch between *Il tuo ordine* and
-  *Ordine giusto*. Round leaderboard with rank changes.
-- **Final**: podium with confetti, per-round breakdown, awards, replayable song
-  previews, **Rigioca** (host) and **Rivincita!** requests (guests).
-- **Resilient networking**: reloads and short drops keep your seat and score (12 s
-  grace in game). Late moves up to 400 ms after the deadline still count. A host
-  on a phone that briefly goes to the background is waited for up to 3 minutes,
-  and guests are told within ~15 s when the host has really left.
-- **Phone first**: touch drag with no scroll conflicts, safe areas, landscape
-  layouts, 44–48 px touch targets, and an installable home-screen app with icons
-  and a manifest.
-- **In your language**: every text comes from a typed catalog
-  (`src/i18n/`, no dependency). The language is picked from the browser, can be
-  changed from the globe button on Home and in the lobby, and is remembered. Each
-  player reads the game in their own language, even in the same room: peers
-  exchange message keys, never text. Numbers, lists and ordinals follow the
-  language (`Intl`).
-- **Light on the device**: no persistent `backdrop-filter`, a shader that drops to
-  30 fps when nothing plays, and an idle Home screen that parks its demo.
+**The lobby.** The host picks a Deezer playlist: search for one, browse the
+featured ones or paste a link. Then the rules: how many rounds, how many pieces,
+how much time.
 
-## How to play
+**The round.** The song shows up as a row of shuffled tiles. Tap one to hear it,
+drag it where you think it belongs, and press ▶ to hear the whole thing in your
+order. When it sounds like the real song, lock in. The first player to lock in
+starts the final countdown for everybody else.
 
-1. **Crea stanza** on Home, then share the code, the link or the QR code. Friends
-   open the link, or type the code and press **Entra**.
-2. The host picks a playlist and the settings, then presses **Inizia partita**.
-3. Each round, a song is cut into snippets and shuffled. **Tap/click** a block to
-   hear it, **drag** it to its place, and use **▶ Ascolta tutto** (space bar) to
-   hear the current order. **Long-press** a block (or Shift+Enter) to listen from
-   that position onwards.
-4. Press **CONFERMA** (⌘/Ctrl+Enter) when you think it's right. The first confirm
-   starts a short final timer for everyone else. On an untouched board CONFERMA
-   asks for a second press.
-5. Points per round: up to 2500 for snippets in the exact position plus up to 2500
-   for adjacent pairs in the right sequence (5000 for a perfect board). Ties go to
-   whoever played more rounds, then to the lower total confirm time.
-6. The top-left exit button leaves the game (guests) or ends it: **Torna alla
-   lobby** or **Chiudi la stanza** (host).
+**The reveal.** The original plays from the top while your tiles turn green or red
+and slide into their right places. You can switch between your order and the
+correct one, or tap any tile to jump to that part of the song. Then a quick look
+at the standings, and on to the next song.
 
-## Run
+**The end.** A podium with confetti, everyone's points round by round, and a few
+awards: Golden Ear, Quick Draw, Sniper, and Out of Time for whoever kept running
+out of it. The setlist lets you listen to the songs again. The host can start a
+new game straight away, and anyone can ask for a rematch.
+
+## Scoring
+
+A perfect round is worth 5,000 points. Half of it goes to tiles in exactly the
+right spot, the other half to tiles that follow each other correctly, so if you
+got the chorus together but put it in the wrong place, it still counts for
+something. On equal points, whoever played more rounds wins, then whoever locked
+in faster.
+
+## Rules
+
+| Setting         | Choices                                          |
+| --------------- | ------------------------------------------------ |
+| Rounds          | 3, 5, 7 or 10, one song each                     |
+| Pieces per song | 6 (easy), 8 (normal), 12 (hard) or 16 (insane)   |
+| Time per round  | 60, 90, 120 or 180 seconds                       |
+| Final countdown | 10, 15, 20 or 30 seconds after the first lock-in |
+
+## Details
+
+- The cuts fall on beats and bar lines and try not to split a held note. Put the
+  tiles in the right order and you hear the original song, with no gaps or clicks.
+- Every song plays at the same loudness, so no round is suddenly louder than the
+  one before.
+- The game remembers which songs you've heard and picks the ones nobody in the
+  room has heard lately, so the same playlist stays fresh for a few games. The
+  history stays on your device and fades after a few weeks.
+- It speaks ten languages: Italian, English, Spanish, French, German, Portuguese,
+  Russian, Japanese, Korean and Chinese. Everyone in a room sees their own.
+- If you reload the page or lose signal for a moment, you keep your seat and your
+  points. If you join halfway through, you watch the current round and play from
+  the next one.
+- It's made for phones, but works just as well on a computer: Space plays your
+  order, ⌘/Ctrl + Enter locks in, and holding a tile (or Shift + Enter) plays from
+  that tile on.
+- Add it to your home screen and it opens full screen, like an app.
+
+## How it works
+
+UNSHUFFLE is just a web page. There's no backend and no database: the browsers in
+a room talk to each other directly, the host's browser keeps score, and the music
+comes from the 30-second previews Deezer makes available to everyone. That's why
+there are no accounts, and why it costs nothing to run.
+
+It also means the host is the referee. If they close the tab, the game ends. If
+their phone just goes to sleep for a bit, the game waits up to three minutes for
+them to come back.
+
+On home Wi-Fi, browsers find each other on their own. Players on mobile data, or
+on strict office and school networks, can only connect through a relay server
+(TURN), which the game has to be built with.
+
+## Run your own
 
 ```sh
 npm install
-npm run dev            # http://localhost:5173 — open it in two browsers/devices to play together
-npm run build          # type-check + production build into dist/
-npm run preview        # serve dist/
-npm run typecheck      # tsc -b only
-npm run lint           # oxlint
-npm test               # unit tests (needs bun, see Tests)
+npm run dev
 ```
 
-## Deploy
+The game opens at http://localhost:5173. Open it in two browser windows to play
+against yourself.
 
-`npm run build` writes a fully static site to `dist/`. It uses a relative base
-(`./`) and hash routing, so it can be hosted from any folder of any static host
-(GitHub Pages, Netlify, S3, a plain directory). Serve it over HTTPS: the game
-itself also runs on plain `http://`, but clipboard access and installing it as an
-app need a secure origin.
+`npm run build` makes a static site in `dist/` that works from any host and any
+folder. The build options, such as a TURN relay for players on mobile data or your
+own signaling server, are described at the top of
+[`src/net/peer.ts`](src/net/peer.ts). This repository publishes itself to GitHub
+Pages on every push to `main`.
 
-Deploy-time options are `VITE_*` environment variables read by `vite build`
-(export them in the shell, or put them in `.env.production.local`, which is
-git-ignored). Everything they contain ends up **public in the JS bundle**, so use
-only keys meant for the browser.
+## Credits
 
-### GitHub Pages (CI/CD)
-
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and
-pull request: `npm ci`, type-check, lint, the bun unit tests and a production
-build. On `main` it then publishes `dist/` to GitHub Pages with the official
-`actions/deploy-pages` flow, and sets `VITE_SITE_URL` from the Pages URL so link
-previews get an absolute share image.
-
-One-time setup: **Settings → Pages → Build and deployment → Source: GitHub
-Actions**. The deploy options below are read from repository **variables**
-(Settings → Secrets and variables → Actions → Variables), for example
-`VITE_TURN_CREDENTIALS_URL`. They end up in the public bundle anyway, so they
-are variables, not secrets. After changing one, re-run the workflow (Actions →
-CI → Run workflow).
-
-The end-to-end suites (`tests/e2e/`) need a real Chrome, the public PeerJS cloud
-and the Deezer API, so they run locally, not in CI (see [Tests](#tests)).
-
-### TURN relay (needed for a public deployment)
-
-WebRTC connects players directly whenever it can: same Wi-Fi, ordinary home
-routers. Two groups of players can only reach the host through a TURN relay:
-
-- players on **mobile data** (carrier-grade / symmetric NAT, i.e. most 4G/5G), and
-- players on networks that **block UDP** (offices, schools, hotels, some public
-  Wi-Fi), which need TURN over TCP 80 or TLS 443.
-
-By default the app uses STUN only (Google + Cloudflare) and ships no TURN server.
-PeerJS' old public relays no longer resolve, and
-no free relay still works without an account. A build without TURN plays fine at
-home, but those players see *“Impossibile collegarsi all’host”* after about 12 s.
-Configure at least one of the options below. The full variable list is in the
-header comment of [`src/net/peer.ts`](src/net/peer.ts).
-
-**A. Credentials endpoint (recommended).** The app fetches short-lived TURN
-credentials at runtime: in the background on the home screen, and again when a
-room is created or joined (waiting at most 2.5 s for them). It caches them until
-they expire, and a host keeps them fresh during a long game for players who join
-later. With Metered (the free "Open Relay" tier needs a sign-up: create an app and
-copy its API key):
-
-```sh
-VITE_TURN_CREDENTIALS_URL="https://<app>.metered.live/api/v1/turn/credentials?apiKey=<key>" npm run build
-```
-
-The endpoint must answer CORS requests (`fetch` without cookies). Accepted
-response shapes: `RTCIceServer[]` (Metered, callable straight from the browser),
-`{ iceServers }` (Cloudflare), `{ ice_servers }` (Twilio), `{ v: { iceServers } }`
-(Xirsys) and the TURN REST shape `{ username, password, ttl, uris }`. Providers
-whose API needs a secret (Cloudflare, Twilio) must sit behind your own small proxy
-or worker, never in the bundle. Optional: `VITE_TURN_CREDENTIALS_METHOD=POST`,
-and `VITE_TURN_CREDENTIALS_TTL=<seconds>` for responses without a `ttl`
-(default 3600).
-
-**B. Static credentials** (for example the ExpressTURN free tier, or your own
-[coturn](https://github.com/coturn/coturn)):
-
-```sh
-VITE_TURN_URLS="turn:relay.example.com:80,turn:relay.example.com:80?transport=tcp,turns:relay.example.com:443?transport=tcp" \
-VITE_TURN_USERNAME=user VITE_TURN_CREDENTIAL=secret npm run build
-```
-
-A and B can be combined; the browser then gathers relay candidates from both.
-
-Getting the URLs right:
-
-- **List UDP, then TCP 80, then TLS 443**: `turn:h:80` (or `:3478`),
-  `turn:h:80?transport=tcp`, `turns:h:443?transport=tcp`. UDP is the fastest;
-  TCP 80 and TLS 443 get through firewalls that block everything else.
-  Unreachable entries don't slow down direct connections, so listing all three
-  costs nothing.
-- **A `turns:` hostname must match the relay's TLS certificate**, otherwise the
-  TLS handshake fails and only that fallback silently stops working. For
-  Metered that is `global.relay.metered.ca`, not `openrelay.metered.ca`.
-- There is no `?transport=tls`: TLS is `turns:` with `?transport=tcp`.
-- Malformed entries (unknown scheme, missing username or credential, a URL the
-  browser rejects) are dropped with a `[net] …` console warning instead of
-  breaking every connection. After a deploy, check the console for such warnings.
-- **Static credentials are public.** Anyone who opens the site can read them and
-  use your relay's quota. The credentials endpoint (A) limits this to
-  short-lived credentials; with B, rotate them if the quota starts draining.
-  A game uses very little relay traffic (≈ 35 KB per round per guest, about 2 MB
-  for a 10-player, 5-round game), so free tiers are plenty.
-
-**Check that the relay really works.** A working direct path hides a broken
-relay, so force one side onto it: in Firefox, set
-`media.peerconnection.ice.relay_only` to `true` in `about:config` (that browser
-then uses relay candidates only), open the deployed site (or `npm run dev` with
-the same variables in `.env.local`) and join a room created in another browser.
-If the join works, so does the relay, and `about:webrtc` shows the selected
-candidate pair as `relay`; without one the join fails after about 12 s. Reset the
-pref afterwards. For a real guest on mobile data, `chrome://webrtc-internals` on
-the host shows a `relay` candidate in the selected pair. A failing credentials
-endpoint logs `[net] TURN credentials unavailable (…)` in the console.
-
-### Own signaling server (optional)
-
-Rooms are brokered by the public PeerJS cloud (`0.peerjs.com`). To use your own
-[PeerServer](https://github.com/peers/peerjs-server) instead
-(`npx -p peer peerjs --port 9000 --path /app`):
-
-```sh
-VITE_PEERJS_HOST=peer.example.com VITE_PEERJS_PORT=443 VITE_PEERJS_PATH=/app npm run build
-```
-
-`VITE_PEERJS_HOST` also accepts a full URL (`wss://peer.example.com:9000/app`),
-or `/` for the page's own host (a PeerServer behind the same domain).
-Also available: `VITE_PEERJS_KEY` and `VITE_PEERJS_SECURE` (`true`/`false`; the
-default follows the page, so HTTPS uses `wss`). All players must use the same
-build: players on different signaling servers can't see each other's rooms.
-
-### Link previews and home-screen app
-
-Invite links shared in chats get a title, a description and a share card
-(`public/og-image.jpg`, 1200×630). WhatsApp, Facebook and some other apps only
-load the image from an absolute URL, so tell the build where the site lives:
-
-```sh
-VITE_SITE_URL=https://giochi.example.com/unshuffle/ npm run build
-```
-
-Without it the image URL stays relative, and only the apps that resolve
-relative URLs show the card. `public/` also holds the icons and
-`manifest.webmanifest`, so "Aggiungi a Home" (iOS) and "Installa app"
-(Android, desktop Chrome) give a full-screen app with the UNSHUFFLE icon.
-
-`vite.config.ts` writes the generated part of the page `<head>`: the
-`og:image` tags, a preload for the two fonts of the home screen (so the first
-paint already uses them), and `preconnect` hints for the signaling server, the
-TURN credentials endpoint and Deezer, derived from the variables above.
-
-### Connection behaviour
-
-A guest whose link drops reconnects on its own: quickly for 30 s, then every 5 s
-for up to 3 minutes of visible time, so a phone host that switched apps can come
-back. Both sides say goodbye on `pagehide`, so a closed tab is noticed at once.
-When the signaling server reports the host's code as gone for 10 s, guests stop
-retrying and see *“L’host ha lasciato la partita”* (~14 s after the host tab closed).
-A host reload keeps the room code and the game.
-
-## Tests
-
-```sh
-npm test               # unit tests: every tests/unit/*.test.ts, each in its own bun process
-bun test ./tests/unit/host.test.ts   # a single file
-```
-
-Unit tests use [bun](https://bun.sh). `npm test` runs each file on its own because
-several suites mock shared modules with `mock.module`, which leaks across files in
-one bun process. Shared helpers live in `tests/support/` (a headless `HostGame`
-harness with fake server, clock and deps; a synthetic drum loop for the analysis)
-and `tests/fixtures/` (realistic `RoomState`s for every phase).
-
-Translations have three suites of their own ([`docs/I18N.md`](docs/I18N.md)):
-`i18n.test.ts` (lookup, plurals, number / list / ordinal formatting, language
-detection and switching, on fake catalogs), `i18n-catalog.test.ts` (the catalog is
-plain data with balanced `<tag>`s, and every key is read from the current
-language) and `i18n-hardcoded.test.ts`, a guard that fails on any user-facing
-string in `src/` outside the catalog. The guard's report also runs on its own:
-
-```sh
-bun tests/support/i18n-scan.ts          # hardcoded strings, grouped by file (exit code 1 if any)
-```
-
-The end-to-end suites in `tests/e2e/` drive the real app through its UI with
-Playwright and the installed Google Chrome, over the public PeerJS cloud and the
-live Deezer API. Each takes the base URL as its first argument; the defaults match
-`npm run dev` and `npm run preview`:
-
-```sh
-npm run dev                             # http://localhost:5173/, then in another shell:
-node tests/e2e/smoke.mjs                # full 2-player game: desktop host + phone guest, 3 rounds → podium → Rigioca
-CHAOS=1 node tests/e2e/smoke.mjs        # the same game, with both tabs reloaded at once mid-round
-node tests/e2e/reload.mjs               # host + guest reload in the lobby at the same moment → both back in the room
-
-npm run build && npm run preview        # http://localhost:4173/, then in another shell:
-node tests/e2e/static.mjs               # production build: home, analysis worker, a solo game with real waveforms
-SUBPATH=1 node tests/e2e/static.mjs     # …also served from a deep sub-path, to prove the relative base
-node tests/e2e/check-bundle.mjs         # dist/ only, no server: one entry point, no test code, relative URLs, worker chunk
-```
-
-`smoke.mjs` also reads `QUERY` (the playlist search, default `hits 2000`), `RUN`
-(the screenshot prefix) and `HEADFUL=1` (show the browsers). Screenshots of every
-phase land in `tests/e2e/shots/`, which is git-ignored.
+Songs and album covers come from Deezer's public previews and belong to their
+rights holders. UNSHUFFLE is an independent project, not affiliated with Deezer.

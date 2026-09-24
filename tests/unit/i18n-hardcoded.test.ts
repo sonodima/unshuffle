@@ -1,4 +1,4 @@
-// Guard: no user-facing text outside the translation catalog (docs/I18N.md, rule 1).
+// Guard: no user-facing text outside the translation catalog (src/i18n/locales).
 // Run: bun test ./tests/unit/i18n-hardcoded.test.ts   ·   report only: bun tests/support/i18n-scan.ts
 //
 // The scanner (tests/support/i18n-scan.ts) parses every production .ts / .tsx under
