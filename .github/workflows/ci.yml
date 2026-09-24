@@ -28,7 +28,7 @@ jobs:
           node-version: 24
           cache: npm
 
-      # The unit tests (scripts/**/*.test.ts) run on bun.
+      # The unit tests (tests/unit/*.test.ts) run on bun.
       - uses: oven-sh/setup-bun@v2
 
       - run: npm ci

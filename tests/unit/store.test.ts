@@ -1013,9 +1013,6 @@ describe('resumeSession', () => {
   })
 })
 
-// -----------------------------------------------------------------------------
-// QA round 2 fixes (see scripts/fix-game/PROGRESS.md)
-
 describe('moves near the deadline and across link drops', () => {
   function playingRoom(state: RoomState, t: TrackInfo, endsIn: number) {
     return withPhase(state, { kind: 'playing', round: 0, startedAt: Date.now(), endsAt: Date.now() + endsIn, firstSubmit: null }, { tracks: [t], rounds: [round(0, t)] })

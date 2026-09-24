@@ -1,7 +1,7 @@
 // Pure layout rules for the shell's pinned chrome (no DOM, no React: unit-tested).
 
 /** A "HUD" whose bottom is below this share of the viewport is not a pinned bar. */
-export const HUD_MAX_SHARE = 0.45
+const HUD_MAX_SHARE = 0.45
 
 /** Bottom edge (viewport px) of a measured HUD rect, or null when it doesn't count as a pinned bar. */
 export function hudBottomFrom(rect: { bottom: number; height: number } | null, viewportHeight: number): number | null {

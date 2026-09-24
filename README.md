@@ -14,7 +14,8 @@ everyone else. Italian UI, phone and desktop.
   WebRTC (PeerJS, rooms brokered by the public PeerJS cloud); music metadata comes
   from the public Deezer API over JSONP. A public deployment needs a TURN relay
   for players on mobile data: see [Deploy](#deploy).
-- Architecture, product spec and module contracts: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- How the code fits together (modules, protocol, host state machine, audio
+  pipeline, networking): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Features
 
@@ -104,8 +105,8 @@ Actions**. The deploy options below are read from repository **variables**
 are variables, not secrets. After changing one, re-run the workflow (Actions →
 CI → Run workflow).
 
-The end-to-end suites (`scripts/e2e/*.mjs`) need a real Chrome, the public PeerJS
-cloud and the Deezer API, so they run locally, not in CI.
+The end-to-end suites (`tests/e2e/`) need a real Chrome, the public PeerJS cloud
+and the Deezer API, so they run locally, not in CI (see [Tests](#tests)).
 
 ### TURN relay (needed for a public deployment)
 
@@ -173,11 +174,16 @@ Getting the URLs right:
   A game uses very little relay traffic (≈ 35 KB per round per guest, about 2 MB
   for a 10-player, 5-round game), so free tiers are plenty.
 
-**Check that the relay really works.** Run the dev server with the same
-variables (e.g. in `.env.local`), open `http://localhost:5173/lab/net.html` in
-two tabs, run `netLab.forceRelay(true)` in both consoles, press *Crea stanza* in
-one tab and join its code from the other. `await netLab.icePaths()` should then
-print `relay/…` pairs. Without a working relay, the join fails.
+**Check that the relay really works.** A working direct path hides a broken
+relay, so force one side onto it: in Firefox, set
+`media.peerconnection.ice.relay_only` to `true` in `about:config` (that browser
+then uses relay candidates only), open the deployed site (or `npm run dev` with
+the same variables in `.env.local`) and join a room created in another browser.
+If the join works, so does the relay, and `about:webrtc` shows the selected
+candidate pair as `relay`; without one the join fails after about 12 s. Reset the
+pref afterwards. For a real guest on mobile data, `chrome://webrtc-internals` on
+the host shows a `relay` candidate in the selected pair. A failing credentials
+endpoint logs `[net] TURN credentials unavailable (…)` in the console.
 
 ### Own signaling server (optional)
 
@@ -226,43 +232,34 @@ A host reload keeps the room code and the game.
 
 ## Tests
 
-End-to-end (Playwright with the installed Chrome, real PeerJS cloud + Deezer):
-
 ```sh
-UNSHUFFLE_VITE_CACHE=node_modules/.vite-integrate npx vite --port 5220 --strictPort &
-node scripts/e2e/smoke.mjs        # full 2-player game: desktop host + phone guest, 3 rounds → podium → Rigioca
-npm run build && npx vite preview --port 5221 --strictPort &
-SUBPATH=1 node scripts/e2e/static.mjs   # production build: home, analysis worker, solo game (also from a sub-path)
-node scripts/e2e/check-bundle.mjs       # dist/: no lab / dev code, relative URLs, separate worker chunk
-CHAOS=1 node scripts/e2e/smoke.mjs      # the same game, with both tabs reloaded at once mid-round
-node scripts/e2e/reload.mjs             # host + guest reload at the same moment → both back in the room
-node scripts/release/shots.mjs          # every screen of a real 3-player game: desktop 1440×900 + phone 390×844
+npm test               # unit tests: every tests/unit/*.test.ts, each in its own bun process
+bun test ./tests/unit/host.test.ts   # a single file
 ```
 
-Every script takes the base URL as its first argument (e.g.
-`node scripts/e2e/smoke.mjs http://127.0.0.1:5500/`). Screenshots of every phase
-land in `scripts/e2e/shots/`.
+Unit tests use [bun](https://bun.sh). `npm test` runs each file on its own because
+several suites mock shared modules with `mock.module`, which leaks across files in
+one bun process. Shared helpers live in `tests/support/` (a headless `HostGame`
+harness with fake server, clock and deps; a synthetic drum loop for the analysis)
+and `tests/fixtures/` (realistic `RoomState`s for every phase).
 
-Deeper QA scenarios (same setup, `BASE=http://127.0.0.1:<port>/` in the environment):
-`scripts/qa-multiplayer/game4.mjs` (4 players: first-confirm pull-in on every peer,
-a late joiner, a round with no confirms, last-second confirms, Rigioca and a second game), plus
-`s6b-hostgone`, `s8b-16snip-phone`, `s9b-lastsecond`, `s10b-dup`, `s11b-host-refresh`,
-`s12-ghost` and `s13-clockskew`. These all use the current `lib.mjs`. The older `s1`,
-`s3`, `s5`, `s7`–`s11` scripts import helpers that no longer exist. In
-`scripts/qa-ux/` there are `confirm`, `a11y` and `game`. `scripts/qa-mobile/` holds
-`real` (a real 3-player game with phones, `BASE` without a trailing slash; pass
-`IOS_ENGINE=chromium`, because Playwright's WebKit can't open WebRTC data channels, see
-`webrtc-probe.mjs`), `webkit-unlock` (`PBASE=`), `reveal-scroll`, and `sweep`
-(`ENGINE=chromium|webkit`, `VPS=…`: every screen over fixture states in the shell lab,
-the way to get WebKit/iPhone screenshots, with overflow/overlap checks).
-`node scripts/net/run.mjs` exercises the transport (reconnect, host-gone, limits).
-
-Unit tests use [bun](https://bun.sh); run each file on its own (several suites
-mock shared modules with `mock.module`, which leaks across files in one bun process):
+The end-to-end suites in `tests/e2e/` drive the real app through its UI with
+Playwright and the installed Google Chrome, over the public PeerJS cloud and the
+live Deezer API. Each takes the base URL as its first argument; the defaults match
+`npm run dev` and `npm run preview`:
 
 ```sh
-npm test               # = for f in $(find ./scripts -name '*.test.ts' | sort); do bun test "$f" || exit 1; done
+npm run dev                             # http://localhost:5173/, then in another shell:
+node tests/e2e/smoke.mjs                # full 2-player game: desktop host + phone guest, 3 rounds → podium → Rigioca
+CHAOS=1 node tests/e2e/smoke.mjs        # the same game, with both tabs reloaded at once mid-round
+node tests/e2e/reload.mjs               # host + guest reload in the lobby at the same moment → both back in the room
+
+npm run build && npm run preview        # http://localhost:4173/, then in another shell:
+node tests/e2e/static.mjs               # production build: home, analysis worker, a solo game with real waveforms
+SUBPATH=1 node tests/e2e/static.mjs     # …also served from a deep sub-path, to prove the relative base
+node tests/e2e/check-bundle.mjs         # dist/ only, no server: one entry point, no test code, relative URLs, worker chunk
 ```
 
-Module labs (`lab/*.html`, served by the dev server at `/lab/<name>.html`) and
-their helpers in `src/dev/` are development tools only and never part of the build.
+`smoke.mjs` also reads `QUERY` (the playlist search, default `hits 2000`), `RUN`
+(the screenshot prefix) and `HEADFUL=1` (show the browsers). Screenshots of every
+phase land in `tests/e2e/shots/`, which is git-ignored.

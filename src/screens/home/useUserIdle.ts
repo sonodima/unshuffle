@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { createIdleTracker } from './idle'
 
 /** No input for this long = idle. Two demo cycles fit in it after load. */
-export const HOME_IDLE_MS = 15_000
+const HOME_IDLE_MS = 15_000
 
 const ACTIVITY_EVENTS = ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'focusin', 'input', 'scroll'] as const
 

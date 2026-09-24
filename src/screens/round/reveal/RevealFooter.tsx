@@ -3,7 +3,7 @@ import { memo, useEffect, useState } from 'react'
 import { Button, Spinner, cn, useMediaQuery } from '../../../components/ui'
 import { REVEAL_AUTO_ADVANCE_MS } from '../../../game/constants'
 
-export interface RevealFooterProps {
+interface RevealFooterProps {
   isHost: boolean
   isLast: boolean
   /** Whole seconds until auto-advance, null = the host decides. */

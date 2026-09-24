@@ -12,7 +12,7 @@ import { activePlayers, readyCount, roundInfo } from './model'
 import { PlayersStrip } from './PlayersStrip'
 import './round.css'
 
-export interface PreparingViewProps {
+interface PreparingViewProps {
   room: RoomState
   me: PlayerId
   /** Download status per track id (useGame().audio). */

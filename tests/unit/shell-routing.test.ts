@@ -11,12 +11,10 @@ describe('router', () => {
     expect(normalizePath('#')).toBe('/')
     expect(normalizePath('#/')).toBe('/')
     expect(normalizePath('#/r/abcde/')).toBe('/r/abcde')
-    expect(normalizePath('#//styleguide?x=1')).toBe('/styleguide')
+    expect(normalizePath('#//r/abcde?x=1')).toBe('/r/abcde')
   })
   test('parses routes', () => {
     expect(parseHash('').name).toBe('home')
-    expect(parseHash('#/styleguide').name).toBe('styleguide')
-    expect(parseHash('#/STYLEGUIDE').name).toBe('styleguide')
     const r = parseHash('#/r/kxqpm')
     expect(r).toMatchObject({ name: 'room', path: '/r/KXQPM', code: 'KXQPM', params: { code: 'KXQPM' } })
     expect(parseHash('#/r/KXQPO').code).toBeNull() // O is not in the alphabet
@@ -32,13 +30,12 @@ describe('router', () => {
 })
 
 describe('screen selection', () => {
-  test('route and phase decide the screen', () => {
-    expect(selectScreen({ route: 'styleguide', role: 'host', room: fxLobby })).toBe('styleguide')
-    expect(selectScreen({ route: 'home', role: 'none', room: fxLobby })).toBe('home')
-    expect(selectScreen({ route: 'room', role: 'client', room: null })).toBe('home')
-    expect(selectScreen({ route: 'room', role: 'client', room: fxLobby })).toBe('lobby')
-    for (const r of [fxPreparing, fxIntro, fxPlaying, fxReveal]) expect(selectScreen({ route: 'room', role: 'host', room: r })).toBe('round')
-    expect(selectScreen({ route: 'room', role: 'host', room: fxFinal })).toBe('final')
+  test('role and phase decide the screen', () => {
+    expect(selectScreen({ role: 'none', room: fxLobby })).toBe('home')
+    expect(selectScreen({ role: 'client', room: null })).toBe('home')
+    expect(selectScreen({ role: 'client', room: fxLobby })).toBe('lobby')
+    for (const r of [fxPreparing, fxIntro, fxPlaying, fxReveal]) expect(selectScreen({ role: 'host', room: r })).toBe('round')
+    expect(selectScreen({ role: 'host', room: fxFinal })).toBe('final')
   })
   test('titles', () => {
     expect(screenTitle('home', null)).toBe('UNSHUFFLE')

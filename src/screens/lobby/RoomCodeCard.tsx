@@ -4,7 +4,7 @@ import { Button, Icon, IconButton, Modal, Panel, cn, playSfx, useCanHover } from
 import { QrCode } from './QrCode'
 import { canNativeShare, nativeShare, splitDisplayUrl, useCopy } from './invite'
 
-export interface RoomCodeCardProps {
+interface RoomCodeCardProps {
   code: string
   /** Full join link (…#/r/CODE). */
   joinUrl: string
@@ -183,7 +183,7 @@ const TILE = {
 } as const
 
 /** Five keycap tiles, each letter sliced in two like an audio snippet (brand motif). */
-export function CodeTiles({ code, size = 'lg', className }: { code: string; size?: 'md' | 'lg'; className?: string }) {
+function CodeTiles({ code, size = 'lg', className }: { code: string; size?: 'md' | 'lg'; className?: string }) {
   const reduce = useReducedMotion()
   return (
     <span aria-hidden className={cn('flex justify-center gap-[clamp(6px,2vw,10px)] [perspective:600px]', className)}>

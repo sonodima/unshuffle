@@ -68,7 +68,7 @@ function safe<T>(fn: () => T, fallback: T): T {
 }
 
 /** [volume 0..1, muted, setVolume, toggleMute] — defensive over the audio engine. */
-export function useSoundLevel(): [number, boolean, (v: number) => void, () => void] {
+function useSoundLevel(): [number, boolean, (v: number) => void, () => void] {
   const [volume, setVol] = useVolume()
   const muted = volume <= AUDIBLE
   const setVolume = useCallback(
@@ -127,7 +127,7 @@ function Switch({ checked, onChange, label, id }: { checked: boolean; onChange(n
   )
 }
 
-export interface SoundPanelProps {
+interface SoundPanelProps {
   volume: number
   muted: boolean
   sfxOn: boolean
@@ -137,8 +137,8 @@ export interface SoundPanelProps {
   className?: string
 }
 
-/** The popover body (also usable standalone, e.g. inside a settings sheet). */
-export function SoundPanel({ volume, muted, sfxOn, onVolume, onToggleMute, onSfx, className }: SoundPanelProps) {
+/** The popover body. */
+function SoundPanel({ volume, muted, sfxOn, onVolume, onToggleMute, onSfx, className }: SoundPanelProps) {
   const sfxId = useId()
   const pct = Math.round((muted ? 0 : volume) * 100)
   return (
@@ -194,7 +194,7 @@ export function SoundPanel({ volume, muted, sfxOn, onVolume, onToggleMute, onSfx
 // ---------------------------------------------------------------------------
 // Connected control
 
-export interface SoundControlsProps {
+interface SoundControlsProps {
   /** floating = fixed top-right corner (default, mounted once by the app shell) · inline = in the flow of a screen header. */
   placement?: 'floating' | 'inline'
   /** Popover alignment relative to the button (inline only). Default 'end'. */
@@ -269,7 +269,7 @@ function FloatingDock({ dock, screen }: { dock: 'top-right' | 'bottom-right'; sc
         align="end"
         low={dock === 'bottom-right'}
         hidden={away}
-        allowPill={dock === 'top-right' && (screen === 'home' || screen === 'lobby' || screen === 'styleguide')}
+        allowPill={dock === 'top-right' && (screen === 'home' || screen === 'lobby')}
       />
     </motion.div>
   )

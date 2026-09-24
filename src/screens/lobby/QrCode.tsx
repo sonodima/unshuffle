@@ -1,7 +1,7 @@
 import QRCode from 'qrcode'
 import { useMemo } from 'react'
 
-export interface QrCodeProps {
+interface QrCodeProps {
   /** Text to encode (the join URL). */
   value: string
   /** Rendered size in px (square). */

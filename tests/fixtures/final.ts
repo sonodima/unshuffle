@@ -1,4 +1,4 @@
-// Rich final-screen fixtures for the lab: distinct songs, consistent scores,
+// Rich final-screen fixtures: distinct songs, consistent scores,
 // late joiner, disconnected player, ties, solo and crowded variants.
 import { fxFinal, fxPlayers } from './room'
 import { scoreArrangement } from '../../src/game/scoring'
@@ -18,7 +18,7 @@ const track = (id: number, title: string, artist: string, album: string, hash: s
   durationSec: 200,
 })
 
-export const labTracks: TrackInfo[] = [
+const finalTracks: TrackInfo[] = [
   track(908604612, 'Blinding Lights', 'The Weeknd', 'After Hours', 'fd00ebd6d30d7253f813dba3bb1c66a9'),
   track(8086126, 'Rolling in the Deep', 'Adele', '21', 'dc1ce848d830ecc93521be5a78350364'),
   track(3135556, 'Harder, Better, Faster, Stronger', 'Daft Punk', 'Discovery', '2e018122cb56986277102d2041a592c8'),
@@ -60,7 +60,7 @@ const plan: Plan = [
   [['p-2', PERFECT, 35_100], ['p-host', NEAR, 36_800], ['p-3', SWAP_END, 70_400], ['p-4', HALF, 90_000, true], ['p-5', NEAR, 61_000]],
 ]
 
-function build(players: Player[], p: Plan, tracks = labTracks): RoomState {
+function build(players: Player[], p: Plan, tracks = finalTracks): RoomState {
   const results = p.map((r) => r.map(([id, order, t, to]) => res(id, order, t, to)))
   const totals = new Map<string, number>()
   for (const r of results) for (const x of r) totals.set(x.playerId, (totals.get(x.playerId) ?? 0) + x.points)
@@ -77,33 +77,33 @@ function build(players: Player[], p: Plan, tracks = labTracks): RoomState {
 }
 
 /** Full 5-player game: Giulia wins, Tommy (host) 2nd, Sofi joined at round 4, Marco offline. */
-export const labFinal: RoomState = build(fxPlayers, plan)
+const finalGame: RoomState = build(fxPlayers, plan)
 
 /** Tommy wins (for "Hai vinto!" as host). */
-export const labHostWins: RoomState = build(
+const finalHostWins: RoomState = build(
   fxPlayers,
   plan.map((r) => r.map(([id, order, t, to]) => [id === 'p-2' ? 'p-host' : id === 'p-host' ? 'p-2' : id, order, t, to] as [string, number[], number, boolean?])),
 )
 
 /** Giulia and Tommy perfectly tied (same score and same total time). */
-export const labTie: RoomState = build(fxPlayers.slice(0, 3), [
+const finalTie: RoomState = build(fxPlayers.slice(0, 3), [
   [['p-2', PERFECT, 40_000], ['p-host', NEAR, 30_000], ['p-3', HALF, 70_000]],
   [['p-2', NEAR, 30_000], ['p-host', PERFECT, 40_000], ['p-3', RUNS, 80_000]],
   [['p-2', HALF, 50_000], ['p-host', HALF, 50_000], ['p-3', MESS, 90_000, true]],
 ])
 
 /** Solo game. */
-export const labSolo: RoomState = build(fxPlayers.slice(0, 1), [
+const finalSolo: RoomState = build(fxPlayers.slice(0, 1), [
   [['p-host', PERFECT, 31_000]],
   [['p-host', NEAR, 44_000]],
   [['p-host', PERFECT, 28_000]],
 ])
 
 /** Two players. */
-export const labDuo: RoomState = build(fxPlayers.slice(0, 2), plan.slice(0, 3).map((r) => r.filter(([id]) => id === 'p-host' || id === 'p-2')))
+const finalDuo: RoomState = build(fxPlayers.slice(0, 2), plan.slice(0, 3).map((r) => r.filter(([id]) => id === 'p-host' || id === 'p-2')))
 
 /** Nobody scored. */
-export const labZero: RoomState = build(fxPlayers.slice(0, 3), [
+const finalZero: RoomState = build(fxPlayers.slice(0, 3), [
   [['p-host', MESS, 90_000, true], ['p-2', MESS, 90_000, true], ['p-3', MESS, 90_000, true]],
   [['p-host', MESS, 90_000, true], ['p-2', MESS, 90_000, true], ['p-3', MESS, 90_000, true]],
   [['p-host', MESS, 90_000, true], ['p-2', MESS, 90_000, true], ['p-3', MESS, 90_000, true]],
@@ -126,7 +126,7 @@ const crowdPlayers: Player[] = [
 const orders = [PERFECT, NEAR, HALF, RUNS, MESS, SWAP_END]
 
 /** Ten players, seven rounds. */
-export const labCrowd: RoomState = build(
+const finalCrowd: RoomState = build(
   crowdPlayers,
   Array.from({ length: 7 }, (_, r) =>
     crowdPlayers.map((p, i) => {
@@ -138,21 +138,21 @@ export const labCrowd: RoomState = build(
 )
 
 /** Longest allowed names (16 chars) on the podium and in the headline. */
-export const labLongNames: RoomState = {
-  ...labFinal,
-  players: labFinal.players.map((p) =>
+const finalLongNames: RoomState = {
+  ...finalGame,
+  players: finalGame.players.map((p) =>
     p.id === 'p-2' ? { ...p, name: 'Massimiliano XVI' } : p.id === 'p-host' ? { ...p, name: 'WWWWWWWWWWWWWWWW' } : p,
   ),
 }
 
-export const LAB_ROOMS: Record<string, RoomState> = {
-  final: labFinal,
-  hostwins: labHostWins,
-  tie: labTie,
-  solo: labSolo,
-  duo: labDuo,
-  zero: labZero,
-  crowd: labCrowd,
-  long: labLongNames,
+export const FINAL_ROOMS: Record<string, RoomState> = {
+  final: finalGame,
+  hostwins: finalHostWins,
+  tie: finalTie,
+  solo: finalSolo,
+  duo: finalDuo,
+  zero: finalZero,
+  crowd: finalCrowd,
+  long: finalLongNames,
   fixture: fxFinal,
 }

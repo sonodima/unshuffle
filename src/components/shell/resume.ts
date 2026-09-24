@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react'
 import { loadSession } from '../../game/persist'
 import { useGame } from '../../game/store'
 
-export interface ResumeState {
+interface ResumeState {
   /** idle = never started · running = resumeSession pending · done = settled (or skipped). */
   phase: 'idle' | 'running' | 'done'
   /** Room being resumed, if known. */
@@ -38,10 +38,6 @@ const getState = () => state
 
 export function useResumeState(): ResumeState {
   return useSyncExternalStore(subscribe, getState, getState)
-}
-
-export function getResumeState(): ResumeState {
-  return state
 }
 
 /** Calls `useGame.getState().resumeSession()` exactly once per page load (idempotent). */
@@ -102,11 +98,4 @@ export function dismissResumeFailure(): void {
   } catch {
     // ignore
   }
-}
-
-/** Test/lab helper: drive the overlay without a real session. */
-export function __setResumeStateForLab(next: Partial<ResumeState>): void {
-  started = true
-  cancelled = false
-  patch(next)
 }

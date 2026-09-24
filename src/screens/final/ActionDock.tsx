@@ -4,9 +4,9 @@ import { AvatarGroup, Button, Equalizer, Modal, cn } from '../../components/ui'
 import type { Player } from '../../game/types'
 import { joinNames } from './stats'
 
-export type DockPlacement = 'fixed' | 'inline'
+type DockPlacement = 'fixed' | 'inline'
 
-export interface ActionDockProps {
+interface ActionDockProps {
   isHost: boolean
   /** Connected players other than me (host: shown in the replay hint / leave warning). */
   othersOnline: number

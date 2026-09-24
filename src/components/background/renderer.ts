@@ -34,8 +34,6 @@ export type RendererStatus = 'ready' | 'pending' | 'failed'
 export interface GlRenderer {
   readonly gl: GL
   readonly webgl2: boolean
-  /** GPU description (unmasked when the browser allows it). */
-  readonly gpu: string
   /** Compiles run in the background (KHR_parallel_shader_compile) instead of blocking the main thread. */
   readonly parallel: boolean
   /** Octave count of the program in use (0 before the first one linked). */
@@ -91,11 +89,11 @@ const CONTEXT_ATTRS: WebGLContextAttributes = {
 /** Variants tried, in order, when the preferred one does not compile on this driver. */
 const FALLBACK_OCTAVES = [4, 3]
 
-export function createRenderer(canvas: HTMLCanvasElement, opts: { allowWebgl2?: boolean } = {}): GlRenderer | null {
+export function createRenderer(canvas: HTMLCanvasElement): GlRenderer | null {
   let gl: GL | null = null
   let webgl2 = false
   try {
-    if (opts.allowWebgl2 !== false) gl = canvas.getContext('webgl2', CONTEXT_ATTRS)
+    gl = canvas.getContext('webgl2', CONTEXT_ATTRS)
     if (gl) webgl2 = true
     else gl = (canvas.getContext('webgl', CONTEXT_ATTRS) ?? canvas.getContext('experimental-webgl', CONTEXT_ATTRS)) as WebGLRenderingContext | null
   } catch {
@@ -103,15 +101,6 @@ export function createRenderer(canvas: HTMLCanvasElement, opts: { allowWebgl2?: 
   }
   if (!gl) return null
   const ctx: GL = gl
-
-  let gpu = webgl2 ? 'WebGL2' : 'WebGL1'
-  try {
-    const dbg = ctx.getExtension('WEBGL_debug_renderer_info')
-    const name = dbg ? ctx.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER)
-    if (typeof name === 'string' && name) gpu = `${gpu} · ${name}`
-  } catch {
-    // renderer info is diagnostics only
-  }
 
   let parallelExt: ParallelCompileExt | null = null
   const acquireParallel = () => {
@@ -217,7 +206,6 @@ export function createRenderer(canvas: HTMLCanvasElement, opts: { allowWebgl2?: 
   const renderer: GlRenderer = {
     gl: ctx,
     webgl2,
-    gpu,
     get parallel() {
       return !!parallelExt
     },

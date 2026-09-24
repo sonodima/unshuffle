@@ -9,7 +9,7 @@ import { Avatar, AvatarPicker, Button, Icon, IconButton, Input, Modal, cn, playS
 
 export type ProfilePatch = Partial<Omit<PlayerProfile, 'id'>>
 
-export interface ProfileCardProps {
+interface ProfileCardProps {
   profile: PlayerProfile
   onChange(patch: ProfilePatch): void
   disabled?: boolean

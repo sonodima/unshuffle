@@ -15,7 +15,7 @@ export type LostCause = 'network' | 'host-gone'
 /** gone = the room no longer exists for us (host left, or a rejoin found nothing). */
 export type ExitReason = 'kicked' | 'closed' | 'duplicate' | 'gone' | 'failed' | 'other'
 
-export type CopyIcon = 'wifi-off' | 'kick' | 'lock' | 'users' | 'logout'
+type CopyIcon = 'wifi-off' | 'kick' | 'lock' | 'users' | 'logout'
 
 export interface DialogCopy {
   title: string

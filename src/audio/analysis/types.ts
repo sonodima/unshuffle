@@ -1,4 +1,4 @@
-// Public result types of the analysis (re-exported by ./index.ts).
+// Result types of the analysis (CutPlan is re-exported by ./index.ts).
 
 export interface CutSegment {
   start: number

@@ -4,7 +4,7 @@ import { AVATARS } from '../../game/constants'
 import type { ToastItem } from '../../game/store'
 import type { Player, PlayerId } from '../../game/types'
 
-export type ToastCopyTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'accent'
+type ToastCopyTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'accent'
 
 /** Plain-data toast: `icon` is a UI-kit IconName or an emoji. */
 export interface ToastCopy {

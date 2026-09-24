@@ -1,6 +1,6 @@
 // The play phase: HUD on top, the snippet board filling the middle, transport and
 // CONFERMA at the bottom. Pure: everything comes from props (+ the board's audio
-// context for playback / SFX), so it renders from fixtures in the lab.
+// context for playback / SFX).
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SnippetBoard, useAudioBuffer, useBoardAudio, useLocalSegments } from '../../components/board'
@@ -24,7 +24,7 @@ const Board = memo(SnippetBoard)
 
 type PlayingPhase = Extract<Phase, { kind: 'playing' }>
 
-export interface PlayViewProps {
+interface PlayViewProps {
   room: RoomState
   me: PlayerId
   /** Host clock (ms), refreshed by the parent a few times per second. */

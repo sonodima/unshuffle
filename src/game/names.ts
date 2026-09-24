@@ -4,13 +4,13 @@
 import { MAX_NAME_LENGTH } from './constants'
 import { randomInt } from './shuffle'
 
-export const NAME_TITLES = [
+const NAME_TITLES = [
   'DJ', 'MC', 'Lady', 'Mister', 'Miss', 'Capitan', 'Dottor', 'Maestro', 'Zio', 'Zia',
   'Baby', 'Lil', 'Big', 'King', 'Queen', 'Sir', 'Don', 'Mega', 'Super', 'Prof',
   'Conte', 'Duca', 'Madame', 'Signor', 'Nonna',
 ] as const
 
-export const NAME_NOUNS = [
+const NAME_NOUNS = [
   // cibo
   'Lasagna', 'Tortellino', 'Cannolo', 'Pistacchio', 'Arancino', 'Gnocco', 'Espresso',
   'Maritozzo', 'Carbonara', 'Panettone', 'Gorgonzola', 'Grissino', 'Tiramisù', 'Zucchina',
@@ -42,7 +42,7 @@ export function randomPlayerName(): string {
 }
 
 /** Length in user-perceived characters (code points), matching sanitizeName's cut. */
-export function nameLength(name: string): number {
+function nameLength(name: string): number {
   return Array.from(name).length
 }
 

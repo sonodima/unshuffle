@@ -19,7 +19,7 @@ import type { ClientMsg, HostMsg } from './protocol'
 import { NetError, NET_MESSAGES, isTransientPeerError, netErrorFromPeer, signalingError } from './errors'
 import { closeConnection, destroyPeer, openPeer, prepareIceServers, waitForOpen } from './peer'
 import type { DataConnection, OpenResult, Peer, PeerModule } from './peer'
-import { Listeners, Scope, netLog, netStats, now, race, randomToken, reportListenerError } from './runtime'
+import { Listeners, Scope, now, race, randomToken, reportListenerError } from './runtime'
 import { NET_TIMING } from './timing'
 import { DOWNSTREAM_LIMITS, HEARTBEAT, Reassembler, encodeMessage, isFrame } from './wire'
 import type { ByeReason, Frame } from './wire'
@@ -30,8 +30,6 @@ interface Link {
   lastRx: number
   lastTx: number
   readonly rx: Reassembler
-  /** Debug: behave like a silently dead network path. */
-  frozen: boolean
   /** Something hinted the path may be gone: dead unless a frame arrives within probeSilenceMs. */
   probeSince: number
   /** Pending "ICE still disconnected?" check. */
@@ -71,7 +69,7 @@ export async function connectClient(mod: PeerModule, code: string): Promise<Clie
   return client
 }
 
-export class ClientConnectionImpl implements ClientConnection {
+class ClientConnectionImpl implements ClientConnection {
   readonly code: string
   private readonly mod: PeerModule
   private readonly hostId: string
@@ -97,20 +95,17 @@ export class ClientConnectionImpl implements ClientConnection {
   private hiddenTotal = 0
   private signalingRetries = 0
   private cancelSignalingRetry: (() => void) | null = null
-  /** Debug: links left open on purpose by debugAbandon(); closed on teardown. */
-  private abandoned: DataConnection[] = []
 
   constructor(mod: PeerModule, code: string) {
     this.mod = mod
     this.code = code
     this.hostId = PEER_PREFIX + code
-    netStats.clients++
     if (isHidden()) this.hiddenAt = now()
     const win = typeof window === 'undefined' ? undefined : window
     this.scope.interval(() => this.tick(), NET_TIMING.tickMs)
-    this.scope.listen(win, 'online', () => this.onPathHint('online', true))
+    this.scope.listen(win, 'online', () => this.onPathHint(true))
     // Fires on network switches, but on desktop also on mere bandwidth estimates: probe only, no wake.
-    this.scope.listen(networkInfo(), 'change', () => this.onPathHint('network-change', false))
+    this.scope.listen(networkInfo(), 'change', () => this.onPathHint(false))
     this.scope.listen(typeof document === 'undefined' ? undefined : document, 'visibilitychange', () =>
       this.onVisibility(),
     )
@@ -155,47 +150,9 @@ export class ClientConnectionImpl implements ClientConnection {
     this.done = true
     this.status = 'closed'
     this.statusDetail = 'closed-by-app'
-    netLog('client', `close ${this.code}`)
     this.messageL.clear()
     this.statusL.clear()
     this.teardown('leave')
-  }
-
-  // ---- debug hooks (netDebug) ----
-
-  debugBreak(): boolean {
-    if (!this.link) return false
-    this.link.conn.close()
-    return true
-  }
-
-  debugFreeze(): boolean {
-    if (!this.link) return false
-    this.link.frozen = true
-    return true
-  }
-
-  /** Reconnect while leaving the old channel open (host must supersede it). */
-  debugAbandon(): boolean {
-    const link = this.link
-    if (!link || this.done) return false
-    link.conn.removeAllListeners()
-    link.cancelIce?.()
-    this.abandoned.push(link.conn)
-    this.link = null
-    void this.reconnectLoop('debug-abandon')
-    return true
-  }
-
-  debugDropSignaling(): boolean {
-    const peer = this.peer
-    if (!peer || peer.destroyed || peer.disconnected) return false
-    peer.disconnect()
-    return true
-  }
-
-  debugPeerId(): string {
-    return this.myId
   }
 
   // ---- connection lifecycle ----
@@ -219,7 +176,6 @@ export class ClientConnectionImpl implements ClientConnection {
         return
       }
       last = r
-      netLog('client', `join attempt failed: ${r.stage}/${r.type}`)
       if (r.type === 'aborted') throw new NetError('unknown', NET_MESSAGES.unknown)
       if (r.type === 'browser-incompatible') throw new NetError('unsupported', NET_MESSAGES.unsupported)
       if (isOffline()) throw new NetError('network', NET_MESSAGES.network)
@@ -289,7 +245,6 @@ export class ClientConnectionImpl implements ClientConnection {
         const answerTimer = setTimeout(() => {
           if (!answered()) settle({ ok: false, type: 'no-answer', stage: 'connect' })
         }, Math.min(answerMs, remaining))
-        netStats.timers++
         const onOpen = (): void => settle({ ok: true, conn: c })
         const onConnError = (err: { type: string }): void => {
           if (!isSoftChannelError(err.type)) settle({ ok: false, type: 'channel-failed', stage: 'connect' })
@@ -311,7 +266,6 @@ export class ClientConnectionImpl implements ClientConnection {
         peer.on('close', onPeerGone)
         return () => {
           clearTimeout(answerTimer)
-          netStats.timers--
           c.off('open', onOpen)
           c.off('error', onConnError)
           c.off('close', onConnClose)
@@ -377,7 +331,6 @@ export class ClientConnectionImpl implements ClientConnection {
     peer.on('close', () => {
       if (peer === this.peer) this.dropPeer()
     })
-    peer.on('error', (err) => netLog('client', `peer error ${err.type}`))
   }
 
   /**
@@ -388,7 +341,7 @@ export class ClientConnectionImpl implements ClientConnection {
    */
   private onSignalingLost(peer: Peer): void {
     if (this.done || peer !== this.peer || !this.link || this.cancelSignalingRetry) return
-    this.probe(this.link, 'signaling-lost')
+    this.probe(this.link)
     const delays = [1_000, 2_000, 5_000, 10_000, 20_000]
     const delay = delays[Math.min(this.signalingRetries, delays.length - 1)]
     this.cancelSignalingRetry = this.scope.timeout(() => {
@@ -424,7 +377,6 @@ export class ClientConnectionImpl implements ClientConnection {
       lastRx: t,
       lastTx: t,
       rx: new Reassembler(DOWNSTREAM_LIMITS),
-      frozen: false,
       probeSince: 0,
       cancelIce: null,
       saidAway: false,
@@ -436,11 +388,10 @@ export class ClientConnectionImpl implements ClientConnection {
       if (!isSoftChannelError(err.type)) this.onLinkLost(link, `link-error:${err.type}`)
     })
     conn.on('iceStateChanged', (state) => this.onIceState(link, state))
-    netLog('client', `connected to ${this.code} as ${this.myId}`)
   }
 
   private onData(link: Link, data: unknown): void {
-    if (this.done || link !== this.link || link.frozen) return
+    if (this.done || link !== this.link) return
     link.lastRx = now()
     if (!isFrame(data)) return
     switch (data.k) {
@@ -501,7 +452,6 @@ export class ClientConnectionImpl implements ClientConnection {
     link.rx.clear()
     closeConnection(link.conn)
     if (this.done) return
-    netLog('client', `link lost (${reason})`)
     if (this.rejected) {
       this.finish('rejected')
       return
@@ -510,21 +460,18 @@ export class ClientConnectionImpl implements ClientConnection {
   }
 
   /** The link must show a sign of life within probeSilenceMs (see tick). */
-  private probe(link: Link, reason: string): void {
-    if (link.frozen || link !== this.link) return
-    if (!link.probeSince) {
-      link.probeSince = now()
-      netLog('client', `probing the link (${reason})`)
-    }
+  private probe(link: Link): void {
+    if (link !== this.link) return
+    if (!link.probeSince) link.probeSince = now()
     // Our own frame gets the host's side of the path exercised too.
     this.sendFrames(link, [HEARTBEAT])
   }
 
   /** Back online / network switched / tab thawed: test the link, optionally skip any reconnect backoff. */
-  private onPathHint(reason: string, wake: boolean): void {
+  private onPathHint(wake: boolean): void {
     if (this.done) return
     if (wake) this.scope.wake()
-    if (this.link) this.probe(this.link, reason)
+    if (this.link) this.probe(this.link)
   }
 
   private onVisibility(): void {
@@ -541,7 +488,7 @@ export class ClientConnectionImpl implements ClientConnection {
     }
     this.scope.wake()
     // After a long spell in the background the path may be gone without us being told.
-    if (hiddenFor >= NET_TIMING.deadAfterMs) this.onPathHint('visible-again', false)
+    if (hiddenFor >= NET_TIMING.deadAfterMs) this.onPathHint(false)
   }
 
   /**
@@ -552,7 +499,7 @@ export class ClientConnectionImpl implements ClientConnection {
    */
   private onPageHide(): void {
     const link = this.link
-    if (this.done || !link || link.frozen || !link.conn.open) return
+    if (this.done || !link || !link.conn.open) return
     link.saidAway = true
     try {
       void link.conn.send({ k: 'bye', r: 'away' } satisfies Frame)
@@ -566,7 +513,7 @@ export class ClientConnectionImpl implements ClientConnection {
     if (this.done || !(e as PageTransitionEvent).persisted) return
     const link = this.link
     if (link?.saidAway) this.onLinkLost(link, 'page-restored')
-    else this.onPathHint('page-restored', true)
+    else this.onPathHint(true)
   }
 
   /** Visible time elapsed since `since` (hidden time doesn't use up reconnect budgets). */
@@ -620,11 +567,9 @@ export class ClientConnectionImpl implements ClientConnection {
         }
         if (r.ok) {
           this.adopt(r.conn)
-          netLog('client', `reconnected after ${attempts} attempt(s), ${Math.round(now() - startedAt)} ms`)
           this.setStatus('open', 'reconnected')
           return
         }
-        netLog('client', `reconnect attempt ${attempts} failed: ${r.stage}/${r.type}`)
         if (r.type === 'browser-incompatible') break
         // Our own signaling / network trouble says nothing about the host.
         if (r.stage === 'signaling') continue
@@ -666,12 +611,11 @@ export class ClientConnectionImpl implements ClientConnection {
     if (this.done || (status === this.status && detail === this.statusDetail)) return
     this.status = status
     this.statusDetail = detail
-    netLog('client', `status ${status}${detail ? ` (${detail})` : ''}`)
     this.statusL.emit(status, detail)
   }
 
   private sendFrames(link: Link, frames: Frame[]): void {
-    if (link.frozen || !link.conn.open) return
+    if (!link.conn.open) return
     try {
       for (const f of frames) void link.conn.send(f)
       link.lastTx = now()
@@ -690,7 +634,7 @@ export class ClientConnectionImpl implements ClientConnection {
       // Our timers were frozen: don't call the link dead for the silence we
       // slept through, but make it prove it's alive soon.
       link.lastRx = t
-      this.onPathHint('thawed', true)
+      this.onPathHint(true)
       return
     }
     if (link.probeSince) {
@@ -707,7 +651,6 @@ export class ClientConnectionImpl implements ClientConnection {
     this.done = true
     this.status = 'closed'
     this.statusDetail = detail
-    netLog('client', `closed (${detail})`)
     this.teardown()
     this.statusL.emit('closed', detail)
     this.messageL.clear()
@@ -718,13 +661,11 @@ export class ClientConnectionImpl implements ClientConnection {
     this.abort.abort()
     this.scope.dispose()
     this.backlog = null
-    netStats.clients--
     const link = this.link
     const peer = this.peer
     this.link = null
     this.peer = null
     this.cancelSignalingRetry = null
-    for (const c of this.abandoned.splice(0)) closeConnection(c)
     if (!link) {
       destroyPeer(peer)
       return
@@ -738,9 +679,7 @@ export class ClientConnectionImpl implements ClientConnection {
       }
     }
     // Give queued frames (the app's 'leave', our 'bye') a moment to flush.
-    netStats.timers++
     setTimeout(() => {
-      netStats.timers--
       closeConnection(link.conn)
       destroyPeer(peer)
     }, NET_TIMING.flushMs)

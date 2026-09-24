@@ -10,7 +10,7 @@ import { useGame } from '../../game/store'
 import { cn, useIsWide } from '../ui'
 
 /** Same spacing the host enforces per player. */
-export const REACTION_THROTTLE_MS = 400
+const REACTION_THROTTLE_MS = 400
 
 const REACTION_LABELS: Record<string, string> = {
   '🔥': 'Fuoco',
@@ -24,7 +24,7 @@ const REACTION_LABELS: Record<string, string> = {
   '🔁': 'Rivincita',
 }
 
-export function reactionLabel(emoji: string): string {
+function reactionLabel(emoji: string): string {
   return REACTION_LABELS[emoji] ?? emoji
 }
 
@@ -32,8 +32,6 @@ export interface ReactionBarProps {
   /** Smaller buttons and tighter spacing. 'auto' (default) = compact below 640px. */
   compact?: boolean | 'auto'
   className?: string
-  /** Override the action (labs/tests). Default: useGame().react. */
-  onReact?(emoji: string): void
   /** Emojis to show. Default REACTION_BAR (every relayed emoji except the rematch request). */
   emojis?: readonly string[]
   disabled?: boolean
@@ -51,7 +49,7 @@ interface Ghost {
 
 let ghostSeq = 0
 
-export function ReactionBar({ compact: compactProp = 'auto', className, onReact, emojis = REACTION_BAR, disabled = false, label = 'Reazioni' }: ReactionBarProps) {
+export function ReactionBar({ compact: compactProp = 'auto', className, emojis = REACTION_BAR, disabled = false, label = 'Reazioni' }: ReactionBarProps) {
   const reduce = useReducedMotion()
   const wide = useIsWide()
   const compact = compactProp === 'auto' ? !wide : compactProp
@@ -66,8 +64,7 @@ export function ReactionBar({ compact: compactProp = 'auto', className, onReact,
     if (now - lastSent.current < REACTION_THROTTLE_MS) return
     lastSent.current = now
     try {
-      if (onReact) onReact(emoji)
-      else useGame.getState().react(emoji)
+      useGame.getState().react(emoji)
     } catch (err) {
       console.warn('[reactions] react failed', err)
     }

@@ -6,9 +6,9 @@ import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'rea
 export type Clock = () => number
 
 /**
- * A stable host-clock function. With `override` (e.g. the real `hostNow`, or a
- * frozen lab clock) it is used as-is; otherwise it extrapolates from the latest
- * `now` prop with performance.now().
+ * A stable host-clock function. With `override` (the real `hostNow`) it is
+ * used as-is; otherwise it extrapolates from the latest `now` prop with
+ * performance.now().
  */
 export function useClock(now: number, override?: Clock): Clock {
   const base = useRef({ now, perf: typeof performance !== 'undefined' ? performance.now() : 0 })

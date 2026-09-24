@@ -1,5 +1,5 @@
 // Pure derivations + choreography timing for the round reveal. No React, no DOM:
-// everything here is unit-testable and shared by the connected screen and the lab.
+// everything here is unit-testable.
 
 import { MAX_ROUND_POINTS, POSITION_WEIGHT } from '../../../game/constants'
 import { computeRoundStandings } from '../../../game/selectors'

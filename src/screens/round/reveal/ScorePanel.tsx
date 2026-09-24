@@ -7,7 +7,7 @@ import { MAX_ROUND_POINTS } from '../../../game/constants'
 import type { LeaderRow, ScoreBreakdown } from './model'
 import { formatPoints, formatSeconds, ordinal, pairsLabel, verdictFor } from './model'
 
-export interface ScorePanelProps {
+interface ScorePanelProps {
   breakdown: ScoreBreakdown
   /** My leaderboard row (overall total + rank after this round). */
   row: LeaderRow | undefined

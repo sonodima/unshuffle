@@ -11,47 +11,13 @@ import { createRenderer } from './renderer'
 import type { FrameUniforms, GlRenderer } from './renderer'
 import { DEFAULT_ACCENT_A, DEFAULT_ACCENT_B, useBackground } from './useBackground'
 
-export interface BackgroundStats {
-  mode: 'webgl2' | 'webgl1'
-  gpu: string
-  /** Rendered frames per second over the last second. */
-  fps: number
-  /** Frame rate the loop is pacing at: 60, or 30 while silent / reduced motion / throttled. */
-  targetFps: number
-  /** Adaptive quality halved the frame rate (weak GPU, nothing cheaper left to draw). */
-  throttled: boolean
-  /** Nothing to react to (no music, rings or tweens) for a while: paced at 30 fps. */
-  idle: boolean
-  /** Typical interval between rendered frames (ms, mean without the slowest 10%). */
-  frameMs: number
-  /** Mean main-thread time spent per frame (levels, uniforms, draw submit), ms. */
-  cpuMs: number
-  /** Mean GPU time per frame (ms) when EXT_disjoint_timer_query_webgl2 is available, else null. */
-  gpuMs: number | null
-  /** Adaptive quality level (0 = best, 3 = lowest). */
-  quality: number
-  /** Internal px per CSS px. */
-  scale: number
-  width: number
-  height: number
-  octaves: number
-  /** Shader variants compile off the main thread (KHR_parallel_shader_compile). */
-  parallelCompile: boolean
-  contextLosses: number
-  reducedMotion: boolean
-}
-
-export interface RuntimeOptions {
+interface RuntimeOptions {
   getLevels: () => AudioLevels
   reducedMotion: () => boolean
   /** Called (always asynchronously) when WebGL is unusable: no context, compile failure, context never restored. */
   onFatal: () => void
   /** Per-frame grain strength hook (0..1), so the CSS grain overlay follows the treble. */
   onGrain?: (strength: number) => void
-  /** Stats roughly once per second. */
-  onStats?: (s: BackgroundStats) => void
-  /** Also time the GPU work (EXT_disjoint_timer_query_webgl2) for the stats. */
-  measureGpu?: boolean
 }
 
 export interface BackgroundRuntime {
@@ -178,7 +144,6 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
   let lost = false
   let broken = false
   let restoreTimer = 0
-  let contextLosses = 0
   let shown = false
   let flowTime = 0
   let lastTick = 0
@@ -190,12 +155,6 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
   let quietSince = -1
   /** Octave count of the program last drawn with (a change = a variant switch landed). */
   let drawnOctaves = 0
-
-  // stats
-  let statFrames = 0
-  let statCpu = 0
-  let statAt = performance.now()
-  const gpuTimer = opts.measureGpu ? createGpuTimer(renderer) : null
 
   const unsubscribe = useBackground.subscribe((s) => {
     const t = nowS()
@@ -309,7 +268,6 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
   }
 
   function render(sinceMs: number, reduced: boolean, now: number): void {
-    const t0 = performance.now()
     const dt = Math.min(0.1, Math.max(0, sinceMs / 1000))
     const t = nowS()
     const motion = reduced ? 0.15 : 1
@@ -352,42 +310,10 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
     if (uniforms.colA !== shadeSrcA) uniforms.shadeA = shadeOf((shadeSrcA = colA.value))
     if (uniforms.colB !== shadeSrcB) uniforms.shadeB = shadeOf((shadeSrcB = colB.value))
 
-    gpuTimer?.begin()
     renderer.draw(uniforms)
-    gpuTimer?.end()
     opts.onGrain?.(clamp01((0.55 + 0.45 * intensity) * (0.6 + 0.9 * r.treble * r.presence)))
 
     reveal()
-    statCpu += performance.now() - t0
-    statFrames++
-    if (opts.onStats && performance.now() - statAt >= 1000) emitStats()
-  }
-
-  function emitStats(): void {
-    const now = performance.now()
-    const secs = (now - statAt) / 1000
-    opts.onStats?.({
-      mode: renderer.webgl2 ? 'webgl2' : 'webgl1',
-      gpu: renderer.gpu,
-      fps: Math.round((statFrames / secs) * 10) / 10,
-      targetFps: gov.fps,
-      throttled: gov.throttled,
-      idle: idle(now),
-      frameMs: Math.round(gov.typical() * 100) / 100,
-      cpuMs: statFrames ? Math.round((statCpu / statFrames) * 1000) / 1000 : 0,
-      gpuMs: gpuTimer?.read() ?? null,
-      quality: gov.level,
-      scale: Math.round((1 / px) * 1000) / 1000,
-      width: canvas.width,
-      height: canvas.height,
-      octaves: renderer.octaves,
-      parallelCompile: renderer.parallel,
-      contextLosses,
-      reducedMotion: opts.reducedMotion(),
-    })
-    statAt = now
-    statFrames = 0
-    statCpu = 0
   }
 
   function wantsFrames(): boolean {
@@ -463,7 +389,6 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
   const onLost = (e: Event) => {
     e.preventDefault()
     lost = true
-    contextLosses++
     sync()
     clearTimeout(restoreTimer)
     restoreTimer = window.setTimeout(() => {
@@ -477,7 +402,6 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
       opts.onFatal()
       return
     }
-    gpuTimer?.reset()
     drawnOctaves = 0
     lost = false
     applySize()
@@ -504,7 +428,6 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
       else window.removeEventListener('resize', measure)
       canvas.removeEventListener('webglcontextlost', onLost)
       canvas.removeEventListener('webglcontextrestored', onRestored)
-      gpuTimer?.dispose()
       renderer.dispose()
       canvas.remove()
     },
@@ -512,83 +435,3 @@ export function startBackground(host: HTMLElement, opts: RuntimeOptions): Backgr
 }
 
 const ZERO: AudioLevels = Object.freeze({ bass: 0, mid: 0, treble: 0, energy: 0, beat: 0 })
-
-/* ------------------------------------------------------------------ GPU timing (diagnostics) */
-
-interface TimerQueryExt {
-  TIME_ELAPSED_EXT: number
-  GPU_DISJOINT_EXT: number
-}
-
-function createGpuTimer(renderer: GlRenderer) {
-  if (!renderer.webgl2) return null
-  const gl = renderer.gl as WebGL2RenderingContext
-  // Extension objects die with the context: re-acquire after a restore.
-  const acquire = (): TimerQueryExt | null => {
-    try {
-      return gl.getExtension('EXT_disjoint_timer_query_webgl2') as TimerQueryExt | null
-    } catch {
-      return null
-    }
-  }
-  let timer = acquire()
-  if (!timer) return null
-  let pendingQueries: WebGLQuery[] = []
-  let active: WebGLQuery | null = null
-  let total = 0
-  let count = 0
-  let every = 0
-
-  function poll(): void {
-    if (!timer) return
-    while (pendingQueries.length) {
-      const q = pendingQueries[0]
-      if (!gl.getQueryParameter(q, gl.QUERY_RESULT_AVAILABLE)) break
-      const disjoint = gl.getParameter(timer.GPU_DISJOINT_EXT)
-      const ns = gl.getQueryParameter(q, gl.QUERY_RESULT) as number
-      if (!disjoint) {
-        total += ns / 1e6
-        count++
-      }
-      gl.deleteQuery(q)
-      pendingQueries.shift()
-    }
-  }
-
-  return {
-    begin() {
-      if (!timer) return
-      poll()
-      // Sample every 4th frame, never more than a handful in flight.
-      if (active || pendingQueries.length > 6 || every++ % 4) return
-      const q = gl.createQuery()
-      if (!q) return
-      gl.beginQuery(timer.TIME_ELAPSED_EXT, q)
-      active = q
-    },
-    end() {
-      if (!active || !timer) return
-      gl.endQuery(timer.TIME_ELAPSED_EXT)
-      pendingQueries.push(active)
-      active = null
-    },
-    read(): number | null {
-      if (!count) return null
-      const v = Math.round((total / count) * 1000) / 1000
-      total = 0
-      count = 0
-      return v
-    },
-    reset() {
-      pendingQueries = []
-      active = null
-      total = 0
-      count = 0
-      timer = acquire()
-    },
-    dispose() {
-      if (!gl.isContextLost()) for (const q of pendingQueries) gl.deleteQuery(q)
-      pendingQueries = []
-    },
-  }
-}

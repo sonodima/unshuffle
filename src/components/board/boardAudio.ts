@@ -1,7 +1,7 @@
-// Audio dependencies of the board (engine, peaks, SFX), injectable through
-// BoardAudioProvider so labs/tests can swap in a mock engine. Defaults are the app
-// singletons, accessed defensively (they may be unavailable, or throw, without
-// breaking the UI). Also: engine-state / buffer hooks shared by the board parts.
+// Audio dependencies of the board (engine, peaks, SFX), read through a React
+// context. They are the app singletons, accessed defensively (they may be
+// unavailable, or throw, without breaking the UI). Also: engine-state / buffer
+// hooks shared by the board parts.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { audioEngine } from '../../audio/engine'
 import type { AudioEngine, PlaybackState } from '../../audio/engine'
@@ -13,9 +13,9 @@ import { sfx as appSfx } from '../../audio/sfx'
 import type { SfxName } from '../../audio/sfx'
 
 export type PeaksFn = (buffer: AudioBuffer, start: number, end: number, bins: number) => Peaks
-export type SfxFn = (name: SfxName, opts?: { pitch?: number; gain?: number }) => void
+type SfxFn = (name: SfxName, opts?: { pitch?: number; gain?: number }) => void
 
-export interface BoardAudio {
+interface BoardAudio {
   /** null = no audio available (the board stays usable, playback is a no-op). */
   readonly engine: AudioEngine | null
   readonly peaks: PeaksFn
@@ -42,7 +42,7 @@ function monoAt(channels: Float32Array[], i: number): number {
 }
 
 /** Local peaks (same contract as audio/peaks.ts), used when the shared one is unavailable. */
-export function fallbackPeaks(buffer: AudioBuffer, start: number, end: number, bins: number): Peaks {
+function fallbackPeaks(buffer: AudioBuffer, start: number, end: number, bins: number): Peaks {
   const channels: Float32Array[] = []
   for (let c = 0; c < buffer.numberOfChannels; c++) channels.push(buffer.getChannelData(c))
   let entry = fallbackCache.get(buffer)
@@ -88,7 +88,7 @@ export function fallbackPeaks(buffer: AudioBuffer, start: number, end: number, b
 }
 
 let sharedPeaksBroken = false
-export const defaultPeaks: PeaksFn = (buffer, start, end, bins) => {
+const defaultPeaks: PeaksFn = (buffer, start, end, bins) => {
   if (!sharedPeaksBroken) {
     try {
       const p = computePeaks(buffer, start, end, bins)
@@ -100,7 +100,7 @@ export const defaultPeaks: PeaksFn = (buffer, start, end, bins) => {
   return fallbackPeaks(buffer, start, end, bins)
 }
 
-export const defaultSfx: SfxFn = (name, opts) => {
+const defaultSfx: SfxFn = (name, opts) => {
   try {
     ;(appSfx as typeof appSfx | null)?.play(name, opts)
   } catch {
@@ -108,7 +108,7 @@ export const defaultSfx: SfxFn = (name, opts) => {
   }
 }
 
-export function resolveEngine(): AudioEngine | null {
+function resolveEngine(): AudioEngine | null {
   const e = audioEngine as AudioEngine | null | undefined
   return e && typeof e.getState === 'function' ? e : null
 }
@@ -122,7 +122,7 @@ const defaultAudio: BoardAudio = {
   sfx: defaultSfx,
 }
 
-export const BoardAudioContext = createContext<BoardAudio>(defaultAudio)
+const BoardAudioContext = createContext<BoardAudio>(defaultAudio)
 
 export function useBoardAudio(): BoardAudio {
   return useContext(BoardAudioContext)

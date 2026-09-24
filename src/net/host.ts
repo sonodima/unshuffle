@@ -14,7 +14,7 @@ import type { ClientMsg, HostMsg } from './protocol'
 import { NetError, NET_MESSAGES, isTransientPeerError, signalingError } from './errors'
 import { closeConnection, createPeer, destroyPeer, openPeer, prepareIceServers } from './peer'
 import type { DataConnection, Peer, PeerModule } from './peer'
-import { Listeners, Scope, netLog, netStats, now, randomString, randomToken, reportListenerError } from './runtime'
+import { Listeners, Scope, now, randomString, randomToken, reportListenerError } from './runtime'
 import { NET_TIMING } from './timing'
 import { HEARTBEAT, Reassembler, UPSTREAM_LIMITS, encodeMessage, isFrame } from './wire'
 import type { Frame } from './wire'
@@ -94,7 +94,7 @@ function holdHostLock(code: string): () => void {
   return release
 }
 
-export function randomRoomCode(): string {
+function randomRoomCode(): string {
   return randomString(ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH)
 }
 
@@ -116,7 +116,6 @@ async function claimHostPeer(
   const deadline = startedAt + NET_TIMING.createTimeoutMs
   const reclaimUntil = now() + NET_TIMING.reclaimWindowMs
   const takenHere = requested !== null && (await isHostedElsewhere(requested))
-  if (takenHere) netLog('host', `${requested} is hosted by another tab of this browser`)
   let code = requested !== null && !takenHere ? requested : randomRoomCode()
   let reclaiming = requested !== null && !takenHere
   let signalingFailures = 0
@@ -131,10 +130,8 @@ async function claimHostPeer(
     const result = await openPeer(mod, PEER_PREFIX + code, token, Math.min(NET_TIMING.registerTimeoutMs, remaining))
     if (result.ok) {
       saveToken(code, token)
-      netLog('host', `registered ${code}${requested && code !== requested ? ` (requested ${requested})` : ''}`)
       return { peer: result.peer, code, token }
     }
-    netLog('host', `register ${code} failed: ${result.type}`)
 
     if (result.type === 'unavailable-id') {
       if (reclaiming && now() + NET_TIMING.reclaimRetryMs < reclaimUntil) {
@@ -175,7 +172,7 @@ export async function createHostServer(
   return new HostServerImpl(mod, peer, code, token)
 }
 
-export class HostServerImpl implements HostServer {
+class HostServerImpl implements HostServer {
   readonly code: string
   private readonly mod: PeerModule
   private readonly token: string
@@ -213,21 +210,20 @@ export class HostServerImpl implements HostServer {
     this.token = token
     this.peerId = PEER_PREFIX + code
     this.releaseLock = holdHostLock(code)
-    netStats.hosts++
     this.attach(peer)
     this.scope.interval(() => this.tick(), NET_TIMING.tickMs)
     const win = typeof window === 'undefined' ? undefined : window
     if (typeof document !== 'undefined' && document.hidden) this.hiddenAt = now()
     this.scope.listen(win, 'online', () => {
       this.reconnectNow()
-      this.recycleSignaling('online')
+      this.recycleSignaling()
     })
     this.scope.listen(typeof document === 'undefined' ? undefined : document, 'visibilitychange', () =>
       this.onVisibility(),
     )
     this.scope.listen(win, 'pagehide', () => this.onPageHide())
     this.scope.listen(win, 'pageshow', (e) => {
-      if ((e as PageTransitionEvent).persisted) this.recycleSignaling('page-restored')
+      if ((e as PageTransitionEvent).persisted) this.recycleSignaling()
     })
   }
 
@@ -278,7 +274,7 @@ export class HostServerImpl implements HostServer {
     const hc = this.conns.get(connId)
     if (!hc) return
     if (hc.state !== 'open') {
-      if (hc.state === 'pending') this.finalize(hc, 'dropped')
+      if (hc.state === 'pending') this.finalize(hc)
       return
     }
     if (finalMsg) this.sendFrames(hc, encodeMessage(finalMsg, () => ++this.chunkSeq))
@@ -287,13 +283,12 @@ export class HostServerImpl implements HostServer {
     this.sendFrames(hc, [{ k: 'bye', r: 'dropped' }])
     hc.state = 'dropping'
     hc.cancelTimer()
-    hc.cancelTimer = this.scope.timeout(() => this.finalize(hc, 'dropped'), NET_TIMING.dropForceMs)
+    hc.cancelTimer = this.scope.timeout(() => this.finalize(hc), NET_TIMING.dropForceMs)
   }
 
   close(): void {
     if (this.closed) return
     this.closed = true
-    netLog('host', `close ${this.code}`)
     this.messageL.clear()
     this.connectL.clear()
     this.disconnectL.clear()
@@ -303,7 +298,6 @@ export class HostServerImpl implements HostServer {
     this.scope.dispose()
     this.releaseLock()
     forgetToken(this.code)
-    netStats.hosts--
     const conns = [...this.conns.values()]
     this.conns.clear()
     for (const hc of conns) {
@@ -315,9 +309,7 @@ export class HostServerImpl implements HostServer {
     const peer = this.peer
     peer.removeAllListeners()
     peer.on('connection', (c) => closeConnection(c))
-    netStats.timers++
     setTimeout(() => {
-      netStats.timers--
       for (const hc of conns) closeConnection(hc.conn)
       destroyPeer(peer)
     }, conns.length ? NET_TIMING.flushMs : 0)
@@ -328,32 +320,12 @@ export class HostServerImpl implements HostServer {
     return this.conns.get(connId)?.remotePeer ?? null
   }
 
-  // ---- debug hooks (netDebug) ----
-
-  debugBreak(connId: string): boolean {
-    const hc = this.conns.get(connId)
-    if (!hc) return false
-    hc.conn.close()
-    return true
-  }
-
-  debugDropSignaling(): boolean {
-    if (this.closed || this.peer.disconnected) return false
-    this.peer.disconnect()
-    return true
-  }
-
-  debugConnIds(): string[] {
-    return [...this.conns.values()].filter((c) => c.state === 'open').map((c) => c.id)
-  }
-
   // ---- internals ----
 
   private setStatus(status: ConnStatus, detail?: string): void {
     if (this.closed || (status === this.status && detail === this.statusDetail)) return
     this.status = status
     this.statusDetail = detail
-    netLog('host', `status ${status}${detail ? ` (${detail})` : ''}`)
     this.statusL.emit(status, detail)
   }
 
@@ -379,7 +351,6 @@ export class HostServerImpl implements HostServer {
     })
     peer.on('open', () => {
       if (peer !== this.peer) return
-      if (this.recycleSince) netLog('host', `signaling recycled in ${Math.round(now() - this.recycleSince)} ms`)
       this.recycleSince = 0
       this.quietDisconnect = false
       this.reconnectAttempts = 0
@@ -394,7 +365,6 @@ export class HostServerImpl implements HostServer {
     })
     peer.on('error', (err) => {
       if (peer !== this.peer) return
-      netLog('host', `peer error ${err.type}`)
       // Someone else grabbed our id while our socket was down: keep retrying,
       // the server frees it once that socket goes away.
       if (err.type === 'unavailable-id') this.setStatus('reconnecting', 'id-taken')
@@ -430,12 +400,12 @@ export class HostServerImpl implements HostServer {
    * PeerJS keeps calling 'open' while offers from (re)joining players vanish —
    * gets replaced before those players give up.
    */
-  private recycleSignaling(reason: string, delayMs = 0): void {
+  private recycleSignaling(delayMs = 0): void {
     if (this.closed) return
     if (delayMs > 0) {
       this.cancelDelayedRecycle ??= this.scope.timeout(() => {
         this.cancelDelayedRecycle = null
-        this.recycleSignaling(reason)
+        this.recycleSignaling()
       }, delayMs)
       return
     }
@@ -447,7 +417,6 @@ export class HostServerImpl implements HostServer {
     this.lastRecycleAt = t
     this.recycleSince = t
     this.quietDisconnect = true
-    netLog('host', `recycle signaling (${reason})`)
     try {
       peer.disconnect()
     } catch {
@@ -467,7 +436,7 @@ export class HostServerImpl implements HostServer {
     this.hiddenAt = 0
     this.reconnectNow()
     // A phone host back from another app: its socket may not have survived.
-    if (hiddenFor >= NET_TIMING.recycleAfterHiddenMs) this.recycleSignaling('visible-again')
+    if (hiddenFor >= NET_TIMING.recycleAfterHiddenMs) this.recycleSignaling()
   }
 
   /**
@@ -498,7 +467,6 @@ export class HostServerImpl implements HostServer {
     const peer = this.peer
     if (!peer.destroyed && peer.disconnected) {
       try {
-        netLog('host', `signaling reconnect #${this.reconnectAttempts}`)
         peer.reconnect()
         return
       } catch {
@@ -508,7 +476,6 @@ export class HostServerImpl implements HostServer {
     if (!peer.destroyed && !peer.disconnected) return // already (re)connecting
     // The Peer is gone (its data channels died with it); register a fresh one
     // under the same id + token. Clients reconnect to it on their own.
-    netLog('host', `recreate peer #${this.reconnectAttempts}`)
     destroyPeer(peer)
     const next = createPeer(this.mod, this.peerId, this.token)
     this.peer = next
@@ -521,7 +488,7 @@ export class HostServerImpl implements HostServer {
       return
     }
     const existing = this.conns.get(conn.connectionId)
-    if (existing) this.finalize(existing, 'replaced')
+    if (existing) this.finalize(existing)
     const hc: HostConn = {
       id: conn.connectionId,
       conn,
@@ -536,11 +503,11 @@ export class HostServerImpl implements HostServer {
     // pending here were abandoned (a burst of them arrives when this tab thaws
     // after being frozen). Don't let them pile up to MAX_CONNECTIONS.
     for (const other of [...this.conns.values()]) {
-      if (other.remotePeer === hc.remotePeer && other.state === 'pending') this.finalize(other, 'superseded-offer')
+      if (other.remotePeer === hc.remotePeer && other.state === 'pending') this.finalize(other)
     }
     this.conns.set(hc.id, hc)
     hc.cancelTimer = this.scope.timeout(() => {
-      if (hc.state === 'pending') this.finalize(hc, 'open-timeout')
+      if (hc.state === 'pending') this.finalize(hc)
     }, NET_TIMING.pendingOpenTimeoutMs)
 
     conn.on('open', () => {
@@ -553,18 +520,17 @@ export class HostServerImpl implements HostServer {
       // app sees disconnect(old) → connect(new).
       for (const other of [...this.conns.values()]) {
         if (other !== hc && other.remotePeer === hc.remotePeer && other.state !== 'closed') {
-          this.finalize(other, 'superseded')
+          this.finalize(other)
         }
       }
-      netLog('host', `connect ${hc.id} from ${hc.remotePeer}`)
       this.deliver(() => this.connectL.emit(hc.id))
     })
     conn.on('data', (data) => this.onData(hc, data))
-    conn.on('close', () => this.finalize(hc, 'close'))
+    conn.on('close', () => this.finalize(hc))
     conn.on('error', (err) => {
       // Send-side hiccups are not fatal; negotiation failures are followed by close().
       if (err.type === 'not-open-yet' || err.type === 'message-too-big') return
-      this.finalize(hc, `error:${err.type}`)
+      this.finalize(hc)
     })
   }
 
@@ -580,7 +546,7 @@ export class HostServerImpl implements HostServer {
         const done = hc.rx.push(data)
         if (!done) break
         // Client messages are tiny: a huge one is a broken or hostile peer.
-        if ('overflow' in done) this.finalize(hc, 'oversize')
+        if ('overflow' in done) this.finalize(hc)
         else this.onAppMessage(hc, done.value)
         break
       }
@@ -588,7 +554,7 @@ export class HostServerImpl implements HostServer {
         // 'away' too: the tab is closing or reloading. The game keeps an in-game
         // player's seat (and gives a lobby player a grace period), so a reload
         // re-attaches seamlessly, while a closed tab stops looking connected at once.
-        this.finalize(hc, `bye:${data.r}`)
+        this.finalize(hc)
         break
       case 'hb':
         break
@@ -608,12 +574,12 @@ export class HostServerImpl implements HostServer {
       for (const f of frames) void hc.conn.send(f)
       hc.lastTx = now()
     } catch {
-      this.finalize(hc, 'send-failed')
+      this.finalize(hc)
     }
   }
 
   /** Ends a connection exactly once; onDisconnect only for channels that opened. */
-  private finalize(hc: HostConn, reason: string): void {
+  private finalize(hc: HostConn): void {
     if (hc.state === 'closed') return
     const wasOpen = hc.state === 'open' || hc.state === 'dropping'
     hc.state = 'closed'
@@ -621,7 +587,6 @@ export class HostServerImpl implements HostServer {
     hc.rx.clear()
     if (this.conns.get(hc.id) === hc) this.conns.delete(hc.id)
     closeConnection(hc.conn)
-    netLog('host', `disconnect ${hc.id} (${reason})`)
     if (wasOpen) this.deliver(() => this.disconnectL.emit(hc.id))
   }
 
@@ -640,7 +605,7 @@ export class HostServerImpl implements HostServer {
         continue
       }
       if (t - hc.lastRx > NET_TIMING.deadAfterMs) {
-        this.finalize(hc, 'heartbeat-timeout')
+        this.finalize(hc)
         timedOut++
       } else {
         alive++
@@ -653,8 +618,8 @@ export class HostServerImpl implements HostServer {
     // leaves the id unregistered for a moment, so it isn't done on a whim.
     // After a thaw, first let the socket deliver what queued up meanwhile (offers
     // from players reconnecting right now) in case it survived.
-    if (suspended) this.recycleSignaling('thawed', NET_TIMING.recycleThawDelayMs)
-    else if (timedOut && (!alive || timedOut > 1)) this.recycleSignaling('clients-timed-out')
+    if (suspended) this.recycleSignaling(NET_TIMING.recycleThawDelayMs)
+    else if (timedOut && (!alive || timedOut > 1)) this.recycleSignaling()
     // A quiet recycle that doesn't come back quickly is a real outage: say so.
     if (this.recycleSince && t - this.recycleSince > NET_TIMING.recycleQuietMs && !this.peer.open) {
       this.recycleSince = 0

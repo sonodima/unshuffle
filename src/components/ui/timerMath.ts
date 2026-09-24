@@ -1,4 +1,4 @@
-// Pure helpers behind TimerRing / TimerBar (tested in scripts/fix-ui/timer.test.ts).
+// Pure helpers behind TimerRing / TimerBar (tested in tests/unit/timer.test.ts).
 
 /** Fraction of the countdown left, clamped to 0..1 (0 when there is no total). */
 export function timerFraction(ms: number, totalMs: number): number {

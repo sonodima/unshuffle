@@ -1,5 +1,5 @@
-// Production build check (run `npm run build` first):
-//   node scripts/e2e/static.mjs [baseUrl]   (default http://127.0.0.1:5221/ — `npx vite preview --port 5221 --strictPort`)
+// Production build check (run `npm run build` first, then `npm run preview`):
+//   node tests/e2e/static.mjs [baseUrl]   (default http://localhost:4173/ = `npm run preview`)
 //   env SUBPATH=1 additionally serves dist/ under a deep sub-path from a tiny static
 //   server, proving the relative base ('./') works from any folder.
 // Checks: home renders with no console errors; the analysis worker chunk loads
@@ -118,7 +118,7 @@ async function runCheck(label, base, { solo }) {
 }
 
 try {
-  await runCheck('preview', process.argv[2] ?? 'http://127.0.0.1:5221/', { solo: true })
+  await runCheck('preview', process.argv[2] ?? 'http://localhost:4173/', { solo: true })
   if (process.env.SUBPATH) {
     const { server, url } = await subpathServer('/giochi/unshuffle/')
     try {

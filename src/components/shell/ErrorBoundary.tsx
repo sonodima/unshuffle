@@ -5,13 +5,13 @@
 import { Component } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
 
-export interface ErrorFallbackProps {
+interface ErrorFallbackProps {
   error: Error
   /** Re-mount the children (the store state survives, so this often just works). */
   reset(): void
 }
 
-export interface ErrorBoundaryProps {
+interface ErrorBoundaryProps {
   children?: ReactNode
   /** Rendered instead of the children after a crash. Default: full-screen CrashScreen. `null` = render nothing. */
   fallback?: ReactNode | ((props: ErrorFallbackProps) => ReactNode)
@@ -82,7 +82,7 @@ export function QuietBoundary({ name, children }: { name: string; children?: Rea
   )
 }
 
-export interface CrashScreenProps extends ErrorFallbackProps {
+interface CrashScreenProps extends ErrorFallbackProps {
   /** Shows "Riprova" (re-render without reloading). Default false. */
   canRetry?: boolean
   /** "Torna alla home" handler (e.g. leave the room); hidden when absent. */

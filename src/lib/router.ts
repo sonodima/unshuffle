@@ -1,18 +1,16 @@
 // Minimal hash router. Routes:
 //   #/             home
 //   #/r/KXQPM      room link (the store keeps it in sync while in a room)
-//   #/styleguide   design system
 // The store writes the room hash itself (history.replaceState + a synthetic
-// `hashchange`); this module only reads it and offers helpers for links.
+// `hashchange`); this module parses hashes and offers helpers for links.
 
-import { useSyncExternalStore } from 'react'
 import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from '../game/constants'
 
-export type RouteName = 'home' | 'room' | 'styleguide' | 'unknown'
+type RouteName = 'home' | 'room' | 'unknown'
 
-export interface HashRoute {
+interface HashRoute {
   name: RouteName
-  /** Normalized path without the '#': '/', '/r/KXQPM', '/styleguide'… */
+  /** Normalized path without the '#': '/', '/r/KXQPM'… */
   path: string
   /** Named segments. Room routes: `{ code }` (uppercased, even when invalid). */
   params: Readonly<Record<string, string>>
@@ -22,8 +20,7 @@ export interface HashRoute {
   hash: string
 }
 
-export const HOME_PATH = '/'
-export const STYLEGUIDE_PATH = '/styleguide'
+const HOME_PATH = '/'
 
 const EMPTY: Readonly<Record<string, string>> = Object.freeze({})
 const ROOM_RE = /^\/r\/([^/?#]+)$/i
@@ -57,7 +54,6 @@ export function normalizePath(hashOrPath: string): string {
 export function parseHash(hash: string): HashRoute {
   const path = normalizePath(hash)
   if (path === HOME_PATH) return { name: 'home', path, params: EMPTY, code: null, hash }
-  if (path.toLowerCase() === STYLEGUIDE_PATH) return { name: 'styleguide', path: STYLEGUIDE_PATH, params: EMPTY, code: null, hash }
   const room = ROOM_RE.exec(path)
   if (room) {
     const code = room[1].toUpperCase()
@@ -66,46 +62,9 @@ export function parseHash(hash: string): HashRoute {
   return { name: 'unknown', path, params: EMPTY, code: null, hash }
 }
 
-function readHash(): string {
-  try {
-    return typeof location === 'undefined' ? '' : location.hash
-  } catch {
-    return ''
-  }
-}
-
-let cachedHash: string | null = null
-let cachedRoute: HashRoute = parseHash('')
-
-/** Current route (parsed once per distinct hash, so the object is referentially stable). */
-export function getHashRoute(): HashRoute {
-  const hash = readHash()
-  if (hash !== cachedHash) {
-    cachedHash = hash
-    cachedRoute = parseHash(hash)
-  }
-  return cachedRoute
-}
-
-/** Listen to hash changes (user edits, back/forward, and the store's replaceState + synthetic event). */
-export function subscribeHash(listener: () => void): () => void {
-  if (typeof window === 'undefined') return () => {}
-  window.addEventListener('hashchange', listener)
-  window.addEventListener('popstate', listener)
-  return () => {
-    window.removeEventListener('hashchange', listener)
-    window.removeEventListener('popstate', listener)
-  }
-}
-
-/** React hook: the current hash route; re-renders only when the hash changes. */
-export function useHashRoute(): HashRoute {
-  return useSyncExternalStore(subscribeHash, getHashRoute, getHashRoute)
-}
-
 /**
- * Go to a path ('/', '/styleguide', roomPath(code)…). `replace` swaps the
- * current history entry (no back-button step). Always notifies subscribers.
+ * Go to a path ('/', roomPath(code)…). `replace` swaps the
+ * current history entry (no back-button step). Always notifies `hashchange` listeners.
  */
 export function navigate(path: string, opts: { replace?: boolean } = {}): void {
   try {
@@ -131,14 +90,4 @@ export function roomPath(code: string): string {
 
 export function roomHash(code: string): string {
   return `#${roomPath(code)}`
-}
-
-/** Absolute, shareable invite URL for a room (works from any hosting sub-path). */
-export function roomUrl(code: string): string {
-  try {
-    const { origin, pathname, search } = location
-    return `${origin}${pathname}${search}${roomHash(code)}`
-  } catch {
-    return roomHash(code)
-  }
 }

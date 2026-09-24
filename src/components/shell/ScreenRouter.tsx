@@ -1,4 +1,4 @@
-// Picks the screen from the hash route + store state and cross-fades between
+// Picks the screen from the store state and cross-fades between
 // screens (fast fade, slight scale + blur). Each screen gets a full-viewport,
 // transparent frame (the shader shows through) with its own crash boundary.
 
@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/
 import { Suspense, lazy, useEffect, useLayoutEffect, useRef } from 'react'
 import type { ComponentType, ReactNode } from 'react'
 import { useGame } from '../../game/store'
-import { navigate, useHashRoute } from '../../lib/router'
+import { navigate } from '../../lib/router'
 import { HomeScreen } from '../../screens/home/HomeScreen'
 import { Spinner } from '../ui'
 import { CrashScreen, ErrorBoundary } from './ErrorBoundary'
@@ -36,18 +36,16 @@ function lazyScreen<M>(load: () => Promise<M>, pick: (m: M) => ComponentType) {
 const Lobby = lazyScreen(() => import('../../screens/lobby/LobbyScreen'), (m) => m.LobbyScreen)
 const Round = lazyScreen(() => import('../../screens/round/RoundScreen'), (m) => m.RoundScreen)
 const Final = lazyScreen(() => import('../../screens/final/FinalScreen'), (m) => m.FinalScreen)
-const Styleguide = lazyScreen(() => import('../../screens/Styleguide'), (m) => m.StyleguideScreen)
 
 const DEFAULT_SCREENS: Record<ScreenKey, ComponentType> = {
   home: HomeScreen,
   lobby: Lobby.Component,
   round: Round.Component,
   final: Final.Component,
-  styleguide: Styleguide.Component,
 }
 
 /** Warm the game screens' chunks (idempotent). Called by ScreenRouter once the first screen is up. */
-export function preloadScreens(): void {
+function preloadScreens(): void {
   for (const s of [Lobby, Round, Final]) s.preload().catch(() => undefined)
 }
 
@@ -93,23 +91,14 @@ function whenIdle(fn: () => void): () => void {
   }
 }
 
-export interface ScreenRouterProps {
-  /** Replace screens (labs/tests). */
-  screens?: Partial<Record<ScreenKey, ComponentType>>
-  /** Force a screen instead of deriving it from route + store (labs). */
-  forceScreen?: ScreenKey
-}
-
-export function ScreenRouter({ screens, forceScreen }: ScreenRouterProps) {
-  const route = useHashRoute()
+export function ScreenRouter() {
   // Primitive selectors: room updates (up to 20/s in game) don't re-render the router.
-  const derived = useGame((s) => selectScreen({ route: route.name, role: s.role, room: s.room }))
-  const screen = forceScreen ?? derived
+  const screen = useGame((s) => selectScreen({ role: s.role, room: s.room }))
   const lost = useGame((s) => s.room !== null && s.role === 'client' && (s.connection === 'closed' || s.connection === 'error'))
   const title = useGame((s) => screenTitle(screen, s.room, lost))
   // Screen-level crash recovery gets another chance when the phase moves on.
   const phaseKey = useGame((s) => (s.room ? `${s.room.phase.kind}:${'round' in s.room.phase ? s.room.phase.round : ''}` : 'none'))
-  const Screen = screens?.[screen] ?? DEFAULT_SCREENS[screen]
+  const Screen = DEFAULT_SCREENS[screen]
 
   useEffect(() => setCurrentScreen(screen), [screen])
   useEffect(() => whenIdle(preloadScreens), [])

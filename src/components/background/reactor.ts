@@ -23,7 +23,7 @@ export interface ReactorState {
   ringAmp: Float32Array
 }
 
-export interface Reactor {
+interface Reactor {
   readonly state: ReactorState
   /** Advance by `dt` seconds with fresh levels; `now` is a monotonic clock in seconds. */
   update(levels: AudioLevels, dt: number, now: number): void
@@ -37,8 +37,6 @@ const finite01 = (x: number) => (Number.isFinite(x) ? (x < 0 ? 0 : x > 1 ? 1 : x
 function follow(cur: number, target: number, dt: number, attack: number, release: number): number {
   return cur + (target - cur) * (1 - Math.exp(-dt / (target > cur ? attack : release)))
 }
-
-export const ZERO_LEVELS: AudioLevels = Object.freeze({ bass: 0, mid: 0, treble: 0, energy: 0, beat: 0 })
 
 export function createReactor(): Reactor {
   const state: ReactorState = {

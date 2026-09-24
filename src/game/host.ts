@@ -78,13 +78,13 @@ export interface HostGameOptions {
 }
 
 /** Extra tracks picked beyond `rounds`, swapped in when a track fails to load or cut. */
-export const SPARE_TRACKS = 4
+const SPARE_TRACKS = 4
 /** Lobby: a disconnected player is removed after this long unless they re-attach. */
 export const LOBBY_GRACE_MS = 15_000
 /** Min interval between two reactions of the same player. */
-export const REACTION_THROTTLE_MS = 400
+const REACTION_THROTTLE_MS = 400
 /** State broadcasts are coalesced to at most one per interval (≤ 20/s); phase changes go out at once. */
-export const STATE_FLUSH_INTERVAL_MS = 50
+const STATE_FLUSH_INTERVAL_MS = 50
 /** After a host refresh, players count as "still here" for this long while they reconnect. */
 export const RESTORE_GRACE_MS = 12_000
 /**
@@ -131,10 +131,10 @@ const WAKE_EVENTS = ['visibilitychange', 'pageshow', 'focus', 'online'] as const
 export type HelloMsg = Extract<ClientMsg, { t: 'hello' }>
 
 /** `welcome` with the optional mid-round `mine` arrangement (see net/protocol.ts). */
-export type WelcomeMsg = Extract<HostMsg, { t: 'welcome' }>
+type WelcomeMsg = Extract<HostMsg, { t: 'welcome' }>
 
 /** Audio buffer key convention shared by every module. */
-export function trackKey(trackId: number): string {
+function trackKey(trackId: number): string {
   return `track:${trackId}`
 }
 

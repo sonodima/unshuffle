@@ -12,7 +12,7 @@ import { cn } from '../../../components/ui'
 import type { Segment } from '../../../game/types'
 import { boardHeightFor } from './model'
 
-export interface BoardStageProps {
+interface BoardStageProps {
   trackKey: string
   segments: Segment[]
   hues: number[]

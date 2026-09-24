@@ -36,7 +36,7 @@ const NAMED: Record<string, string> = {
   coral: 'var(--color-coral)',
 }
 
-export function resolveColor(c: string): string {
+function resolveColor(c: string): string {
   return NAMED[c] ?? c
 }
 

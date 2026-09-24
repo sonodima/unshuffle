@@ -26,11 +26,6 @@ export type SfxName =
   | 'leave'      // player left
   | 'pop'        // reaction
 
-export const SFX_NAMES: readonly SfxName[] = [
-  'click', 'hover', 'pickup', 'drop', 'swap', 'tick', 'tickUrgent', 'go', 'submit',
-  'alarm', 'correct', 'wrong', 'score', 'fanfare', 'join', 'leave', 'pop',
-]
-
 const STORAGE_KEY = 'unshuffle:sfx'
 const SFX_LEVEL = 0.85
 const REVERB_LEVEL = 0.2
@@ -458,7 +453,6 @@ function readEnabled(): boolean {
 
 let enabled = readEnabled()
 const lastPlayed = new Map<SfxName, number>()
-const playCounts = new Map<SfxName, number>()
 const listeners = new Set<() => void>()
 
 const clampOpt = (x: number | undefined, def: number, lo: number, hi: number) =>
@@ -477,7 +471,6 @@ export const sfx: { play(name: SfxName, opts?: { pitch?: number; gain?: number }
     if (now - (lastPlayed.get(name) ?? -1e9) < (MIN_GAP_MS[name] ?? DEFAULT_GAP_MS)) return
     if (activeSources > MAX_SOURCES) return
     lastPlayed.set(name, now)
-    playCounts.set(name, (playCounts.get(name) ?? 0) + 1)
     try {
       recipe({
         ctx: out.ctx,
@@ -512,25 +505,4 @@ export function subscribeSfx(listener: () => void): () => void {
   return () => {
     listeners.delete(listener)
   }
-}
-
-/** Render one sound offline (same chain, unit volume) — for labs, tests and level checks. */
-export function renderSfx(name: SfxName, opts?: { pitch?: number; gain?: number }, sampleRate = 48000): Promise<AudioBuffer> {
-  const seconds = name === 'fanfare' ? 2.2 : 1.3
-  const ctx = new OfflineAudioContext(2, Math.ceil(seconds * sampleRate), sampleRate)
-  RECIPES[name]({
-    ctx,
-    bus: busFor(ctx, ctx.destination),
-    t: 0.005,
-    pitch: clampOpt(opts?.pitch, 1, 0.25, 4),
-    gain: voiceGain(name, opts?.gain),
-  })
-  return ctx.startRendering()
-}
-
-/** Diagnostics for labs/tests. */
-export const sfxDebug = {
-  /** How many times each sound actually played (after enable/unlock/throttle checks). */
-  plays: (): Partial<Record<SfxName, number>> => Object.fromEntries(playCounts),
-  activeSources: () => activeSources,
 }

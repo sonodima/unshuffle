@@ -1,20 +1,17 @@
 // Derived state + stable selector hooks over useGame. Every hook returns either
-// a primitive, a reference that already lives in the store, or a memoized
-// derivation — never a fresh object per render (zustand v5 would loop).
+// a primitive or a reference that already lives in the store — never a fresh
+// object per render (zustand v5 would loop).
 // The pure `compute*` helpers take plain RoomState data, so views fed by fixtures can use them too.
 
-import { useEffect, useMemo, useReducer } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { hostNow } from './clock'
-import { isActivePlayer, phaseRound, useGame } from './store'
-import type { AudioStatus, GameStore } from './store'
+import { phaseRound, useGame } from './store'
+import type { GameStore } from './store'
 import { compareStanding } from './standing'
 import type { RankKey } from './standing'
-import type { Phase, PhaseKind, Player, PlayerId, RoomState, RoundPublic, RoundResult, SubmissionStatus } from './types'
+import type { Player, PlayerId, RoomState, RoundPublic, RoundResult } from './types'
 
-export { isActivePlayer, phaseRound, trackKey } from './store'
+export { isActivePlayer } from './store'
 export { compareStanding } from './standing'
-export type { RankKey } from './standing'
 
 // ---- pure derivations ---------------------------------------------------------
 
@@ -24,7 +21,7 @@ export function findPlayer(room: RoomState | null | undefined, id: PlayerId | nu
 }
 
 /** Round the current phase is about (-1 in lobby / final). */
-export function currentRoundIndex(room: RoomState | null | undefined): number {
+function currentRoundIndex(room: RoomState | null | undefined): number {
   return phaseRound(room?.phase)
 }
 
@@ -32,11 +29,6 @@ export function currentRoundIndex(room: RoomState | null | undefined): number {
 export function getCurrentRound(room: RoomState | null | undefined): RoundPublic | null {
   const r = currentRoundIndex(room)
   return (r >= 0 && room?.rounds[r]) || null
-}
-
-/** Round results sorted best first: points desc, then faster confirmation. */
-export function sortRoundResults(results: readonly RoundResult[]): RoundResult[] {
-  return [...results].sort((a, b) => b.points - a.points || a.timeMs - b.timeMs)
 }
 
 export interface Standing {
@@ -85,11 +77,6 @@ export function computeStandings(room: ScoreSource | null | undefined): Standing
       perfectRounds: perfect.get(player.id) ?? 0,
     })),
   )
-}
-
-/** Players ordered by overall standing. */
-export function computeLeaderboard(room: ScoreSource | null | undefined): Player[] {
-  return computeStandings(room).map((s) => s.player)
 }
 
 export interface RoundStanding {
@@ -160,13 +147,6 @@ export function computeRoundStandings(room: ScoreSource | null | undefined, roun
   })
 }
 
-/** Active, connected players who still have to confirm the current round. */
-export function waitingPlayers(room: RoomState | null | undefined): Player[] {
-  if (!room || room.phase.kind !== 'playing') return []
-  const r = room.phase.round
-  return room.players.filter((p) => p.connected && isActivePlayer(p, r) && !room.submissions[p.id]?.submitted)
-}
-
 export interface GameStats {
   /**
    * Fastest confirmation of the game that scored (timed-out and 0-point rounds excluded, so
@@ -205,135 +185,10 @@ export function computeGameStats(room: RoomState | null | undefined): GameStats 
 // ---- store hooks ----------------------------------------------------------------
 
 export const useRoom = (): RoomState | null => useGame((s) => s.room)
-export const useRole = () => useGame((s) => s.role)
-export const useConnection = () => useGame((s) => s.connection)
-export const useError = (): string | null => useGame((s) => s.error)
-export const useProfile = () => useGame((s) => s.profile)
-export const useToasts = () => useGame((s) => s.toasts)
-export const useRoomCode = (): string | null => useGame((s) => s.room?.code ?? s.roomCode)
-export const useSettings = () => useGame((s) => s.room?.settings ?? null)
-export const usePlayers = (): Player[] => useGame((s) => s.room?.players ?? EMPTY_PLAYERS)
-export const useArrangement = (): number[] => useGame((s) => s.arrangement)
-export const useSubmitted = (): boolean => useGame((s) => s.submitted)
-
-const EMPTY_PLAYERS: Player[] = []
-
-/** My Player entry in the room. */
-export const useMe = (): Player | undefined => useGame((s) => findPlayer(s.room, s.me))
 
 export const useMyId = (): PlayerId => useGame((s) => s.me)
 
-export const usePlayer = (id: PlayerId | null | undefined): Player | undefined => useGame((s) => findPlayer(s.room, id))
-
-export const useHostPlayer = (): Player | undefined => useGame((s) => findPlayer(s.room, s.room?.hostId))
-
 export const useIsHost = (): boolean => useGame((s) => s.role === 'host' || (!!s.room && s.room.hostId === s.me))
-
-export const usePhase = (): Phase | null => useGame((s) => s.room?.phase ?? null)
-
-export const usePhaseKind = (): PhaseKind | null => useGame((s) => s.room?.phase.kind ?? null)
-
-/** Round index of the current phase (-1 in lobby / final). */
-export const useRoundIndex = (): number => useGame((s) => currentRoundIndex(s.room))
-
-export const useCurrentRound = (): RoundPublic | null => useGame((s) => getCurrentRound(s.room))
-
-/** Am I playing (not spectating) the current round. */
-export const useAmIActive = (): boolean =>
-  useGame((s) => {
-    const r = currentRoundIndex(s.room)
-    return r >= 0 && isActivePlayer(findPlayer(s.room, s.me), r)
-  })
-
-/** My result for `round` (default: the current phase's round). */
-export function useMyResult(round?: number): RoundResult | undefined {
-  return useGame((s) => {
-    const r = round ?? currentRoundIndex(s.room)
-    return r >= 0 ? s.room?.results[r]?.find((res) => res.playerId === s.me) : undefined
-  })
-}
-
-/** All results of `round` (default: current), best first. */
-export function useRoundResults(round?: number): RoundResult[] {
-  const results = useGame((s) => {
-    const r = round ?? currentRoundIndex(s.room)
-    return r >= 0 ? s.room?.results[r] : undefined
-  })
-  return useMemo(() => (results ? sortRoundResults(results) : []), [results])
-}
-
-export function useSubmission(playerId: PlayerId | null | undefined): SubmissionStatus | undefined {
-  return useGame((s) => (playerId ? s.room?.submissions[playerId] : undefined))
-}
-
-/** Who confirmed first in the current round (drives the "final timer" banner). */
-export const useFirstSubmitter = (): Player | undefined =>
-  useGame((s) => {
-    const phase = s.room?.phase
-    return phase?.kind === 'playing' && phase.firstSubmit ? findPlayer(s.room, phase.firstSubmit.playerId) : undefined
-  })
-
-/** Players by score desc, ties by more rounds played, then lower total confirmation time. */
-export function useLeaderboard(): Player[] {
-  const players = useGame((s) => s.room?.players)
-  const results = useGame((s) => s.room?.results)
-  return useMemo(
-    () => (players && results ? computeLeaderboard({ players, results }) : EMPTY_PLAYERS),
-    [players, results],
-  )
-}
-
-export function useStandings(): Standing[] {
-  const players = useGame((s) => s.room?.players)
-  const results = useGame((s) => s.room?.results)
-  return useMemo(() => (players && results ? computeStandings({ players, results }) : []), [players, results])
-}
-
-/** Leaderboard after `round` (default: current) with rank deltas — for the reveal screen. */
-export function useRoundStandings(round?: number): RoundStanding[] {
-  const players = useGame((s) => s.room?.players)
-  const results = useGame((s) => s.room?.results)
-  const r = useGame((s) => round ?? currentRoundIndex(s.room))
-  return useMemo(
-    () => (players && results ? computeRoundStandings({ players, results }, r) : []),
-    [players, results, r],
-  )
-}
-
-/** Active connected players who haven't confirmed yet ("In attesa di…"). */
-export function useWaitingFor(): Player[] {
-  const room = useGame((s) => s.room)
-  return useMemo(() => waitingPlayers(room), [room])
-}
-
-export function useGameStats(): GameStats {
-  const room = useGame((s) => s.room)
-  return useMemo(() => computeGameStats(room), [room])
-}
-
-export function useAudioStatus(trackId: number | null | undefined): AudioStatus {
-  return useGame((s) => (trackId == null ? 'idle' : (s.audio[trackId] ?? 'idle')))
-}
-
-/** Load status of the current round's audio. */
-export const useCurrentAudioStatus = (): AudioStatus =>
-  useGame((s) => {
-    const r = currentRoundIndex(s.room)
-    const id = r >= 0 ? (s.room?.rounds[r]?.track.id ?? s.room?.tracks[r]?.id) : undefined
-    return id == null ? 'idle' : (s.audio[id] ?? 'idle')
-  })
-
-/**
- * Share of this game's tracks that are decoded right now (0..1). Only the current and the
- * next round are ever decoded at once (STORE_TIMINGS.decodeAhead), so this is not a
- * whole-game download meter — use useCurrentAudioStatus for "is this round ready".
- */
-export const useAudioProgress = (): number =>
-  useGame((s) => {
-    const tracks = s.room?.tracks ?? []
-    if (!tracks.length) return 0
-    return tracks.filter((t) => s.audio[t.id] === 'ready').length / tracks.length
-  })
 
 type Actions = Pick<
   GameStore,
@@ -379,52 +234,4 @@ export function useActions(): Actions {
       backToLobby: s.backToLobby,
     })),
   )
-}
-
-// ---- time ---------------------------------------------------------------------
-
-/** Whole seconds (ceil) left until `endsAt` on the host clock. */
-function secondsLeft(endsAt: number): number {
-  return Math.max(0, Math.ceil((endsAt - hostNow()) / 1000))
-}
-
-/**
- * Milliseconds left until `endsAt` (host clock), re-rendering every `intervalMs`
- * while running and stopping at 0. Null/undefined `endsAt` → 0. The value is
- * derived at render time, so a jump of `endsAt` (first confirmation) shows at once.
- */
-export function useRemainingMs(endsAt: number | null | undefined, intervalMs = 100): number {
-  const [, rerender] = useReducer((n: number) => n + 1, 0)
-  useEffect(() => {
-    if (endsAt == null || hostNow() >= endsAt) return
-    const id = setInterval(() => {
-      rerender()
-      if (hostNow() >= endsAt) clearInterval(id)
-    }, intervalMs)
-    return () => clearInterval(id)
-  }, [endsAt, intervalMs])
-  return endsAt == null ? 0 : Math.max(0, endsAt - hostNow())
-}
-
-/**
- * Whole seconds left (ceil) until `endsAt`; re-renders only when the number
- * changes, so a big "12" timer doesn't repaint ten times a second.
- */
-export function useSecondsLeft(endsAt: number | null | undefined): number {
-  const [, rerender] = useReducer((n: number) => n + 1, 0)
-  useEffect(() => {
-    if (endsAt == null) return
-    let last = secondsLeft(endsAt)
-    if (last === 0) return
-    const id = setInterval(() => {
-      const next = secondsLeft(endsAt)
-      if (next !== last) {
-        last = next
-        rerender()
-      }
-      if (next === 0) clearInterval(id)
-    }, 100)
-    return () => clearInterval(id)
-  }, [endsAt])
-  return endsAt == null ? 0 : secondsLeft(endsAt)
 }

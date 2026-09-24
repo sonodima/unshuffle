@@ -2,7 +2,7 @@
 // A real frame of size N is packed into an N/2-point complex FFT and split
 // afterwards, which halves the work compared to a naive complex transform.
 
-export interface RealFft {
+interface RealFft {
   readonly size: number
   /**
    * Power spectrum |X[k]|^2 for k = 0..N/2 of `input` (length N).

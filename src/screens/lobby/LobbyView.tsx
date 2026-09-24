@@ -3,7 +3,6 @@ import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } fr
 import { SoundControls } from '../../components/shell/SoundControls'
 import { Button, Icon, IconButton, Logo, Modal, cn, useCanHover, useMediaQuery, type IconName } from '../../components/ui'
 import type { GameSettings, PlayerId, PlaylistRef, RoomState } from '../../game/types'
-import type { PlaylistCatalog } from './catalog'
 import { HowToPlay } from './HowToPlay'
 import { buildJoinUrl, copyText } from './invite'
 import { PlayerList, type ProfilePatch } from './PlayerList'
@@ -14,16 +13,14 @@ import { SettingsPanel } from './SettingsPanel'
 import { StartBar } from './StartBar'
 import './lobby.css'
 
-export type LobbyTab = 'players' | 'playlist' | 'rules'
+type LobbyTab = 'players' | 'playlist' | 'rules'
 
-export interface LobbyViewProps {
+interface LobbyViewProps {
   room: RoomState
   /** My player id. */
   me: PlayerId
   /** Default: room.hostId === me. */
   isHost?: boolean
-  /** Default: current origin + path + #/r/CODE. */
-  joinUrl?: string
   onUpdateSettings(patch: Partial<GameSettings>): void
   /** Rejects with an Italian, user-facing message (shown inline). */
   onStart(): Promise<void>
@@ -35,10 +32,6 @@ export interface LobbyViewProps {
   onEditProfile?(patch: ProfilePatch): void
   /** Emoji reactions row (the shell's ReactionBar), placed under the player list. */
   reactions?: ReactNode
-  /** Playlist data source (default: Deezer). */
-  catalog?: PlaylistCatalog
-  /** Phones: tab to open first (default: host without playlist → playlist, else players). */
-  initialTab?: LobbyTab
 }
 
 /** Lobby: room code, players, playlist and rules; host starts the game. Pure: renders from props. */
@@ -46,7 +39,6 @@ export function LobbyView({
   room,
   me,
   isHost: isHostProp,
-  joinUrl: joinUrlProp,
   onUpdateSettings,
   onStart,
   onKick,
@@ -54,8 +46,6 @@ export function LobbyView({
   onNotify,
   onEditProfile,
   reactions,
-  catalog,
-  initialTab,
 }: LobbyViewProps) {
   const wide = useMediaQuery('(min-width: 1024px)')
   const xl = useMediaQuery('(min-width: 1280px)')
@@ -63,9 +53,10 @@ export function LobbyView({
   const short = useMediaQuery('(max-height: 800px)')
   const dense = wide && short
   const isHost = isHostProp ?? room.hostId === me
-  const joinUrl = joinUrlProp ?? buildJoinUrl(room.code)
+  const joinUrl = buildJoinUrl(room.code)
   const { settings, players } = room
-  const [tab, setTab] = useState<LobbyTab>(initialTab ?? (isHost && !settings.playlist ? 'playlist' : 'players'))
+  // Phones: a host without a playlist starts on the picker, everyone else on the players.
+  const [tab, setTab] = useState<LobbyTab>(isHost && !settings.playlist ? 'playlist' : 'players')
   const [leaveOpen, setLeaveOpen] = useState(false)
   // Touch only: a narrow desktop window has no virtual keyboard, and hiding the CTA there would just get in the way.
   const canHover = useCanHover()
@@ -105,7 +96,7 @@ export function LobbyView({
         <h2 className="display display-skew text-lg whitespace-nowrap text-ink-50 sm:text-xl">Scegli la playlist</h2>
         <span className="hidden min-w-0 truncate text-xs font-semibold text-ink-400 @min-[34rem]:block">Brani da Deezer · anteprime di 30 secondi</span>
       </div>
-      <PlaylistPicker selected={settings.playlist} onSelect={selectPlaylist} catalog={catalog} />
+      <PlaylistPicker selected={settings.playlist} onSelect={selectPlaylist} />
     </section>
   )
   const gap = dense ? 'gap-5' : 'gap-6'

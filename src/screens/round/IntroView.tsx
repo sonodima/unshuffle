@@ -14,7 +14,7 @@ import type { Clock } from './clock'
 import { findPlayer, isActiveIn, roundInfo } from './model'
 import './round.css'
 
-export interface IntroViewProps {
+interface IntroViewProps {
   room: RoomState
   /** Viewer id: late joiners get a "spectator" note. */
   me?: PlayerId

@@ -1,5 +1,5 @@
 // Timing helpers of the Home screen, kept free of React so they can be unit
-// tested with fake clocks (scripts/home/idle.test.ts).
+// tested with fake clocks (tests/unit/home-idle.test.ts).
 
 type TimerId = ReturnType<typeof setTimeout>
 

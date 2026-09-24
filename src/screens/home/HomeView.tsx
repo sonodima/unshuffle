@@ -15,7 +15,7 @@ import './home.css'
 
 export type HomePending = 'create' | 'join' | null
 
-export interface HomeViewProps {
+interface HomeViewProps {
   profile: PlayerProfile
   onProfileChange(patch: ProfilePatch): void
   /** Join box content (letters only, up to 5). */

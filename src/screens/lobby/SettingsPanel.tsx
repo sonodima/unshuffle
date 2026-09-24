@@ -4,7 +4,7 @@ import { SETTINGS_OPTIONS, SNIPPET_DIFFICULTY } from '../../game/constants'
 import type { GameSettings } from '../../game/types'
 import { estimateMinutes } from './rules'
 
-export interface SettingsPanelProps {
+interface SettingsPanelProps {
   settings: GameSettings
   /** Host: true. Everyone else sees the same controls read-only. */
   editable: boolean

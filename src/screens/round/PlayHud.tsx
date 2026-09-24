@@ -14,7 +14,7 @@ import { useRoundMenu } from './menuContext'
 import type { RoundInfo } from './model'
 import { PlayersStrip } from './PlayersStrip'
 
-export interface PlayHudProps {
+interface PlayHudProps {
   info: RoundInfo
   /** Compact phone layout. */
   compact: boolean

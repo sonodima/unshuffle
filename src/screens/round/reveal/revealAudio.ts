@@ -14,7 +14,7 @@ import { DEFAULT_COVER_COLORS, extractCoverColors, peekCoverColors } from '../..
 import { segmentAt } from './model'
 import type { RevealAccent, SongProgressFn } from './SongCard'
 
-export const REVEAL_TAG = 'reveal'
+const REVEAL_TAG = 'reveal'
 const FADE_IN_MS = 400
 const FADE_OUT_MS = 450
 /** Fade-in when the song jumps to a snippet (short: the tap should feel immediate). */
@@ -52,12 +52,12 @@ function snapshot(): PlaybackState {
   }
 }
 
-export interface RevealSegmentRange {
+interface RevealSegmentRange {
   start: number
   end: number
 }
 
-export interface RevealSong {
+interface RevealSong {
   /** The reveal preview is playing (see `pending`: it may not be audible yet). */
   playing: boolean
   /** Playing, but the AudioContext is still locked / interrupted: nothing is audible until a tap. */

@@ -1,28 +1,5 @@
 // Small runtime toolkit for the transport: leak-proof timers/listeners (Scope),
-// listener sets, cancellable waits, crypto randomness and live counters that
-// the lab / tests read to prove nothing leaks across create/join cycles.
-
-/** Live resource counters (read via netDebug.stats()). */
-export const netStats = { peers: 0, timers: 0, listeners: 0, hosts: 0, clients: 0 }
-
-export interface NetLogEntry {
-  at: number
-  scope: string
-  msg: string
-}
-
-const LOG_SIZE = 200
-const log: NetLogEntry[] = []
-
-/** Records a diagnostic line in a small ring buffer (netDebug.log()); never prints. */
-export function netLog(scope: string, msg: string): void {
-  log.push({ at: Date.now(), scope, msg })
-  if (log.length > LOG_SIZE) log.splice(0, log.length - LOG_SIZE)
-}
-
-export function readNetLog(): NetLogEntry[] {
-  return log.slice()
-}
+// listener sets, cancellable waits and crypto randomness.
 
 export const now = (): number => performance.now()
 
@@ -40,23 +17,16 @@ export class Scope {
   private readonly sleepers = new Set<() => void>()
   private _disposed = false
 
-  get disposed(): boolean {
-    return this._disposed
-  }
-
   timeout(fn: () => void, ms: number): () => void {
     if (this._disposed) return noop
     const cancel = (): void => {
       if (!this.cleanups.delete(cancel)) return
       clearTimeout(id)
-      netStats.timers--
     }
     const id = setTimeout(() => {
       if (!this.cleanups.delete(cancel)) return
-      netStats.timers--
       fn()
     }, ms)
-    netStats.timers++
     this.cleanups.add(cancel)
     return cancel
   }
@@ -64,11 +34,9 @@ export class Scope {
   interval(fn: () => void, ms: number): () => void {
     if (this._disposed) return noop
     const id = setInterval(fn, ms)
-    netStats.timers++
     const cancel = (): void => {
       if (!this.cleanups.delete(cancel)) return
       clearInterval(id)
-      netStats.timers--
     }
     this.cleanups.add(cancel)
     return cancel
@@ -77,11 +45,9 @@ export class Scope {
   listen(target: EventTarget | undefined, type: string, fn: (event: Event) => void): void {
     if (this._disposed || !target) return
     target.addEventListener(type, fn)
-    netStats.listeners++
     const cancel = (): void => {
       if (!this.cleanups.delete(cancel)) return
       target.removeEventListener(type, fn)
-      netStats.listeners--
     }
     this.cleanups.add(cancel)
   }
@@ -125,10 +91,6 @@ export class Scope {
 export class Listeners<A extends unknown[]> {
   private readonly set = new Set<(...args: A) => void>()
 
-  get size(): number {
-    return this.set.size
-  }
-
   add(cb: (...args: A) => void): () => void {
     // Wrap so the same function can be subscribed twice and unsubscribed independently.
     const entry = (...args: A): void => cb(...args)
@@ -170,12 +132,10 @@ export function race<T>(
     const abortValue = (opts.onAbort ?? opts.onTimeout) as T
     const onAbort = (): void => settle(abortValue)
     const timer = setTimeout(() => settle(opts.onTimeout), Math.max(0, opts.timeoutMs))
-    netStats.timers++
     function settle(value: T): void {
       if (done) return
       done = true
       clearTimeout(timer)
-      netStats.timers--
       signal?.removeEventListener('abort', onAbort)
       teardown()
       resolve(value)

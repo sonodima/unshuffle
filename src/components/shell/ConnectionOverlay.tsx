@@ -19,13 +19,10 @@ import type { DialogCopy, ExitReason, LostCause, LostContext } from './connectio
 import { setBannerBox, useHudBottom } from './hudInset'
 import type { BannerBox } from './hudInset'
 
-export { exitReasonFor } from './connectionCopy'
-export type { ExitReason, LostCause, LostContext } from './connectionCopy'
-
 // ---------------------------------------------------------------------------
-// Presentational pieces (props only; previewable in the lab)
+// Presentational pieces (props only)
 
-export type BannerTone = 'warning' | 'danger' | 'info'
+type BannerTone = 'warning' | 'danger' | 'info'
 
 const BANNER_TONE: Record<BannerTone, { ring: string; chip: string; glow: string }> = {
   warning: { ring: 'border-gold/35', chip: 'bg-gold/15 text-gold', glow: 'shadow-[0_10px_40px_-12px_rgb(255_210_63/0.45)]' },
@@ -36,7 +33,7 @@ const BANNER_TONE: Record<BannerTone, { ring: string; chip: string; glow: string
 /** Gap between a pinned HUD and the banner under it. */
 const UNDER_HUD_GAP = 8
 
-export interface StatusBannerProps {
+interface StatusBannerProps {
   tone?: BannerTone
   /** Spinner instead of an icon. */
   busy?: boolean
@@ -55,7 +52,7 @@ export interface StatusBannerProps {
 }
 
 /** Floating status pill (top-center, safe-area aware). Render inside AnimatePresence. */
-export function StatusBanner({ tone = 'warning', busy, icon = 'wifi-off', title, detail, meta, action, onDismiss, belowHud, onMeasure }: StatusBannerProps) {
+function StatusBanner({ tone = 'warning', busy, icon = 'wifi-off', title, detail, meta, action, onDismiss, belowHud, onMeasure }: StatusBannerProps) {
   const t = BANNER_TONE[tone]
   const under = belowHud != null
   const present = useIsPresent()
@@ -186,7 +183,7 @@ function DialogWell({ copy, code, pulse }: { copy: DialogCopy; code: string | nu
   )
 }
 
-export interface ConnectionLostDialogProps {
+interface ConnectionLostDialogProps {
   open: boolean
   role: Role
   code: string | null
@@ -205,7 +202,7 @@ export interface ConnectionLostDialogProps {
 }
 
 /** Blocking dialog: the link to the host is gone (the transport's own retries ran out). */
-export function ConnectionLostDialog({
+function ConnectionLostDialog({
   open,
   role,
   code,
@@ -251,20 +248,20 @@ export function ConnectionLostDialog({
   )
 }
 
-export interface ExitNotice {
+interface ExitNotice {
   reason: ExitReason
   message: string
   code: string | null
 }
 
-export interface ExitNoticeDialogProps {
+interface ExitNoticeDialogProps {
   notice: ExitNotice | null
   open: boolean
   onClose(): void
 }
 
 /** Explains why we are back home after being dropped out of a room. */
-export function ExitNoticeDialog({ notice, open, onClose }: ExitNoticeDialogProps) {
+function ExitNoticeDialog({ notice, open, onClose }: ExitNoticeDialogProps) {
   const copy = exitNoticeCopy(notice?.reason ?? 'other', notice?.message)
   return (
     <Modal

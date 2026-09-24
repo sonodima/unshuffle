@@ -2,7 +2,7 @@ import { Avatar, cn } from '../../components/ui'
 import type { AvatarSize } from '../../components/ui'
 import type { Player, PlayerId } from '../../game/types'
 
-export interface PlayersStripProps {
+interface PlayersStripProps {
   players: readonly Player[]
   /** Players showing the lime ✓ badge (confirmed / ready). */
   checked?: ReadonlySet<PlayerId>

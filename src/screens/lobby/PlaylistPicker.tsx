@@ -6,14 +6,12 @@ import { CATEGORY_CHIPS, type CategoryChip } from '../../lib/playlistCategories'
 import { catalogErrorMessage, deezerCatalog, type PlaylistCatalog } from './catalog'
 import { MIN_ROUNDS, tracksWord } from './rules'
 
-export const SEARCH_DEBOUNCE_MS = 350
+const SEARCH_DEBOUNCE_MS = 350
 const MIN_QUERY = 2
 
-export interface PlaylistPickerProps {
+interface PlaylistPickerProps {
   selected: PlaylistRef | null
   onSelect(playlist: PlaylistRef): void
-  /** Data source (default: Deezer). */
-  catalog?: PlaylistCatalog
   /** Ref to the search field (e.g. to focus it from a "Cambia" button). */
   inputRef?: Ref<HTMLInputElement>
   className?: string
@@ -63,7 +61,7 @@ function useDebounced<T>(value: T, ms: number): T {
 }
 
 /** Search box + category chips + featured shelf + results grid. Paste a Deezer link to pick it directly. */
-export function PlaylistPicker({ selected, onSelect, catalog = deezerCatalog, inputRef, className }: PlaylistPickerProps) {
+export function PlaylistPicker({ selected, onSelect, inputRef, className }: PlaylistPickerProps) {
   const [input, setInput] = useState('')
   const [chip, setChip] = useState<CategoryChip | null>(null)
   const [attempt, setAttempt] = useState(0)
@@ -73,21 +71,21 @@ export function PlaylistPicker({ selected, onSelect, catalog = deezerCatalog, in
 
   const trimmed = input.trim().replace(/\s+/g, ' ')
   const debounced = useDebounced(trimmed, SEARCH_DEBOUNCE_MS)
-  const link = analyzeInput(input, catalog)
+  const link = analyzeInput(input, deezerCatalog)
 
   let req: Request | null = null
   if (link.kind === 'id') {
     const id = link.id
-    req = { key: `id:${id}`, run: () => catalog.getPlaylist(id).then((p) => [p]), heading: 'Dal tuo link', icon: 'link', autoSelect: true }
+    req = { key: `id:${id}`, run: () => deezerCatalog.getPlaylist(id).then((p) => [p]), heading: 'Dal tuo link', icon: 'link', autoSelect: true }
   } else if (link.kind === 'none') {
     if (trimmed.length >= MIN_QUERY) {
       const q = debounced.length >= MIN_QUERY ? debounced : null
-      if (q) req = { key: `q:${q.toLowerCase()}`, run: () => catalog.search(q), heading: <>Risultati per “{q}”</>, icon: 'search', query: q }
+      if (q) req = { key: `q:${q.toLowerCase()}`, run: () => deezerCatalog.search(q), heading: <>Risultati per “{q}”</>, icon: 'search', query: q }
     } else if (chip) {
       const c = chip
-      req = { key: `c:${c.query}`, run: () => catalog.search(c.query), heading: c.label, icon: c.emoji ?? 'music' }
+      req = { key: `c:${c.query}`, run: () => deezerCatalog.search(c.query), heading: c.label, icon: c.emoji ?? 'music' }
     } else {
-      req = { key: 'featured', run: () => catalog.featured(), heading: 'In evidenza', icon: 'star' }
+      req = { key: 'featured', run: () => deezerCatalog.featured(), heading: 'In evidenza', icon: 'star' }
     }
   }
   const reqKey = req?.key ?? null
@@ -365,7 +363,7 @@ function Grid({ items, selectedId, onSelect, gridKey }: { items: PlaylistRef[]; 
   )
 }
 
-export function PlaylistCard({ playlist, selected, onSelect }: { playlist: PlaylistRef; selected: boolean; onSelect(): void }) {
+function PlaylistCard({ playlist, selected, onSelect }: { playlist: PlaylistRef; selected: boolean; onSelect(): void }) {
   // Fewer tracks than the shortest game: still pickable, but say so before the host gets attached to it.
   const tooShort = playlist.nbTracks > 0 && playlist.nbTracks < MIN_ROUNDS
   return (

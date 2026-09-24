@@ -8,7 +8,7 @@ import { useGame } from '../../game/store'
 import type { Player, PlayerId } from '../../game/types'
 import { playerColor } from '../ui'
 
-export interface Floater {
+interface Floater {
   id: number
   emoji: string
   /** Sender's accent color (hex). */
@@ -44,7 +44,7 @@ function viewport(): { w: number; h: number } {
   }
 }
 
-export function makeFloater(id: number, emoji: string, color: string, name?: string): Floater {
+function makeFloater(id: number, emoji: string, color: string, name?: string): Floater {
   const r = Math.random
   const { w, h } = viewport()
   const phone = w < 640
@@ -62,7 +62,7 @@ export function makeFloater(id: number, emoji: string, color: string, name?: str
   }
 }
 
-export interface FloatingReactionsViewProps {
+interface FloatingReactionsViewProps {
   floaters: readonly Floater[]
   onDone(id: number): void
   /** Show the sender's name under each emoji. Default true. */
@@ -70,7 +70,7 @@ export interface FloatingReactionsViewProps {
 }
 
 /** Presentational layer: full-viewport, click-through, above screens and below the chrome. */
-export function FloatingReactionsView({ floaters, onDone, showNames = true }: FloatingReactionsViewProps) {
+function FloatingReactionsView({ floaters, onDone, showNames = true }: FloatingReactionsViewProps) {
   const reduce = useReducedMotion()
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[650] overflow-hidden">

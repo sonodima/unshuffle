@@ -17,7 +17,7 @@ import { computeFinalSummary, computeHeadline, type FinalSummary, type Headline 
 import { landingTime } from './timing'
 import './final.css'
 
-export interface FinalViewProps {
+interface FinalViewProps {
   room: RoomState
   /** My player id. */
   me: PlayerId
@@ -27,8 +27,6 @@ export interface FinalViewProps {
   onPlayAgain(): void
   /** Leave the room (host: closes it for everyone, after a confirmation). */
   onLeave(): void
-  /** Confetti + fanfare + landing sounds. Default true. */
-  celebrate?: boolean
   /** Called once when the winner lands on the podium (e.g. to pulse the background). */
   onWinnerLanded?(): void
   /** Guests: ask the host for a rematch. Omit to hide the button. */
@@ -38,7 +36,7 @@ export interface FinalViewProps {
 }
 
 /** Final results: podium, standings, awards, per-round breakdown and the songs of the game. */
-export function FinalView({ room, me, isHost = room.hostId === me, onPlayAgain, onLeave, celebrate = true, onWinnerLanded, onRematch, rematchFrom }: FinalViewProps) {
+export function FinalView({ room, me, isHost = room.hostId === me, onPlayAgain, onLeave, onWinnerLanded, onRematch, rematchFrom }: FinalViewProps) {
   const reduced = !!useReducedMotion()
   const summary = useMemo(() => computeFinalSummary(room), [room])
   const headline = useMemo(() => computeHeadline(summary, me), [summary, me])
@@ -73,18 +71,16 @@ export function FinalView({ room, me, isHost = room.hostId === me, onPlayAgain, 
   // Entrance choreography: landing thuds, then fanfare + confetti when the winner touches down.
   useEffect(() => {
     const scored = (summaryRef.current.standings[0]?.score ?? 0) > 0
-    if (celebrate && scored) party.current = createCelebration()
+    if (scored) party.current = createCelebration()
     const timers: ReturnType<typeof setTimeout>[] = []
     const at = (s: number, fn: () => void) => timers.push(setTimeout(fn, s * 1000))
-    if (celebrate) {
-      // Reduced motion: everything appears at once, so only the final cue plays.
-      if (!reduced) {
-        for (let place = podiumCount - 1; place >= 1; place--) {
-          at(landingTime(place, podiumCount, reduced), () => playSfx('drop', { pitch: place === 2 ? 0.9 : 1 }))
-        }
+    // Reduced motion: everything appears at once, so only the final cue plays.
+    if (!reduced) {
+      for (let place = podiumCount - 1; place >= 1; place--) {
+        at(landingTime(place, podiumCount, reduced), () => playSfx('drop', { pitch: place === 2 ? 0.9 : 1 }))
       }
-      at(Math.max(0, winnerLands - 0.04), () => playSfx(scored ? 'fanfare' : 'drop'))
     }
+    at(Math.max(0, winnerLands - 0.04), () => playSfx(scored ? 'fanfare' : 'drop'))
     at(winnerLands, () => {
       landedRef.current?.()
       if (!party.current) return
@@ -106,9 +102,9 @@ export function FinalView({ room, me, isHost = room.hostId === me, onPlayAgain, 
     if (now - lastCheer.current < 700) return
     lastCheer.current = now
     playSfx('pop')
-    if (!party.current && celebrate) party.current = createCelebration()
+    if (!party.current) party.current = createCelebration()
     burstFromWinner()
-  }, [burstFromWinner, celebrate])
+  }, [burstFromWinner])
 
   const othersOnline = room.players.filter((p) => p.id !== me && p.connected).length
   const playlist = room.settings.playlist

@@ -1,5 +1,4 @@
-// Playlist data source for the lobby picker. The default goes to Deezer; the
-// picker takes any implementation (lab mocks, tests) through the `catalog` prop.
+// Playlist data source for the lobby picker, backed by the Deezer API.
 
 import type { PlaylistRef } from '../../game/types'
 import { DeezerError, getFeaturedPlaylists, getPlaylist, isDeezerShortLink, parsePlaylistInput, searchPlaylists } from '../../lib/deezer'
@@ -17,8 +16,8 @@ export interface PlaylistCatalog {
   isShortLink(input: string): boolean
 }
 
-export const SEARCH_LIMIT = 24
-export const FEATURED_LIMIT = 20
+const SEARCH_LIMIT = 24
+const FEATURED_LIMIT = 20
 
 // The featured shelf rarely changes: keep the first successful answer for the
 // whole session so coming back to the lobby (Rigioca) renders instantly.

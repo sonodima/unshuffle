@@ -7,7 +7,7 @@ import { DemoBlock } from './ShuffleDemo'
 import { DEMO_HUES, songEnvelope } from './demoScript'
 import './home.css'
 
-export interface HowToPlayProps {
+interface HowToPlayProps {
   open: boolean
   onClose(): void
 }

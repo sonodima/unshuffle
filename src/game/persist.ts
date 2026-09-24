@@ -19,7 +19,7 @@ export const STORAGE_KEYS = {
 } as const
 
 /** A host snapshot older than this is not resumed after a refresh. */
-export const HOST_SNAPSHOT_MAX_AGE_MS = 10 * 60_000
+const HOST_SNAPSHOT_MAX_AGE_MS = 10 * 60_000
 
 type StorageKind = 'local' | 'session'
 
@@ -104,7 +104,7 @@ export function isPermutation(order: unknown, n: number): order is number[] {
 // ---- profile ----------------------------------------------------------------
 
 /** RFC 4122 v4 id. crypto.randomUUID only exists in secure contexts (not plain-http LAN dev), so fall back. */
-export function generateId(): string {
+function generateId(): string {
   try {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
   } catch {
@@ -120,7 +120,7 @@ export function generateId(): string {
 }
 
 /** Fresh profile: new id, fun name, random avatar + color. */
-export function randomProfile(): PlayerProfile {
+function randomProfile(): PlayerProfile {
   return {
     id: generateId(),
     name: randomPlayerName(),
@@ -230,7 +230,7 @@ export function clearSession(code?: string | null): void {
 
 // ---- host snapshot (host refresh recovery) ----------------------------------
 
-export interface HostSnapshot {
+interface HostSnapshot {
   v: 1
   savedAt: number
   state: RoomState
@@ -272,7 +272,7 @@ export function loadHostSnapshot(code: string, maxAgeMs = HOST_SNAPSHOT_MAX_AGE_
   return state
 }
 
-export function clearHostSnapshot(code: string): void {
+function clearHostSnapshot(code: string): void {
   remove('session', STORAGE_KEYS.hostSnapshot(code))
 }
 

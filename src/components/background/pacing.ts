@@ -12,7 +12,7 @@
 import type { AudioLevels } from '../../audio/engine'
 import type { ReactorState } from './reactor'
 
-export interface QualityLevel {
+interface QualityLevel {
   /** Relative to the device base scale (desktop 0.75, touch 0.5 internal px per CSS px). */
   scale: number
   octaves: number
@@ -27,7 +27,7 @@ export const QUALITY: readonly QualityLevel[] = [
 const LOWEST = QUALITY.length - 1
 
 /** Ignore the first frames after a (re)start: compile, upload and page load noise. */
-export const WARMUP_MS = 1000
+const WARMUP_MS = 1000
 /** The first window after a (re)start is short, so a slow GPU is caught quickly. */
 const FIRST_WINDOW_MS = 500
 const WINDOW_MS = 1000
@@ -63,7 +63,7 @@ export function levelWork(level: number): number {
  * Mean frame interval without the slowest 10% (one-off hitches). A median would
  * miss alternating 16.7/33.3 ms frames, the typical vsync pattern of a ~25 ms load.
  */
-export function typicalInterval(values: readonly number[]): number {
+function typicalInterval(values: readonly number[]): number {
   if (!values.length) return 0
   const s = [...values].sort((a, b) => a - b)
   const n = Math.max(1, Math.floor(s.length * 0.9))
@@ -100,8 +100,6 @@ export interface Governor {
   readonly fps: number
   /** Adaptation stopped for good (lowering never helped, or an upgrade failed). */
   readonly locked: boolean
-  /** Typical interval of the last closed window (ms). */
-  readonly lastInterval: number
   /** External ceiling: 30 while silent or with reduced motion, else 60. A change cancels a probe in flight. */
   setCap(fps: number, now: number): void
   /** Start measuring again after a warmup (start, resize, resume). */
@@ -112,11 +110,9 @@ export interface Governor {
   switched(now: number): void
   /** One rendered frame, drawn `sinceMs` after the previous one. Returns true when the level changed. */
   frame(sinceMs: number, now: number): boolean
-  /** Typical interval of the window being collected, or of the last one (for stats). */
-  typical(): number
 }
 
-export interface GovernorOptions {
+interface GovernorOptions {
   initial?: number
   /** Relative cost of drawing a frame at a level (default: `levelWork`). Used to size the first step down. */
   cost?: (level: number) => number
@@ -147,7 +143,6 @@ export function createGovernor(opts: GovernorOptions = {}): Governor {
   let goodWindows = 0
   let upgrades = 0
   let probe: Probe | null = null
-  let lastInterval = 0
 
   const fps = () => (throttled || cap < 60 ? 30 : 60)
 
@@ -196,7 +191,6 @@ export function createGovernor(opts: GovernorOptions = {}): Governor {
 
   function evaluate(now: number): void {
     const med = typicalInterval(intervals)
-    lastInterval = med
     clearWindow()
     windows++
     if (locked) return
@@ -262,9 +256,6 @@ export function createGovernor(opts: GovernorOptions = {}): Governor {
     get locked() {
       return locked
     },
-    get lastInterval() {
-      return lastInterval
-    },
     setCap(next, now) {
       const c = next < 60 ? 30 : 60
       if (c === cap) return
@@ -296,9 +287,6 @@ export function createGovernor(opts: GovernorOptions = {}): Governor {
       const before = level
       evaluate(now)
       return level !== before
-    },
-    typical() {
-      return intervals.length >= 10 ? typicalInterval(intervals) : lastInterval
     },
   }
 }

@@ -100,7 +100,7 @@ function headTags(env: Env): Plugin {
     transformIndexHtml: {
       order: 'post',
       handler(_html, ctx) {
-        // The app page only (the dev server also serves the lab pages).
+        // The app page only.
         if (ctx.path !== '/index.html') return
         const tags: HtmlTagDescriptor[] = []
         if (ctx.bundle) {

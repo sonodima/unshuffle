@@ -5,7 +5,7 @@
 /** Linear-light RGB, components 0..1. */
 export type Rgb = [number, number, number]
 /** OKLab: L 0..1, a/b roughly −0.4..0.4. */
-export type Lab = [number, number, number]
+type Lab = [number, number, number]
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x)
 
@@ -48,7 +48,7 @@ export function rgbToOklab([r, g, b]: Rgb): Lab {
   ]
 }
 
-export function oklabToRgb([L, a, b]: Lab): Rgb {
+function oklabToRgb([L, a, b]: Lab): Rgb {
   const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
   const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
   const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3

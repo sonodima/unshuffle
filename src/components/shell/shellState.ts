@@ -21,13 +21,13 @@ export function subscribeCurrentScreen(l: () => void): () => void {
   }
 }
 
-export const getCurrentScreen = (): ScreenKey => screen
+const getCurrentScreen = (): ScreenKey => screen
 
 export function useCurrentScreen(): ScreenKey {
   return useSyncExternalStore(subscribeCurrentScreen, getCurrentScreen, getCurrentScreen)
 }
 
-export type FloatingDock = 'top-right' | 'bottom-right' | 'hidden'
+type FloatingDock = 'top-right' | 'bottom-right' | 'hidden'
 
 /**
  * Where the floating sound control may sit without covering a screen's HUD.

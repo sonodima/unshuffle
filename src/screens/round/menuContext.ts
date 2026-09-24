@@ -10,7 +10,7 @@ export interface RoundMenuApi {
 
 export const RoundMenuContext = createContext<RoundMenuApi | null>(null)
 
-/** The round's exit menu, or null when the screen offers none (labs, fixtures). */
+/** The round's exit menu, or null outside a RoundMenuProvider. */
 export function useRoundMenu(): RoundMenuApi | null {
   return useContext(RoundMenuContext)
 }

@@ -122,6 +122,3 @@ export function Badge({ tone = 'neutral', variant = 'soft', size = 'sm', icon, d
     </span>
   )
 }
-
-/** Alias: some screens call it a pill. */
-export const Pill = Badge

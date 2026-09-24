@@ -1,12 +1,11 @@
 // Accent colors + intensity for the shader background. Screens set these
 // (e.g. album colors on reveal); ShaderBackground lerps toward them (~1.2 s).
-import { useEffect } from 'react'
 import { create } from 'zustand'
 
 export const DEFAULT_ACCENT_A = '#7b5cff'
 export const DEFAULT_ACCENT_B = '#ff3fd1'
 /** Third light (cyan leaks). Derived from A/B when `setAccent` gets only two colors. */
-export const DEFAULT_ACCENT_C = '#2ee6ff'
+const DEFAULT_ACCENT_C = '#2ee6ff'
 
 interface BackgroundStore {
   accentA: string
@@ -43,23 +42,3 @@ export const useBackground = create<BackgroundStore>()((set) => ({
       pulseStrength: Number.isFinite(strength) ? Math.max(0, Math.min(1.5, strength)) : 1,
     })),
 }))
-
-/**
- * Applies accents while the calling component is mounted, back to the defaults on
- * unmount. Pass null/undefined (e.g. colors still loading) to leave them untouched.
- */
-export function useBackgroundAccent(a: string | null | undefined, b: string | null | undefined, c?: string): void {
-  useEffect(() => {
-    if (!a || !b) return
-    useBackground.getState().setAccent(a, b, c)
-    return () => useBackground.getState().resetAccent()
-  }, [a, b, c])
-}
-
-/** Holds the background intensity (0..1) while mounted, back to 1 on unmount. */
-export function useBackgroundIntensity(x: number): void {
-  useEffect(() => {
-    useBackground.getState().setIntensity(x)
-    return () => useBackground.getState().setIntensity(1)
-  }, [x])
-}

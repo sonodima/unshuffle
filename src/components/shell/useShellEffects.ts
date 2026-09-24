@@ -1,16 +1,16 @@
-// App-wide side effects owned by the shell.
+// App-wide side effects, mounted once by the app shell.
 
 import { useEffect } from 'react'
 import { useGame } from '../../game/store'
 import type { PhaseKind } from '../../game/types'
 import { startResume } from './resume'
 
-export const LEAVE_WARNING = 'Se esci la partita finisce per tutti'
+const LEAVE_WARNING = 'Se esci la partita finisce per tutti'
 
 const IN_PROGRESS: ReadonlySet<PhaseKind> = new Set<PhaseKind>(['preparing', 'intro', 'playing', 'reveal'])
 
 /** True while this tab hosts a game that is running (closing it ends it for everyone). */
-export function isHostingGame(s: { role: string; room: { phase: { kind: PhaseKind } } | null }): boolean {
+function isHostingGame(s: { role: string; room: { phase: { kind: PhaseKind } } | null }): boolean {
   return s.role === 'host' && !!s.room && IN_PROGRESS.has(s.room.phase.kind)
 }
 

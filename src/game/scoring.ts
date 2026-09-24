@@ -28,8 +28,3 @@ export function scoreArrangement(order: readonly number[], n: number): ScoreBrea
   const points = perfect ? MAX_ROUND_POINTS : Math.round(positionPts + pairPts)
   return { correct, pairs, points, perfect }
 }
-
-/** Per-position marks for the reveal UI. */
-export function markPositions(order: readonly number[]): boolean[] {
-  return order.map((segment, position) => segment === position)
-}

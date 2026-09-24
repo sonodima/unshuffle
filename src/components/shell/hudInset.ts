@@ -17,7 +17,7 @@ import { subscribeCurrentScreen } from './shellState'
 export { stackTop, type BannerBox } from './layout'
 
 const LIVE_FRAME = '[data-screen-frame]:not([inert])'
-export const HUD_SELECTOR = `${LIVE_FRAME} [data-shell-hud], ${LIVE_FRAME} [data-round-view="playing"] > header`
+const HUD_SELECTOR = `${LIVE_FRAME} [data-shell-hud], ${LIVE_FRAME} [data-round-view="playing"] > header`
 
 const BURST_MS = 1600
 

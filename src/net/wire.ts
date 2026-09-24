@@ -31,7 +31,7 @@ export const MAX_FRAME_BYTES = 15_000
 const SAFE_INLINE_CHARS = 4_900
 const CHUNK_OVERHEAD_BYTES = 80
 
-export interface ReassemblerLimits {
+interface ReassemblerLimits {
   /** Most chunks one message may announce. */
   readonly maxChunks: number
   /** Most JSON characters one message may add up to. */
@@ -122,7 +122,7 @@ type ChunkFrame = Extract<Frame, { k: 'c' }>
  * `{ value }` when a frame completes a message, `{ overflow: true }` when a
  * message breaks the limits (the sender is broken or hostile), otherwise undefined.
  */
-export type ReassembleResult = { value: unknown } | { overflow: true } | undefined
+type ReassembleResult = { value: unknown } | { overflow: true } | undefined
 
 /** Reassembles chunked messages of one connection (the channel is ordered & reliable). */
 export class Reassembler {

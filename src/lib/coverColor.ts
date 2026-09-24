@@ -4,7 +4,7 @@
 // the secondary. Both are then pushed to high chroma at a lightness that
 // glows on the deep violet-black background, gamut-mapped to sRGB.
 
-export interface CoverColors {
+interface CoverColors {
   /** Vibrant neon-friendly accent (hex). */
   primary: string
   /** Contrasting second accent (hex). */

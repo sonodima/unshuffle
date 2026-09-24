@@ -1,554 +1,383 @@
-# UNSHUFFLE — architecture & product spec
+# UNSHUFFLE — architecture
 
 > *La hit è stata fatta a pezzi. Rimettila in ordine prima degli altri.*
 
-A browser-only, peer-to-peer multiplayer music game. A famous song's 30s Deezer
-preview is cut into musically-sensible snippets (on beats / bar lines), the
-snippets are shuffled, and every player races to drag them back into the right
-order. GeoGuessr-style rounds: a time limit, and as soon as the first player
-confirms, a short final timer starts for everyone else. 5 rounds (configurable),
-highest total wins.
+A browser-only, peer-to-peer multiplayer music game. A song's 30 s Deezer
+preview is cut on beats / bar lines into 6–16 snippets, the snippets are
+shuffled, and every player races to drag them back into the right order. Rounds
+have a time limit, and the first confirm starts a short final timer for everyone
+else. How to play, run and deploy it: [`README.md`](../README.md).
 
-**Hard constraints**
-- 100% static SPA (Vite + React 19 + TypeScript). No backend of ours. `npm run build` → `dist/` hostable anywhere (relative `base: './'`, hash routing only).
-- Deezer public API with **no API key**. `api.deezer.com` has **no CORS** → use **JSONP** (`output=jsonp&callback=fn`). Preview MP3s (`cdnt-preview.dzcdn.net`) and covers (`cdn-images.dzcdn.net`) **do** send `Access-Control-Allow-Origin: *` → `fetch()` + `decodeAudioData` and canvas pixel reads work.
-- Preview URLs are **signed and expire ~15 minutes** after the API call (`hdnea=exp=...`). Download audio as early as possible; on failure re-fetch `/track/{id}` for a fresh URL.
-- Deezer's `bpm` field is usually 0 → we do our own beat tracking.
-- Networking: **PeerJS** (`peerjs` 1.5). Signaling on the **public PeerJS cloud** (0.peerjs.com; a self-hosted PeerServer is a build-time option). No backend of ours. ICE: Google + Cloudflare STUN only by default. PeerJS' old public TURN servers no longer resolve, so a **TURN relay is a deploy-time requirement** for players behind carrier-grade NAT (mobile data) or UDP-blocking firewalls: runtime credentials from `VITE_TURN_CREDENTIALS_URL` and/or static `VITE_TURN_URLS` + credentials (`src/net/peer.ts`; setup in README → Deploy).
-- Fully **responsive**: phone portrait (≥ 360px wide) through desktop. Touch-first drag & drop. Safe-area insets. `100dvh`.
-- UI language: **Italian** (gaming loanwords like "round", "lobby", "host" are fine).
+## Constraints
 
-**TS config gotchas**: `verbatimModuleSyntax` (use `import type`), `erasableSyntaxOnly`
-(NO `enum`, NO constructor parameter properties, NO namespaces), `noUnusedLocals/Parameters`.
-Strict TS. No `any` unless truly unavoidable.
+- **100 % static SPA**: Vite + React 19 + TypeScript, no backend. `dist/` must
+  work from any folder of any host: relative `base: './'`, hash routing (`#/`,
+  `#/r/CODE`), every URL relative.
+- **Deezer, no API key.** `api.deezer.com` sends no CORS headers, so the API is
+  called over JSONP (`output=jsonp&callback=…`). Preview MP3s
+  (`cdnt-preview.dzcdn.net`) and covers (`cdn-images.dzcdn.net`) do send
+  `Access-Control-Allow-Origin: *`, so `fetch()` + `decodeAudioData` and canvas
+  pixel reads work. Preview URLs are signed and expire about 15 minutes after the
+  API call, so audio is downloaded early and a failed download re-fetches
+  `/track/{id}` for a fresh URL. Deezer's `bpm` is usually 0: tempo and beats are
+  our own analysis.
+- **Networking is WebRTC via PeerJS 1.5**, signaling on the public PeerJS cloud
+  (`0.peerjs.com`) unless a PeerServer is configured at build time. ICE defaults to
+  Google + Cloudflare STUN only; a TURN relay (runtime credentials endpoint and/or
+  static credentials) is a deploy-time option that players on mobile data or
+  UDP-blocking networks need.
+- **Phone first**: portrait from 360 px wide to desktop, touch-first drag & drop,
+  safe-area insets, `100dvh`. **Italian UI** (loanwords like round, lobby, host are
+  fine).
 
----
-
-## 1. Product & UX
-
-### Flow
-1. **Home** — animated logo over the shader background. Nickname input, avatar
-   picker (emoji in a colored badge, pick color too). Primary CTA **Crea stanza**,
-   secondary **Entra** with a 5-letter room code input. Opening `#/r/CODE`
-   pre-fills the code and focuses "Entra". First visit shows a 3-step
-   "Come si gioca" overlay (skippable, re-openable from a `?` button).
-   Only the CTAs (**Crea stanza**, **Entra**, Enter/Go in the code field) do the
-   full `audioEngine.unlock()`. Home holds `useSoftAudioUnlock()`, so other taps
-   (nickname, avatar) only wake the context and never claim the iOS audio session.
-   The looping shuffle demo parks on its solved board after 15 s without input
-   (`useUserIdle`), and the PeerJS chunk is warmed after boot idle (`afterBootIdle`:
-   3 s, fonts ready, then idle) or at once on intent (hover/focus/tap on create or join).
-2. **Lobby** — big room code + "Copia link" + QR code (join from phone), player
-   list (avatar, name, host crown, connection dot; the host can kick after a
-   "Rimuovere X?" confirmation), emoji
-   reactions. Host sees: **playlist picker** (search with debounce, featured/top
-   playlists shelf, quick category chips e.g. "Hit 2000", "Anni 80", "Rap
-   italiano", "Rock classics", "Pop", "Dance", "Indie"; paste a Deezer playlist
-   link), and **settings** (rounds 3/5/7/10, snippets 6/8/12/16 = Facile/Normale/
-   Difficile/Folle, round time 60/90/120/180s, final timer 10/15/20/30s).
-   Non-hosts see the same, read-only. Host CTA **Inizia partita** (enabled with a
-   playlist; solo play allowed). The host's chosen playlist shows in the StartBar
-   summary (record sleeve) and as the ✓ in the grid; guests get the `PlaylistHero`.
-   A playlist with fewer previews than rounds disables the CTA with a gold notice
-   and a "Gioca N round" shortcut (`rules.ts playlistShortfall`). On touch phones
-   the bottom dock slides away while a text field has focus.
-3. **Preparing** — host fetches playlist tracks, picks `rounds` popular tracks
-   (+ spares), broadcasts them so every peer starts downloading all previews
-   immediately. Host decodes + analyzes round 0. Tasteful loader ("Sto affettando
-   la traccia…" with a spinning vinyl / equalizer).
-4. **Round intro** (4s) — GeoGuessr-like card: "ROUND 2 / 5", dots progress,
-   "8 spezzoni · 90s", then 3-2-1-VIA with SFX.
-5. **Playing** — HUD: round x/y, my total score, big timer (ring or bar; turns
-   coral + pulses in the last 10s, tick SFX), players strip (avatar gets a ✓ when
-   they confirm). Center: the **snippet board**. Bottom: transport (▶ play all in
-   current order / ■ stop, space bar) + big **CONFERMA** CTA. When anyone
-   confirms first: banner "Giulia ha confermato — 15s!" inside the HUD (it never
-   covers the countdown) and the timer jumps.
-   After confirming: board locks, "In attesa degli altri…" with who's still
-   playing. Late joiners spectate this round.
-   - Keyboard: **⌘/Ctrl + Invio** confirms from anywhere; plain Enter belongs to
-     the focused control (Enter on the focused CONFERMA button still confirms).
-   - CONFERMA on an **untouched board** only arms the button ("Non hai spostato
-     nulla · tocca di nuovo per confermare", 2.6 s); a second press submits, any
-     move disarms it. The host also refuses to let such a submit start the final
-     timer (see `game/host.ts`).
-   - Confirming while the link is down shows "Invio appena torni online"; the store
-     sends the queued submit right after reconnecting.
-   - An exit button (top-left of the HUD, the Preparing screen and the reveal
-     header, `screens/round/GameMenu.tsx`) opens "Uscire dalla partita?" for guests
-     (with the rejoin code) or "Terminare la partita?" for the host (**Torna alla
-     lobby** or **Chiudi la stanza**).
-6. **Reveal** — album cover + title + artist (the song is finally revealed),
-   the original preview plays from the start (shader reacts). Your arrangement
-   animates: each block flips ✓ (lime) or ✗ (coral), then slides into the correct
-   order. Points count up (correct × position points + sequence bonus). Round
-   leaderboard with rank deltas. Host: **Prossimo round** (auto-advance after 25s,
-   visible countdown).
-   - Tapping a block **seeks the reveal song** to that snippet (the song carries on
-     from there); tapping the block that is playing pauses. The song button pauses
-     and resumes from the same spot ("Ferma / Riprendi / Riascolta la canzone").
-     Once sorted, the block the song is in glows with a playhead sweep. Long-press
-     play-all works as on the play screen.
-   - After the sort beat a **"Il tuo ordine / Ordine giusto"** toggle replaces the
-     tally. *Il tuo ordine*: misplaced blocks show ✗ plus a "→ Nº" chip (where they
-     belong). *Ordine giusto*: correct blocks keep their ✓, misplaced ones are
-     neutral with an **"era Nº"** chip (where you had put them). The chips come
-     from `SnippetBoard`'s `labels` prop.
-   - "Più veloce" counts only confirms that scored (points > 0), like the final
-     Fulmine award, so an instant confirm of an untouched board never wins.
-7. **Final** — podium (1-2-3) with confetti, total scores, per-round breakdown,
-   fun stats (perfect rounds, fastest scoring confirm). Host: **Rigioca** (back to lobby,
-   same players/settings, scores reset). Everyone: **Esci**. The headline teases
-   "E il vincitore è…" until the winner lands on the podium. Song tiles replay each
-   30 s preview on tap. Guests get a **Rivincita!** button (sends the `🔁` reaction,
-   8 s cooldown) and the host sees who asked. From 768 px wide the action dock sits in
-   the flow under the podium, and a floating copy slides in once it scrolls away; the
-   inactive copy is `inert` + `aria-hidden`, so exactly one **Rigioca** is in the
-   accessibility tree.
-
-### Snippet board interactions (the core — must feel *satisfying*)
-- Blocks in a grid, read left→right, top→bottom. Columns adapt to width and
-  snippet count (e.g. desktop 8 → 4×2 or 8×1, 16 → 8×2; phone 8 → 2×4, 16 → 4×4).
-- Each block: rounded, colored by its hue (random, never order-revealing), a
-  crisp mirrored waveform, a subtle glossy gradient, a letter/glyph label. Bars are
-  on a per-track dB scale (`board/waveLevels.ts`: RMS dB mapped between the
-  track's p5 and p99.5, gamma 1.6, peak envelope on its own range), so blocks of
-  the same song look clearly different while loudness still compares across them.
-- Drag to reorder (insertion), neighbours animate out of the way with springs,
-  lifted block scales up + tilts slightly + casts a glow, drop settles with a
-  bounce. SFX pickup/swap/drop. Works with mouse, touch (no scroll conflict:
-  `touch-action: none` on blocks; a drag activates after 4px with a mouse and
-  10px with touch/pen, and a tiny drag that ends on its own slot counts as a
-  tap) and keyboard (focus a block, space to lift, arrows to move, space to drop).
-  Read-only (locked) blocks use `touch-action: pan-x pan-y`, so a swipe that
-  starts on one still scrolls the page (the reveal on phones).
-- Tap/click (no drag) on a block → plays that snippet alone; its waveform fills
-  with a progress sweep. Tap again → stop.
-- **Long-press** a block (450 ms; it visibly sinks from 140 ms) or **Shift+Enter**
-  on a focused block → play-all from that position. Movement over 10 px or a
-  drag cancels it; the click that follows is swallowed.
-- ▶ Play all → plays snippets in the CURRENT order back-to-back, gapless; the
-  playing block glows and its waveform sweeps; reordering during playback
-  affects upcoming positions. When the order is correct it sounds exactly like
-  the original. The TransportBar's position map cells ("Ascolta dalla posizione
-  N") have 40 px-tall hit areas.
-
-### Scoring (implemented in `src/game/scoring.ts`)
-`points = 2500 × correct/n + 2500 × pairs/(n−1)` (`POSITION_WEIGHT = 0.5` of
-`MAX_ROUND_POINTS`), perfect = 5000. `correct` =
-exact positions; `pairs` = adjacent pairs in the right sequence. The initial
-shuffle is a derangement with zero correct pairs, so an untouched board = 0.
-Players who don't confirm before time's up get their last arrangement scored
-(marked "tempo scaduto"). A player who was gone for the whole round and never
-moved gets no result ("Nessuna risposta") instead of a 0-point timeout.
-Every leaderboard ranks with `compareStanding` (`game/standing.ts`, re-exported
-from `game/selectors`): score desc, then rounds played desc (spectators and late
-joiners never outrank players who played), then total confirm time asc; exact
-ties share a rank.
-
-### Visual design language
-**"GeoGuessr × neon club."** Deep violet-black backgrounds, a full-screen
-audio-reactive WebGL shader (liquid neon plasma, violet/magenta/cyan, reacts to
-bass/beat), glassy dark panels, chunky playful controls.
-- Display type: **Unbounded** (`font-display`), heavy (800–900), UPPERCASE,
-  slight skew (`-skew-x-6` feel) for headlines — sporty like GeoGuessr's italics.
-  Body: **Manrope** (`font-sans`). Numbers/timers: **JetBrains Mono** (`font-mono`, tabular).
-- Tokens live in `src/index.css` `@theme` (`ink-950…ink-50`, `violet`, `magenta`,
-  `cyan`, `lime`, `gold`, `coral`, `orange`, `rounded-block`, `rounded-panel`,
-  `shadow-glow-*`, `ease-spring`). Use them; don't invent new hex colors in
-  components (except computed hues for snippets / album-derived accents).
-- Buttons: GeoGuessr-like pill buttons with a gradient face, top inner highlight,
-  a darker 4px "3D" bottom edge, press = sink 2–3px. Primary = lime (dark text),
-  secondary = violet, danger = coral, ghost = glass.
-- Panels: tinted glass (`bg-ink-900/70 border border-white/10`), large radius,
-  soft inner highlight. **Blur is expensive**: any `backdrop-filter` on screen costs
-  about 5 % GPU per frame, so persistent UI never blurs. Use `glass-flat` for
-  in-flow panels, `glass-dock` (no blur, 0.95 tint) for docks and sticky bars that
-  content scrolls under, and plain `glass` (real blur) only for short-lived
-  overlays (popovers, the Modal backdrop). Nested glass never blurs
-  (`:where(.glass,.glass-flat,.glass-dock) .glass`). `Panel variant="glass"`
-  renders `glass-flat`.
-- Touch targets: on `(pointer: coarse)` every `btn-sm` gets an invisible 6px
-  hit-slop (36 → 48px); custom controls can use the `hit-slop` utility (needs a
-  positioned element whose `::after` is free). Short landscape layouts use the
-  `short:` variant (`max-height: 500px`).
-- Motion: `motion` (framer-motion successor: `import { motion, AnimatePresence } from 'motion/react'`).
-  Springy, snappy, never sluggish. Staggered entrances. Respect
-  `prefers-reduced-motion` (reduce transforms, keep fades).
-- Mobile: thumb-reachable CTAs at the bottom, ≥44px targets, safe-area padding
-  (`env(safe-area-inset-*)`), no horizontal scroll, no hover-only affordances.
-
----
-
-## 2. Code map & ownership
+## Source layout
 
 ```
 src/
-  main.tsx, App.tsx            app shell, hash routing (#/, #/r/CODE), screen switch by store state
-  index.css                    Tailwind v4 + design tokens + base/component CSS
+  main.tsx, App.tsx     entry + app shell (shader, screen router, global chrome)
+  index.css             Tailwind v4, design tokens (@theme), shared component CSS
   game/
-    types.ts        (DONE)     domain types — the contract
-    constants.ts    (DONE)     settings options, avatars, colors, timings
-    scoring.ts      (DONE)     scoreArrangement / markPositions
-    shuffle.ts                 seeded RNG, derangement-without-pairs, hue assignment
-    clock.ts                   host clock offset estimation, hostNow(), useHostNow()
-    host.ts                    HostGame: authoritative state machine (host only; lazy chunk)
-    store.ts                   useGame zustand store (both roles) — see stub for shape
-    selectors.ts, standing.ts  derived standings/stats; compareStanding = THE leaderboard order
-    prefetch.ts                compressed Blob-URL prefetch of later rounds' previews
-    persist.ts                 profile + session persistence (localStorage/sessionStorage)
+    types.ts            domain types shared by host, network and UI (all JSON-serialisable)
+    constants.ts        settings options, scoring weights, phase timings, avatars, colours, reactions
+    host.ts             HostGame: the authoritative state machine (host only, lazy chunk)
+    hostRules.ts        pure validation / sanitising / result building used by HostGame
+    store.ts            useGame zustand store, both roles; owns the connection and audio loading
+    selectors.ts        derived state + stable selector hooks
+    standing.ts         compareStanding: the one leaderboard order
+    scoring.ts          scoreArrangement
+    shuffle.ts          crypto RNG, scrambledOrder (initial board), random hues
+    clock.ts            host clock offset from ping/pong, hostNow(), useHostNow()
+    prefetch.ts         compressed Blob-URL prefetch of later rounds' previews
+    persist.ts          profile (localStorage) and session / host snapshot (sessionStorage)
+    names.ts            default nicknames, name sanitising
   net/
-    protocol.ts     (DONE)     ClientMsg / HostMsg
-    transport.ts               public API: createHost / joinRoom / preloadTransport
-    peer.ts, host.ts, client.ts  PeerJS config (VITE_PEERJS_* / VITE_TURN_*), host server (lazy), client link
-    wire.ts, timing.ts, errors.ts  framing/chunking + limits, every net timing, Italian NetError copy
+    protocol.ts         ClientMsg / HostMsg, reject reasons
+    transport.ts        public API: createHost, joinRoom, preloadTransport, normalizeRoomCode
+    host.ts, client.ts  host server (lazy) and client link with auto-reconnect
+    peer.ts             PeerJS loading, VITE_PEERJS_* / VITE_TURN_* config, ICE validation
+    wire.ts             envelope: heartbeats, goodbyes, chunking, size limits
+    timing.ts           every transport timing
+    errors.ts           NetError + Italian messages
+    runtime.ts          leak-proof timers/listeners, cancellable waits, crypto randomness
   lib/
-    deezer.ts                  JSONP client + endpoints + track picking
-    coverColor.ts              dominant/vibrant colors from a cover image (canvas)
+    deezer.ts           JSONP client, endpoints, playlist parsing, pickGameTracks
+    playlistCategories.ts  featured playlists and category chips of the picker
+    coverColor.ts       vivid accent colours from an album cover
+    router.ts           minimal hash router
   audio/
-    engine.ts                  AudioContext singleton, load/decode cache, scheduled playback, analyser, levels
-    usePlayback.ts             React hook over engine state
-    sfx.ts                     synthesized UI SFX
-    peaks.ts                   waveform peaks
-    analysis/                  onset/tempo/beat tracking/downbeats/cutting (+ worker)
+    engine.ts           AudioContext, loading/decoding, loudness, scheduled playback, levels
+    usePlayback.ts      React hooks over the engine state
+    sfx.ts              synthesised UI sounds
+    peaks.ts            cached waveform peaks
+    analysis/           beat tracking + cutting pipeline (Web Worker), realign.ts
   components/
-    ui/                        design-system primitives (Button, Panel, Input, Avatar, TimerRing, …) + index.ts barrel
-    brand/                     Logo (animated wordmark), Vinyl, Equalizer loaders
-    background/                ShaderBackground (WebGL, audio-reactive) + useBackground accent store
-    board/                     SnippetBoard, SnippetBlock, Waveform, TransportBar, SnippetStrip (read-only)
-    shell/                     ScreenRouter, SoundControls, ToastLayer, Connection/Resume overlays, hudInset
-    reactions/                 ReactionBar + floating reactions
-  screens/                     Home, Lobby (+ PlaylistPicker, Settings), Round (Intro, Play, Reveal, GameMenu), Final
+    ui/                 design-system primitives, one barrel (index.ts)
+    brand/              Logo, Vinyl, Equalizer
+    background/         WebGL shader background + useBackground accent store
+    board/              SnippetBoard, SnippetBlock, Waveform, TransportBar, SnippetStrip
+    shell/              ScreenRouter, overlays, toasts, sound controls, HUD inset
+    reactions/          ReactionBar
+  screens/              home/, lobby/, round/ (+ reveal/), final/
 ```
 
-Files marked (DONE) are the contract; don't change their exported shapes (you
-may ADD exports). Stub files document the signatures you must keep: replace the
-bodies, keep names/types; you may add more exports.
+## Game flow
 
----
+The host owns one `RoomState` (`game/types.ts`) and broadcasts it whole on every
+change; every screen renders from it. All timestamps in it are **host clock**
+milliseconds; clients convert with the offset from `game/clock.ts`.
 
-## 3. Module contracts (read the stub files for exact TypeScript)
+```
+lobby → preparing(0) → intro → playing → reveal → preparing/intro(1) → … → final
+```
 
-### `lib/deezer.ts`
-JSONP with unique callback names, script tag cleanup, timeout (default 10s),
-Deezer error payloads (`{error:{type,message,code}}`) → `DeezerError`. Quota is
-50 req / 5s per IP — the picker debounces. `TrackInfo.preview` must be non-empty
-and track `readable !== false`. `pickGameTracks`: sort by `rank`, take a random
-sample from the top ~50% (min pool 20), distinct artists where possible.
+| Phase       | What happens |
+|-------------|--------------|
+| `lobby`     | Players join; the host picks a playlist and settings (rounds 3/5/7/10, snippets 6/8/12/16, round time 60–180 s, final timer 10–30 s). |
+| `preparing` | The host picks the tracks and publishes them (every peer starts downloading), then downloads, analyses and cuts the round's preview and waits until every active player has it decoded. |
+| `intro`     | Round card and 3-2-1 countdown (`INTRO_MS`, 4 s). |
+| `playing`   | Players reorder the board. `endsAt` = start + round time; the first confirm pulls it in to now + final timer. |
+| `reveal`    | Song revealed, boards sorted, round leaderboard. Auto-advances after `REVEAL_AUTO_ADVANCE_MS` (25 s) or when the host skips. |
+| `final`     | Podium, per-round breakdown, awards. The host can reset to the lobby (**Rigioca**) with the same players and settings. |
 
-### `audio/analysis` + `audio/peaks.ts`
-`analyzeAndCut(buffer, n)` → `CutPlan` with **exactly n contiguous segments**
-(segment[i].end === segment[i+1].start). Pipeline (in a Web Worker, created with
-`new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })`):
-mono mixdown → STFT (≈2048/512) → log-magnitude spectral flux onset envelope
-(+ low-band kick envelope) → tempo via autocorrelation / comb with a log-Gaussian
-prior around 120 BPM (range ~70–180, handle octave errors) → DP beat tracking
-(Ellis) → meter + downbeat phase (`structure.ts estimateMeter`: 4/4 unless a 3-
-or 5-beat bar is clearly better, by ≥ 0.1; strongest low-band + novelty at bar
-starts) → usable region (trim quiet fade-in/out) → choose boundaries on beat
-times via DP minimizing (length deviation from target)² + penalties (not on a
-downbeat, low novelty, cutting mid-note, cutting through a **held centred note**)
-plus a whole-plan balance penalty (`7·(max/min − 1.5)²`, re-solved inside length
-windows) so snippets are ~equal length and land on bar lines (or half bars)
-when possible → snap each boundary to the nearest
-low-energy point within a few ms (click-free). The held-note track
-(`vocal.ts`) needs the stereo side channel `(L−R)/2`, which `index.ts` sends to the
-worker next to the mono mixdown (`sideOf()`; mono input still works). Fallbacks: weak beat
-confidence → onset/novelty peaks; nothing → uniform. Deterministic.
-`computePeaks` is cheap and cached. `plan.ts` holds the tiny helpers
-(`uniformPlan`, `isValidPlan`…) so the main-thread fallback lazy-imports the pipeline.
+Screens: `ScreenRouter` picks Home / Lobby / Round / Final from the route, the
+store role and the phase. Home is in the entry chunk; Lobby, Round and Final are
+lazy chunks preloaded after boot. Each screen is a pure `XxxView` (props only) plus
+a thin `XxxScreen` that reads the store, and the logic a view derives from
+`RoomState` lives in pure modules (`screens/round/model.ts`,
+`screens/round/reveal/model.ts`, `screens/final/stats.ts`, `screens/lobby/rules.ts`)
+that the unit tests cover.
 
-**Guests re-align the host's cuts** (`realign.ts`): browsers decode the same MP3
-with different offsets (WebKit ≈ 12 ms earlier than Chrome), so the host's cut
-times would land just after each attack on an iPhone. `realignSegments(buffer,
-segments)` re-snaps the host's boundaries onto this peer's decode (one shared
-shift, ±30 ms max, contiguity kept) and returns the same array when the decoders
-agree or the evidence is weak. Only playback times change, never segment identity
-or order, so scoring is unaffected. Every screen that plays or draws a round's
-segments goes through `useLocalSegments(trackKey, segments)` (`components/board`).
+## Scoring and ranking
 
-### `audio/engine.ts`
-One `AudioContext` (lazy). On Chromium it is pre-created, suspended, at idle after
-first contentful paint (`prewarm()`: the first `new AudioContext()` blocks the main
-thread for ~180 ms), skipped on iOS/Firefox. `unlock()` resumes it on a gesture,
-plays a silent buffer, and alone claims the audio session
-(`navigator.audioSession.type = 'playback'`; on iOS < 17 a looping silent
-`<audio>` element). `holdSoftUnlock()` / `useSoftAudioUnlock()` (Home): while held,
-stray taps never claim the session. Graph: per-track loudness trim (BS.1770-4
-integrated loudness measured once per decode, towards `TARGET_LUFS` −14, clamped
-−12/+6 dB, boosts never lift the peak above −1 dBFS) → music bus → analyser → duck
-→ master → safety limiter → destination; SFX have their own bus into the limiter.
-Lookahead scheduler (25 ms timer, keeps ~1 s scheduled ahead, 2.5 s while the tab
-is hidden) for `playSequence`, asking `getSegmentAt(pos)` each tick and re-planning
-snippets that have not started yet (> 50 ms away) when the order changed.
-3–5ms fades at non-contiguous joins; contiguous joins scheduled
-sample-exactly with no fade (seamless). `getLevels()` from an AnalyserNode
-(bass/mid/treble/energy + beat pulse via bass flux), delayed by the output latency
-so visuals match what is heard (Bluetooth). `PlaybackState.pending` is true while
-playback was started but the context isn't running yet (locked or interrupted):
-UI shows "tocca per ascoltare" instead of a pause control. `usePlayback()` via
-`useSyncExternalStore`. `sfx.ts`: tasteful synthesized sounds (oscillators +
-noise + envelopes), separate gain bus, never harsh; persisted enable toggle.
-`duckMusic` merges overlapping ducks (deepest dip, latest release).
+`scoreArrangement` (`game/scoring.ts`), for a board of `n` snippets:
 
-### `net/transport.ts`
-Host: `new Peer(PEER_PREFIX + code)`, on `unavailable-id` retry another code.
-Accept connections (`reliable: true`, JSON serialization). Keepalive: a frame at
-least every 2 s each way; a link silent for 10 s is dead (fires `onDisconnect`).
-Handle signaling `disconnected` → `peer.reconnect()`; the host also quietly
-recycles a signaling socket it has reason to doubt (thaw, back online, visible
-after ≥ 20 s hidden, clients timing out together; at most once per 10 s).
-`net/host.ts` (`HostServerImpl`) is lazy-loaded inside `createHost`.
-Client: `new Peer()` → `connect(hostId)`; `peer-unavailable` → `NetError('room-not-found')`;
-join deadline 12 s; two unanswered offers → `hostNoAnswer` ("L’host non
-risponde…", code `timeout`); signaling-server failures → `NET_MESSAGES.signaling`.
-Links also die early on ICE `failed` (or `disconnected` for 3 s) and on a failed
-5 s probe after a network change / thaw. Reconnect: a 30 s fast phase (backoff),
-then one attempt every 5 s up to 3 min of visible time (20 min wall clock), status
-`reconnecting` → `open` (store re-sends `hello`) or `closed`. `closed` carries a
-`ClientCloseDetail`: `host-gone` (the server answered "no such peer" for 10 s: tab
-closed or left; a reloading host reclaims its code sooner), `host-closed`,
-`rejected`, `dropped`, `gave-up`. Both sides send a `bye 'away'` on `pagehide`, so
-the other end reacts at once instead of after the 10 s heartbeat; a bfcache
-restore reconnects. The host caps client frames (`UPSTREAM_LIMITS`: 8 chunks /
-64 K chars) and drops oversize connections. Timings live in `net/timing.ts`.
-Peers are created by `net/peer.ts`, which owns the deploy-time configuration
-(`VITE_PEERJS_*` signaling server, `VITE_TURN_*` relay, see README → Deploy; the
-full variable list is its header comment) and
-validates every ICE server before use, so a malformed TURN entry is dropped with a
-console warning instead of breaking every connection. Default ICE: Google +
-Cloudflare STUN, no TURN. Runtime TURN credentials (`VITE_TURN_CREDENTIALS_URL`)
-are fetched in `preloadTransport` (no wait) and before create/join (waits ≤ 2.5 s),
-cached until they expire and refreshed by a long-lived host; order: STUN, fetched
-TURN, static TURN.
+```
+points = 5000 × 0.5 × correct/n  +  5000 × 0.5 × pairs/(n − 1)      (a perfect board = 5000)
+```
 
-### `game/host.ts` — HostGame (authoritative)
-Lives only on the host. Owns `RoomState`, applies `ClientMsg`s from remote
-connections AND from the host's own UI (local loopback), broadcasts
-`{t:'state'}` on every change (throttle to ≤ 20/s), sends `{t:'event'}`s.
-Timeline: lobby → preparing(0) → intro → playing → reveal → preparing/intro(1)
-… → final. Details:
-- `startGame`: fetch tracks (`getPlaylistTracks` + `pickGameTracks(rounds + 4 spares)`),
-  set `state.tracks` (clients prefetch all previews immediately), prepare round
-  0: `audioEngine.load` → `analyzeAndCut(buffer, snippets)` → segments,
-  `initialOrder` (derangement w/o correct pairs), random `hues`. On any failure
-  swap in a spare track. Prepare round r+1 in the background during round r.
-- Wait until every connected active player sent `ready` for the round (or
-  `READY_TIMEOUT_MS`) → `intro` (`INTRO_MS`) → `playing` (`endsAt = now + roundTime`).
-- `submit`: record; the first submit pulls `endsAt` in to `now + finalTimer`
-  (only if that's sooner) and emits `first-submit` — except a submit whose order
-  equals `round.initialOrder` (untouched board, 0 points), which never starts the
-  final timer. All active connected
-  players submitted → end round immediately. Timer expiry → end round using
-  last `arrange` (or initialOrder) for non-submitters (`timedOut`).
-  `arrange`/`submit` arriving up to `ARRIVAL_GRACE_MS` (400 ms) after `endsAt`
-  still count (the round really ends at `endsAt + grace`); a confirm inside the
-  grace is timed at the deadline. The host remembers its next timeline step and
-  runs any overdue one before handling a message or a wake event
-  (visibilitychange, pageshow, focus, online), so a throttled host tab catches up.
-- End round → `results[round]` via `scoreArrangement`, add to scores, phase
-  `reveal` with `nextAt = now + REVEAL_AUTO_ADVANCE_MS`. Last round → reveal
-  then `final`. Only players still connected or who made a move are scored.
-- Players: `hello` with known `profile.id` re-attaches (keeps score). Each hello
-  carries a private `secret` (`persist.loadPlayerSecret`, localStorage, never
-  broadcast); the host binds a seat to the first secret it sees for an id (saved
-  in its snapshot), so a copied id with the wrong secret is rejected `duplicate`
-  (two tabs of the same browser still hand the seat over). Ids are checked
-  strictly (1–64 URL-safe chars), one remote tab = one identity. Mid-round the
-  `welcome` carries `mine` (the player's last arrangement), so a new tab continues
-  the old tab's board.
-  New players mid-game get `activeFromRound = current + 1`. Lobby: remove
-  disconnected players after a 15s grace (`LOBBY_GRACE_MS`), and announce the
-  drop (`player-left`) only if they are still gone after `LEFT_NOTICE_MS` (3.5 s:
-  a guest reload re-attaches within 1–3 s). In game: a dropped link keeps its seat
-  silently for `DISCONNECT_GRACE_MS` (12 s; still shown connected, still counted
-  for "everyone confirmed", the ready wait doesn't wait for it), then the player is
-  marked disconnected. Players who leave (or never come back) without having played
-  are removed. An explicit leave or a kick is immediate.
-  Kick → `reject kicked` + drop. Max `MAX_PLAYERS`.
-- Persist host state to sessionStorage so a host refresh can best-effort
-  reclaim the same code and continue. After a restore only players connected in
-  the snapshot are waited for (`RESTORE_GRACE_MS`).
-- The store loads HostGame with `import('./host')` inside `openHost`, in parallel
-  with creating the PeerJS host, so it stays out of the index chunk.
+`MAX_ROUND_POINTS = 5000` and `POSITION_WEIGHT = 0.5` (`game/constants.ts`):
+half the round for snippets in their exact position, half for adjacent pairs in
+the right sequence, so a song rebuilt in order but shifted by one block still
+beats a scrambled board with a few lucky spots. The initial board
+(`scrambledOrder`) has no snippet in place and no correct pair, so an untouched
+board scores 0.
 
-### `game/store.ts` — useGame
-See stub for the exact shape. Host role: creates `HostServer` + `HostGame`, the
-host's own actions call HostGame directly, and HostGame's state updates set
-`room`. Client role: `joinRoom` → `hello` → `welcome`; `state` → `room`;
-ping every 2s feeding `clock.ts`. Arrangement resets to
-`round.initialOrder` when a new round starts; `setArrangement` sends the
-`arrange` on the drop itself (changes closer than 100 ms are merged into one
-trailing send; in the last 2 s every change goes out at once), and a failed send
-stays pending. A `submit` (and any pending arrangement) made while the link is down
-is queued and sent right after the next `hello`, without waiting for the welcome.
-Audio: only the current and the next round are decoded (`decodeAhead: 1`); later
-previews are prefetched as compressed Blob URLs (`game/prefetch.ts`, one download
-at a time, only while nothing is decoding) and decoded from those bytes when their
-round comes up. Blobs are freed after decode, on eviction and on teardown (keys:
-`track:${id}`), and clients send `ready` for the
-current round once its track is decoded. Toasts from events auto-expire (4s).
-Errors are Italian, user-facing. A welcomed client whose link closes with
-`host-gone` / `host-closed` gets `STORE_MESSAGES.hostGone` (the overlay then offers
-only "Torna alla home"); other drops get `hostLost` (with Riprova). Profile persisted in localStorage (random
-default name like "DJ Pinguino"). URL hash kept in sync: `#/r/CODE` while in a room.
+A player who doesn't confirm is scored on their last arrangement (`timedOut`,
+time = the whole round). A player who was gone for the whole round and never
+moved gets no result instead of a 0. Every leaderboard ranks with
+`compareStanding` (`game/standing.ts`): score, then rounds played (a late joiner
+never outranks someone who played), then lower total confirm time; exact ties
+share a rank.
 
-Audio buffer key convention everywhere: **`track:${trackId}`**.
+## Networking
 
-### `components/ui` (design system) — `index.ts` barrel
-Button (variants primary/secondary/danger/ghost, sizes sm/md/lg, loading,
-icon), IconButton, Panel, Input, CodeInput (5 boxes, paste-friendly), Avatar
-(emoji+color badge, sizes, ring states: host crown, submitted ✓, disconnected
-dim), AvatarPicker, Segmented (settings pills), Chip, Badge, Modal/Sheet
-(bottom sheet on mobile), ToastViewport (presentational; `components/shell/ToastLayer` maps `useGame().toasts` to it),
-TimerRing (+ TimerBar), AnimatedNumber (count-up), Kbd, Tooltip (desktop only),
-Spinner/Equalizer, Icon set (inline SVG: play, stop, pause, check, x, crown,
-copy, link, qr, users, settings, music, search, volume, mute, logout, help,
-refresh, lock, trophy, clock, chevron-*, plus, kick). Styleguide page at `#/styleguide`
-(documents `glass` / `glass-flat` / `glass-dock` and the `btn-sm` hit-slop).
-TimerBar and TimerRing never lay out per frame: the bar is a full-width fill
-translated out of a clipped track (transform only), its sweep runs only while
-`running`, and the ring writes `stroke-dashoffset` only after the arc moved ≥ 0.5
-device px (pure helpers in `ui/timerMath.ts`). Modal/Sheet on short screens
-(`short:`) scroll as a whole with a pinned footer.
+**Topology.** A star: the host's PeerJS id is `PEER_PREFIX + code`
+(`unshuffle-v1-KXQPM`), and each client opens one reliable, ordered JSON data
+channel to it. Room codes are 5 letters without I and O.
 
-### `components/background`
-`<ShaderBackground />` fixed full-screen canvas behind everything (z-index −1),
-WebGL2 (WebGL1 fallback, CSS gradient fallback). Domain-warped FBM neon plasma
-+ subtle grain + vignette; uniforms from `audioEngine.getLevels()` each frame
-(bass → warp/brightness, beat → radial pulse, energy → flow speed). Accent
-colors from `useBackground` store (`setAccent(hexA, hexB)`, e.g. album colors on
-reveal) lerped smoothly. DPR-aware with a render-scale cap (≈0.5 on mobile),
-pauses when hidden, reduced-motion → very slow.
-- Boot: the runtime starts only after first contentful paint (PerformanceObserver
-  `paint`, 800 ms timeout, two-rAF fallback) and compiles/links without blocking
-  (`KHR_parallel_shader_compile`, polled each frame); the canvas fades in once the
-  program links. Quality switches also compile in the background.
-- Pacing (`pacing.ts`): 60 fps while something reacts; 30 fps once the scene has
-  been quiet for 1 s (no music, flash, rings or accent/intensity tween, flow back
-  to its idle drift). Back to 60 within a frame when music or a pulse starts.
-- Adaptive quality (0 = best … 3): time-based windows, the first step jumps to the
-  level a cost model says will fit, and the last resort is a 30 fps `throttled`
-  flag on weak GPUs. A CPU-bound page restores the level and locks. Very low-end
-  devices (deviceMemory ≤ 2 or ≤ 2 cores) start at q1. `BackgroundStats` exposes
-  `targetFps`, `throttled`, `idle` and `parallelCompile`.
-- Grain: a one-tile overscan layer (128 px, 64 px on retina) instead of a large
-  moving layer.
+**Protocol** (`net/protocol.ts`, `PROTOCOL_VERSION = 1`):
 
-### `components/board`
-`<SnippetBoard trackKey segments hues order onOrderChange locked marks? />`
-(marks: per-position `'correct'|'wrong'` for reveal), `<TransportBar />`,
-`<SnippetStrip />` (small read-only row for results), `<Waveform />` (canvas,
-DPR-aware, draws precomputed bar heights and the progress sweep via rAF from
-`audioEngine.getPosition()`).
-dnd-kit (`@dnd-kit/core` + `@dnd-kit/sortable`, `rectSortingStrategy`) with a
-`BoardPointerSensor` (activation distance per pointer type). Optional props for
-screens that drive the board from outside (the reveal):
-`labels?: (string|null)[]` (a per-position chip that replaces the slot badge),
-`highlight?: { seg, progress() }` (a block glows and sweeps with an external
-playhead), `onTapSegment?(seg)` (replaces tap-to-play). PlayView renders it through `memo`, so keep
-its props referentially stable. `useLocalSegments(trackKey, segments)` (see audio/analysis) re-aligns the host's
-cuts onto this peer's decode. DOM contract other areas rely on (keep stable):
-`.sb-item[data-seg]` (+ `data-locked`, `data-pressing`), `.sb-slot` (and its
-`::after`), `.sb-face::before`, `.sb-glow`, `.sb-block` as a size container,
-`.tb-label-long` / `.tb-label-short` inside `.tb-label`, and block taps calling
-`engine.playSegment(key, …, { tag: 'block:N' })`.
+| Client → host | |
+|---|---|
+| `hello {profile, version, secret?}` | first message on every connection; a known `profile.id` re-attaches its seat |
+| `profile {profile}` | name / avatar / colour edited in the lobby |
+| `ready {round}` | this round's audio is decoded here |
+| `arrange {round, order}` | live arrangement (scored if the player never confirms) |
+| `submit {round, order}` | confirm |
+| `reaction {emoji}`, `ping {c}`, `leave` | |
 
----
+| Host → client | |
+|---|---|
+| `welcome {you, state, hostNow, mine?}` | `mine` = the player's live board mid-round, so a new tab continues it |
+| `state {state, hostNow}` | the full `RoomState` |
+| `event {event}` | transient `GameEvent`s (joined, left, first-submit, submitted, reaction, kicked, info) |
+| `pong {c, h}` | clock sync |
+| `reject {reason}` | `full`, `version`, `kicked`, `closed`, `duplicate` |
 
-## 4. Conventions
-- Functional React components, hooks, no class components. Named exports.
-- Tailwind utility classes first; component-specific CSS allowed via small CSS
-  files next to the component when utilities get unreadable (keyframes, masks).
-- No new runtime deps without a strong reason (installed: react 19, zustand 5,
-  peerjs, @dnd-kit/*, motion, canvas-confetti, qrcode, fontsource fonts).
-- Everything must degrade gracefully: failed track → spare track; no WebGL →
-  gradient; no audio → still playable UI with error toast.
-- Keep `npx tsc -b` and `npm run build` green.
+Host-only actions (settings, start, next round, kick, back to lobby) never travel
+over the wire: they exist only on the host, whose store calls `HostGame` directly.
+The host's own player actions go through `HostGame.handleLocal`, the same path as
+remote messages.
 
----
+**Transport** (`net/transport.ts`, `host.ts`, `client.ts`, `wire.ts`). Every app
+message rides in a small envelope: whole messages, ordered chunks for anything
+near PeerJS' 16 KB frame limit (a full `RoomState` often is), heartbeats and
+goodbyes. A frame goes out at least every 2 s each way and a link silent for 10 s
+is dead; hints (ICE `failed`, ICE `disconnected` for 3 s, a network change, a thawed
+tab) arm a 5 s probe so a dead path is noticed sooner. Both sides send `bye 'away'`
+on `pagehide`, so a closed tab is noticed at once. The host caps client frames
+(`UPSTREAM_LIMITS`: 8 chunks / 64 K characters) and drops oversized connections.
 
-## 5. Dev workflow (parallel team)
-- **Presentational vs connected**: screens are split into a pure `XxxView`
-  (props only: room state, me, now, callbacks) and a thin connected `XxxScreen`
-  that reads `useGame()` / `useHostNow()`. Views are previewable with
-  `src/dev/fixtures.ts` (realistic RoomState for every phase, `FX_NOW`).
-- **Labs**: throwaway preview pages as `lab/<name>.html` + `src/dev/<name>/…`
-  (served by the dev server at `/lab/<name>.html`, never part of the build).
-- **Dev servers side by side**: `UNSHUFFLE_VITE_CACHE=node_modules/.vite-<name> npx vite --port <port> --strictPort`.
-- **Headless tests**: Playwright with the installed Chrome (`chromium.launch({ channel: 'chrome' })`).
-  Pure TS logic can be run with bun: `/Users/tom/.local/share/mise/installs/bun/latest/bin/bun run file.ts`.
-- **Type-check**: `npx tsc -p tsconfig.app.json --noEmit`.
-- **Scripts that read the store** (`page.evaluate(() => import('/src/game/store.ts'))`,
-  e.g. `scripts/qa-multiplayer/*`) need a dev server that has not hot-updated since it
-  started: after an HMR update the app imports `store.ts?t=…` and the script's
-  plain URL loads a second, idle store instance (it reads `role: 'none'`). Restart
-  the dev server after editing `src/`, before running them.
+- **Client**: join deadline 12 s; an unknown code → `NetError('room-not-found')`.
+  After a drop it reconnects with the same PeerJS id: fast retries for 30 s of
+  visible time, then one attempt every 5 s up to 3 minutes (20 min wall clock), so
+  a phone host that switched apps is picked up again. The terminal `closed` status
+  carries a reason: `host-gone` (the signaling server reported the host's id as
+  missing for 10 s), `host-closed`, `rejected`, `dropped`, `gave-up`.
+- **Host**: on `unavailable-id` it picks another code (or keeps retrying its own
+  for ~11 s when reclaiming after a reload). A signaling drop → `peer.reconnect()`;
+  a socket it has reason to doubt (all clients timed out, frozen timers, back
+  online, visible after ≥ 20 s hidden) is quietly recycled, at most once per 10 s.
+  Data channels survive signaling drops.
+- **Configuration** (`net/peer.ts`, whose header lists every variable):
+  `VITE_PEERJS_*` for the signaling server, `VITE_TURN_CREDENTIALS_URL` /
+  `VITE_TURN_URLS` + credentials for TURN. ICE order: STUN, fetched TURN, static
+  TURN. Runtime credentials are fetched in the background by `preloadTransport`
+  (Home) and before create/join (waiting at most 2.5 s), cached until they expire,
+  and refreshed in place on a long-lived host's Peers. Every ICE server is
+  validated first: a malformed entry would make `RTCPeerConnection` throw for every
+  connection, so it is dropped with a `[net] …` console warning.
+- PeerJS itself (~100 kB) and the host side are lazy chunks.
 
----
+## Host: `HostGame` (`game/host.ts`)
 
-## 6. Integration & end-to-end checks
-- **App shell** (`src/App.tsx`, `components/shell/**`): mounts the shader, the
-  screen router (Home · Lobby · Round · Final, chosen from store state), floating
-  reactions, sound controls, connection/resume overlays and toasts — once. Screens
-  never mount these themselves (exception: `<SoundControls placement="inline" />`
-  in the lobby header, the play HUD, the reveal header and the final header — any
-  inline one hides the floating control; `shellState.floatingDock` therefore
-  returns `hidden` on the final screen). The floating top-right control belongs
-  to the page's header area: it slides away (inert, popover closed) as soon as the
-  live screen scrolls down and comes back at the top (`shell/screenScroll.ts`).
-- **HUD opt-in** (`data-shell-hud`): a screen marks its pinned HUD with
-  `data-shell-hud` (both `PlayHud` variants do; the fallback is
-  `[data-round-view="playing"] > header`, so keep PlayView's root
-  `data-round-view="playing"` with the HUD header as its first child). The shell
-  measures it (`shell/hudInset.ts`) and stacks toasts and the reconnect banner
-  under it, so round, score and timer stay readable. On the cramped play screen
-  (phones, short landscape) at most one toast shows, and join/leave/kick toasts
-  are held back while playing.
-- **Toasts on the round screen**: `first-submit` / `submitted` are not toasted
-  (the FirstSubmitBanner and the HUD ✓ badges say it already).
-- **Audio-unlock cue**: on every in-room screen, if the AudioContext is still
-  locked after 1.2 s of visible time with an open link, `ToastLayer` shows a
-  persistent "Tocca/Clicca per ascoltare" toast (on the reveal: "…la canzone").
-  Any tap removes it and calls `audioEngine.unlock()`; it can come back after a
-  later interruption.
-- **Connection overlay**: one Modal goes lost → retrying → failed ("Stanza non più
-  disponibile", only "Torna alla home"). `STORE_MESSAGES.hostGone` / host left /
-  closed skip straight to "L’host ha lasciato la partita" (lobby: "L’host ha chiuso
-  la stanza") with no Riprova. The reconnect banner sits under the HUD; after 30 s
-  it reads "L’host non risponde" and offers a small non-blocking **Esci**, while the
-  transport keeps retrying for up to 3 min (a phone host may come back).
-  Copy is picked by context (lobby / game / final) in `shell/connectionCopy.ts`.
-- **Install prompt**: the app is installable (manifest + icons); while in a room
-  `useInstallPromptGuard` suppresses Chrome's `beforeinstallprompt` mini-infobar so
-  it never covers a docked CTA.
-- **Audio memory**: the store decodes only the current and the next round,
-  prefetches later previews as compressed Blob URLs, and evicts decoded buffers and
-  blobs of finished rounds (everything on lobby/final).
-- **Resume**: a client reloading its tab retries "room not found" for ~15 s,
-  so a host reloading at the same time is picked up again.
-- **E2E**: `node scripts/e2e/smoke.mjs` (dev server on :5220) plays a full real
-  2-player game over the public PeerJS cloud — desktop host + touch phone guest,
-  3 rounds, reveal, podium, Rigioca — and screenshots every phase for both
-  (`scripts/e2e/shots/`). `CHAOS=1` also reloads both tabs mid-round.
-  `node scripts/e2e/static.mjs` (after `npm run build`, `vite preview` on :5221;
-  `SUBPATH=1` adds a deep sub-path) checks the production build: home, the
-  analysis worker chunk, a solo game with waveforms. `node scripts/e2e/check-bundle.mjs`
-  asserts no `lab/` / `src/dev/` code reaches `dist/`.
-- **Page head** (`index.html` + `vite.config.ts`): `index.html` holds the static
-  tags (viewport, theme colour, icons, `manifest.webmanifest`, `og:` text). The
-  `unshuffle:head-tags` plugin in `vite.config.ts` adds the rest at build time:
-  `<link rel=preload>` for the emitted latin Unbounded + Manrope files (looked up
-  in the bundle, so they always match the CSS's hashed URLs), `preconnect` /
-  `dns-prefetch` for the signaling server (from `VITE_PEERJS_*`, same rules as
-  `net/peer.ts`), the TURN credentials endpoint and Deezer, and the `og:image` tags
-  (absolute with `VITE_SITE_URL`). Keep every URL relative (`./`): the build must
-  work from any sub-path. `index.html` also carries a tiny inline boot screen
-  (`#boot`, right after `#root`) for the gap between the stylesheet and React's
-  first render on slow connections; `#root:not(:empty) + #boot` hides it, so the
-  shell must render into `#root` at once and nothing may be inserted between the two.
-- **Tailwind sources**: `src/index.css` scans only `src/` and `lab/`. Scanned files
-  become watch dependencies, and editing one outside the module graph (it used to
-  be `README.md`, reports in `scripts/`…) full-reloads every open dev page.
-  `node scripts/e2e/reload.mjs` checks that a host and a guest reloading at the
-  same moment both land back in the room.
+Runs only in the host's tab, loaded with `import('./host')` when a room is
+created. It owns the `RoomState`, applies `ClientMsg`s, broadcasts state
+(coalesced to ≤ 20/s, phase changes at once) and emits events. Every side effect
+(Deezer, audio, analysis, clock, timers) goes through injectable `HostGameDeps`,
+so the whole machine runs headless in the unit tests.
+
+- **Start**: `getPlaylistTracks` → `pickGameTracks(rounds + 4 spares)` (popular
+  tracks favoured, one per artist where possible). The tracks are broadcast at
+  once so every peer starts prefetching, then round 0 is prepared: download →
+  `analyzeAndCut(buffer, snippets)` → segments, `scrambledOrder`, random hues. A
+  track that fails to download or cut (30 s per step) is replaced by a spare; if
+  every analysis fails, an even split of decoded audio is used. Round r + 1 is
+  prepared in the background while round r is played.
+- **Ready wait**: once a round is published the host waits until every reachable
+  active player sent `ready`, or `READY_TIMEOUT_MS` (15 s), then `intro` → `playing`.
+- **Submit**: the first confirm pulls `endsAt` in to now + final timer (only if
+  sooner) and emits `first-submit`, except a submit of the untouched initial
+  board, which never starts the final timer. When every present active player has
+  confirmed, the round ends at once. `arrange` / `submit` arriving up to
+  `ARRIVAL_GRACE_MS` (400 ms) after `endsAt` still count, and a confirm inside that
+  grace is timed at the deadline.
+- **Catch-up**: timers in a hidden tab fire late or not at all, so the host
+  remembers its next timeline step and runs any overdue one before handling a
+  message or a wake event (`visibilitychange`, `pageshow`, `focus`, `online`).
+- **Players**: a `hello` with a known id re-attaches the seat and score. Each
+  hello carries a private `secret` (localStorage, never broadcast); the host binds
+  a seat to the first secret it sees, so a copied id is rejected `duplicate`. Late
+  joiners get `activeFromRound = current + 1` and spectate until then. At most
+  `MAX_PLAYERS` (10). In the lobby a dropped player is removed after 15 s
+  (`LOBBY_GRACE_MS`) and announced only if still gone after 3.5 s
+  (`LEFT_NOTICE_MS`, a reload re-attaches sooner). In game a dropped link keeps its
+  seat silently for 12 s (`DISCONNECT_GRACE_MS`), then shows as disconnected;
+  players who leave without having played are removed. Leave and kick are
+  immediate.
+- **Host reload**: the state is snapshotted to sessionStorage (at most 10 minutes
+  old to resume). A reloaded host reclaims its code and continues, waiting
+  `RESTORE_GRACE_MS` (12 s) for the players who were connected.
+
+## Client store: `useGame` (`game/store.ts`)
+
+One zustand store for both roles; connections, timers and prefetch bookkeeping
+live in a module-level session object so callbacks from an old room are ignored.
+
+- **Host role**: creates the `HostServer` and `HostGame` in parallel; state
+  updates from `HostGame` set `room` directly.
+- **Client role**: `joinRoom` → `hello` → `welcome`; `state` → `room`; a ping every
+  2 s feeds the clock offset. After a reconnect the store re-sends `hello`, then
+  anything queued while offline (a pending arrangement, a confirm).
+- **Arrangement**: reset to `initialOrder` at each round start, sent on every drop
+  (changes less than 100 ms apart are merged, except in the last 2 s of a round)
+  and saved to sessionStorage so a reload continues the board.
+- **Audio**: only the current and the next round are decoded (a decoded preview is
+  ~11 MB of PCM); later previews are prefetched as compressed Blob URLs
+  (`game/prefetch.ts`, one at a time, only while nothing decodes). Finished rounds
+  are evicted. Buffer keys are always `track:${trackId}`. A client sends `ready`
+  once the current round is decoded.
+- **Session**: the profile persists in localStorage (random default name like "DJ
+  Pinguino"); the hash follows the room (`#/r/CODE`). After a reload
+  `resumeSession` rejoins, retrying "room not found" for 15 s so a host reloading
+  at the same moment is found again. Errors are Italian and user-facing.
+
+## Audio
+
+**Engine** (`audio/engine.ts`). One lazy `AudioContext`, pre-created (suspended)
+at idle after first paint on Chromium, where creating it blocks the main thread
+for ~180 ms. `unlock()` resumes it on a gesture and alone claims the audio session
+(`navigator.audioSession.type = 'playback'`, or a looping silent `<audio>` on iOS
+< 17); on Home, `useSoftAudioUnlock()` makes other taps only wake the context.
+Graph:
+
+```
+source → fade gain → loudness trim → music bus → analyser → duck → master ─┐
+SFX bus → SFX volume ──────────────────────────────────────────────────────┴→ limiter → out
+```
+
+Every decoded track is measured once (BS.1770 integrated loudness) and trimmed
+towards −14 LUFS (−12 / +6 dB, boosts never push the peak above −1 dBFS). A
+lookahead scheduler (25 ms tick, ~1 s ahead, 2.5 s while hidden) plays snippet
+sequences, asking for the segment at each position every tick, so reordering
+during play-all changes the snippets that haven't started. Contiguous joins are
+sample-exact with no fade, so the right order sounds exactly like the original;
+other joins get a 4 ms fade. `getLevels()` (bass/mid/treble/energy + beat pulse)
+feeds the visuals, delayed by the output latency. `PlaybackState.pending` means
+playback started while the context isn't running yet (the UI shows "tocca per
+ascoltare").
+
+**Analysis** (`audio/analysis/`). `analyzeAndCut(buffer, n)` returns a `CutPlan`
+of exactly `n` contiguous segments. The main thread sends the mono mix plus the
+stereo side channel `(L − R)/2` to a module worker (its own chunk); if the worker
+fails, the same pure pipeline runs on the main thread. It never rejects: the last
+resort is an even split. The pipeline (`pipeline.ts`, deterministic):
+
+1. log-mel spectral-flux onset envelopes, full band and low band (46 ms window,
+   ~86 frames/s), on a decimated signal;
+2. usable region: trims silence and fade-in / fade-out;
+3. tempo: autocorrelation through a comb, log-Gaussian prior around 120 BPM
+   (58–205), octave errors resolved with beat-level evidence;
+4. dynamic-programming beat tracking (Ellis 2007);
+5. a centred held-note track (`vocal.ts`, needs the side channel) to avoid
+   cutting through a sung note;
+6. meter (4/4 unless a 3- or 5-beat bar is clearly better), downbeat phase and a
+   structural-novelty curve;
+7. boundary DP over beat / bar candidates: per-snippet length deviation, metrical
+   strength, novelty, held notes, plus a whole-plan balance penalty
+   (`7·(max/min − 1.5)²` above a 1.5 ratio) so snippets come out near-equal and on bar lines when
+   possible. Weak beat confidence falls back to onset candidates;
+8. each boundary snapped a few ms before the nearest attack, onto a quiet point.
+
+**Realign** (`realign.ts`). Browsers decode the same MP3 with different offsets
+(WebKit ≈ 12 ms earlier than Chrome), so on an iPhone the host's cuts would land
+just after each attack. Every peer re-snaps the host's boundaries onto its own
+decode (one shared shift, ±30 ms max) and keeps them unchanged when the evidence
+is weak. Only playback times move, never segment identity, so scoring is
+unaffected. Everything that plays or draws a round's segments goes through
+`useLocalSegments(trackKey, segments)` (`components/board`).
+
+**Waveforms**: `peaks.ts` caches peaks per buffer range; `board/waveLevels.ts`
+maps RMS dB between the track's own p5 and p99.5 (γ 1.6), so blocks of the same
+song look different while loudness still compares across them. `sfx.ts`
+synthesises the UI sounds on their own bus.
+
+## UI
+
+**Shell** (`App.tsx`, `components/shell/`). Mounted once: the shader background,
+`ScreenRouter` (cross-fading full-viewport screen frames, each with its own error
+boundary), floating reactions, sound controls, the connection and resume
+overlays, and toasts. Optional chrome sits behind quiet error boundaries so it
+can't take a game down.
+
+- A screen marks its pinned HUD with `data-shell-hud` (fallback:
+  `[data-round-view="playing"] > header`); `hudInset.ts` measures it and toasts and
+  the reconnect banner stack under it.
+- The connection overlay moves lost → retrying → failed; a host that left or
+  closed the room skips straight to the final message. Copy depends on where the
+  player was (`connectionCopy.ts`).
+- While in a room, an AudioContext still locked after 1.2 s shows a persistent "Tocca
+  per ascoltare" toast; `useInstallPromptGuard` suppresses Chrome's install
+  mini-infobar so it never covers a docked button.
+
+**Board** (`components/board/`). dnd-kit (`@dnd-kit/core` + `sortable`,
+`rectSortingStrategy`) with a pointer sensor that activates after 4 px (mouse) or
+10 px (touch/pen); keyboard drag with space and arrows. Tap plays one snippet,
+long-press (450 ms) or Shift+Enter plays from that position. Blocks use
+`touch-action: none`, locked ones `pan-x pan-y` so the reveal still scrolls. The
+reveal drives the board from outside (`marks`, `labels`, `highlight`,
+`onTapSegment`). DOM hooks the shell and the e2e suites use: `.sb-item[data-seg]`,
+`[data-screen-frame][data-screen]`, `[data-round-view]`, `[data-phase]`.
+
+**Background** (`components/background/`). A fixed WebGL2 canvas (WebGL1, then a
+CSS gradient, as fallbacks): domain-warped neon plasma reacting to
+`audioEngine.getLevels()`, accents from `useBackground` (album colours on the
+reveal). It starts after first paint and compiles without blocking; 60 fps while
+something reacts, 30 fps after 1 s of quiet; adaptive quality levels with a cost
+model, and weak devices start one level down.
+
+**Design system** (`components/ui/`, tokens in `src/index.css` `@theme`).
+"GeoGuessr × neon club": Unbounded for display type, Manrope for text, JetBrains
+Mono for numbers; colour tokens `ink-*`, `violet`, `magenta`, `cyan`, `lime`,
+`gold`, `coral`, `orange`. `backdrop-filter` costs about 5 % GPU per frame, so
+only short-lived overlays use `glass` (real blur); in-flow panels use
+`glass-flat` and docks / sticky bars `glass-dock`. On coarse pointers `btn-sm` and
+the `hit-slop` utility add an invisible 6 px hit area; the `short:` variant targets
+landscape phones (`max-height: 500px`). Motion via `motion/react`, honouring
+`prefers-reduced-motion`.
+
+## Build and page head
+
+`vite.config.ts`: relative base, ES-module worker, source maps, and the
+`unshuffle:head-tags` plugin, which adds the font preloads (the hashed latin
+Unbounded + Manrope files of the build), `preconnect` / `dns-prefetch` for the
+signaling server, the TURN credentials endpoint and Deezer, and the `og:image`
+tags (absolute when `VITE_SITE_URL` is set). `index.html` holds the static tags
+and a tiny inline boot screen (`#boot`, right after `#root`, hidden by
+`#root:not(:empty) + #boot`), so nothing may be inserted between the two. Tailwind
+scans only `src/` (`source('../src')`).
+
+## Working on the code
+
+- `npm run dev`, `npm run build`, `npm run typecheck`, `npm run lint` (oxlint),
+  `npm test` (bun, `tests/unit/`); end-to-end suites in `tests/e2e/`. See
+  README → Tests.
+- TypeScript is strict, with `verbatimModuleSyntax` (use `import type`),
+  `erasableSyntaxOnly` (no `enum`, namespaces or constructor parameter
+  properties) and `noUnusedLocals` / `noUnusedParameters`.
+- Functional components and hooks, named exports, Tailwind utilities first (small
+  CSS files next to a component for keyframes, masks and the like). Use the design
+  tokens rather than new hex colours (computed snippet hues and album accents
+  aside).
+- Everything degrades gracefully: a failed track → a spare, no WebGL → a gradient,
+  no audio → a playable UI with an error toast, blocked storage → no persistence.

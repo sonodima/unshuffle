@@ -21,7 +21,7 @@ import { clampCount, isValidPlan, uniformPlan } from './plan'
 import type { AnalyzeRequest, AnalyzeResponse } from './protocol'
 import type { CutPlan } from './types'
 
-export type { CutMethod, CutPlan, CutSegment } from './types'
+export type { CutPlan } from './types'
 
 /** A worker that doesn't answer within this time is abandoned for the main thread. */
 const WORKER_TIMEOUT_MS = 20000
@@ -86,11 +86,10 @@ function getWorker(): Worker | null {
 }
 
 /**
- * Side channel (L − R) / 2 of a stereo buffer, or null (mono, or unreadable).
+ * Side channel (L − R) / 2 of a stereo buffer, or null (mono, dual-mono or unreadable).
  * It lets the cutter tell a centred (sung) held note from wide pads / guitars.
  */
-/** Side channel (L − R) / 2 of a stereo buffer, null for mono or dual-mono input. */
-export function sideOf(buffer: AudioBuffer): Float32Array | null {
+function sideOf(buffer: AudioBuffer): Float32Array | null {
   try {
     if (buffer.numberOfChannels < 2) return null
     const l = buffer.getChannelData(0)
@@ -198,4 +197,3 @@ export function analyzeAndCut(buffer: AudioBuffer, n: number): Promise<CutPlan> 
 }
 
 export { alignCuts, realignSegments } from './realign'
-export type { CutAlignment, TimeSpan } from './realign'

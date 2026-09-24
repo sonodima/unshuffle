@@ -4,7 +4,7 @@
 
 import { convolveSymmetric, gaussianKernel, maxIn, parabolicOffset } from './dsp'
 
-export interface BeatTrackOptions {
+interface BeatTrackOptions {
   /** Higher = stricter tempo (librosa default 100). */
   tightness?: number
   /**
@@ -133,7 +133,7 @@ export function extendGrid(beats: number[], period: number, from: number, to: nu
 }
 
 /** Median inter-beat interval. */
-export function medianInterval(beats: number[]): number {
+function medianInterval(beats: number[]): number {
   if (beats.length < 2) return 0
   const d = beats.slice(1).map((v, i) => v - beats[i]).sort((a, b) => a - b)
   return d[d.length >> 1]

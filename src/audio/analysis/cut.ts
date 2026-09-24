@@ -20,7 +20,7 @@ export interface Candidate {
   beat: number
 }
 
-export interface CutWeights {
+interface CutWeights {
   length: number
   short: number
   long: number
@@ -84,7 +84,7 @@ const BAR_BONUS = { phrase: 1.4, three: 1.25, other: 1, halves: 0.7, half: 0.4 }
 const BALANCE_CAPS = [1.2, 1.35, 1.5, 1.7, 1.9, 2.1, 2.6]
 const BALANCE_STEP = 0.05
 
-export interface CutProblem {
+interface CutProblem {
   candidates: Candidate[]
   n: number
   /** Usable region (seconds). */
@@ -100,7 +100,7 @@ export interface CutProblem {
   weights: CutWeights
 }
 
-export interface CutSolution {
+interface CutSolution {
   /** Indices into `candidates` of the n+1 boundaries (increasing). */
   path: number[]
   /** Total cost, balance penalty included. */
@@ -268,5 +268,3 @@ export function chooseBoundaries(p: CutProblem): CutSolution | null {
   }
   return best
 }
-
-export { uniformBoundaries } from './plan'

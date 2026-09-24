@@ -18,9 +18,6 @@ import { useCurrentScreen } from './shellState'
 import { toastForEvent } from './toastCopy'
 import type { ToastCopy, ToastCopyContext } from './toastCopy'
 
-export { splitMessage, toastForEvent } from './toastCopy'
-export type { ToastCopy, ToastCopyContext } from './toastCopy'
-
 /** Long titles wrap to two lines instead of being cut (the viewport truncates by default). */
 function toViewItem(copy: ToastCopy): ToastViewItem {
   const title: ReactNode = copy.title.length > 34 ? <span className="line-clamp-2 whitespace-normal">{copy.title}</span> : copy.title

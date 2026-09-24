@@ -17,7 +17,7 @@ export interface FirstSubmitInfo {
   secondsLeft: number
 }
 
-export interface FirstSubmitBannerProps {
+interface FirstSubmitBannerProps {
   /** null hides the banner (with its exit animation). */
   info: FirstSubmitInfo | null
   /** Phone HUD row (one-line title, ≤ 58px tall) instead of the wide HUD panel. */

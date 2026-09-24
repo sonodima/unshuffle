@@ -4,7 +4,7 @@ import { useCallback, useLayoutEffect, useRef } from 'react'
 import type { Segment } from '../../game/types'
 import { PLAY_ALL_TAG, recordScheduled, resetScheduled, useAudioBuffer, useBoardAudio, useEngineState } from './boardAudio'
 
-export interface PlayAllControls {
+interface PlayAllControls {
   /** Play-all of this track is running. */
   playing: boolean
   /** Audible position (0-based) while playing, else -1. */

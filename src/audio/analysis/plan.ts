@@ -11,7 +11,7 @@ export function clampCount(n: number): number {
 }
 
 /** Evenly spaced boundaries over [start, end]. */
-export function uniformBoundaries(start: number, end: number, n: number): number[] {
+function uniformBoundaries(start: number, end: number, n: number): number[] {
   const out: number[] = []
   for (let i = 0; i <= n; i++) out.push(start + ((end - start) * i) / n)
   return out

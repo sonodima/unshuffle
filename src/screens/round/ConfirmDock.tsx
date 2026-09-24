@@ -14,7 +14,7 @@ export type DockState = 'ready' | 'submitted' | 'timeup' | 'spectator'
 /** CONFERMA asks for a second press (the board is still the untouched shuffle, worth 0). */
 export type ConfirmArm = 'tap' | 'click' | 'key' | null
 
-export interface ConfirmDockProps {
+interface ConfirmDockProps {
   state: DockState
   /** Transport above a full-width CTA (phones) instead of side by side. */
   stacked: boolean

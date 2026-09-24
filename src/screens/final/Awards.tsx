@@ -29,7 +29,7 @@ const TONE: Record<AwardTone, { text: string; medal: string; glow: string }> = {
   },
 }
 
-export interface AwardsProps {
+interface AwardsProps {
   awards: Award[]
   me: PlayerId
   reduced: boolean

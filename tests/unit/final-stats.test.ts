@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test'
 import { computeFinalSummary, computeHeadline, formatAccuracy, joinNames } from '../../src/screens/final/stats'
-import { LAB_ROOMS } from '../fixtures/final'
+import { FINAL_ROOMS } from '../fixtures/final'
 import { fxFinal } from '../fixtures/room'
 import { scoreArrangement } from '../../src/game/scoring'
 import type { RoomState, RoundResult } from '../../src/game/types'
 
 test('final: standings, awards, headline', () => {
-  const s = computeFinalSummary(LAB_ROOMS.final)
+  const s = computeFinalSummary(FINAL_ROOMS.final)
   console.log(s.standings.map((x) => `${x.rank} ${x.player.name} ${x.score} perf=${x.perfectRounds} acc=${formatAccuracy(x, s.snippets)} avg=${x.avgConfirmMs} to=${x.timeouts}`))
   console.log(s.awards.map((a) => `${a.title}: ${a.winners.map((w) => w.name)} ${a.value}`))
   console.log(s.rounds.map((r) => `${r.index} ${r.track?.title} top=${r.topIds}`))
@@ -19,16 +19,16 @@ test('final: standings, awards, headline', () => {
 })
 
 test('variants', () => {
-  for (const [k, room] of Object.entries(LAB_ROOMS)) {
+  for (const [k, room] of Object.entries(FINAL_ROOMS)) {
     const s = computeFinalSummary(room)
     console.log(k, JSON.stringify(computeHeadline(s, 'p-host')), s.awards.map((a) => `${a.title}:${a.winners.map((w) => w.name).join('+')}:${a.value}`).join(' | '))
   }
-  const tie = computeFinalSummary(LAB_ROOMS.tie)
+  const tie = computeFinalSummary(FINAL_ROOMS.tie)
   expect(tie.winners.length).toBe(2)
   expect(computeHeadline(tie, 'p-host').subtitle).toBe('Hai vinto insieme a Giulia')
   expect(computeHeadline(tie, 'p-3').subtitle).toBe('Tommy e Giulia vincono a pari merito')
-  expect(computeHeadline(computeFinalSummary(LAB_ROOMS.zero), 'p-host').tone).toBe('zero')
-  expect(computeHeadline(computeFinalSummary(LAB_ROOMS.solo), 'p-host').tone).toBe('solo')
+  expect(computeHeadline(computeFinalSummary(FINAL_ROOMS.zero), 'p-host').tone).toBe('zero')
+  expect(computeHeadline(computeFinalSummary(FINAL_ROOMS.solo), 'p-host').tone).toBe('solo')
   expect(joinNames(['a', 'b', 'c'])).toBe('a, b e c')
   const fx = computeFinalSummary(fxFinal)
   expect(fx.rounds.length).toBe(5)
@@ -45,7 +45,7 @@ function withTotals(room: RoomState): RoomState {
 }
 
 test('solo at zero: singular headline, no awards', () => {
-  const room = withTotals({ ...LAB_ROOMS.solo, results: LAB_ROOMS.solo.results.map((r) => r.map((x) => res(x.playerId, MESS, 2800))) })
+  const room = withTotals({ ...FINAL_ROOMS.solo, results: FINAL_ROOMS.solo.results.map((r) => r.map((x) => res(x.playerId, MESS, 2800))) })
   const s = computeFinalSummary(room)
   expect(s.standings[0].score).toBe(0)
   expect(computeHeadline(s, 'p-host')).toEqual({ title: 'Zero punti!', subtitle: 'Riprova: la prossima la rimetti in ordine.', tone: 'zero' })
@@ -53,19 +53,19 @@ test('solo at zero: singular headline, no awards', () => {
 })
 
 test('solo with points: solo headline, no comparative awards', () => {
-  const s = computeFinalSummary(LAB_ROOMS.solo)
+  const s = computeFinalSummary(FINAL_ROOMS.solo)
   expect(computeHeadline(s, 'p-host').tone).toBe('solo')
   expect(s.awards).toEqual([])
 })
 
 test('several players at zero still say "Tutti a zero!"', () => {
-  const h = computeHeadline(computeFinalSummary(LAB_ROOMS.zero), 'p-host')
+  const h = computeHeadline(computeFinalSummary(FINAL_ROOMS.zero), 'p-host')
   expect(h.title).toBe('Tutti a zero!')
   expect(h.tone).toBe('zero')
 })
 
 test('awards need at least two players who actually played', () => {
-  const duo = LAB_ROOMS.duo
+  const duo = FINAL_ROOMS.duo
   // Giulia joined too late to play any round.
   const room = withTotals({ ...duo, results: duo.results.map((r) => r.filter((x) => x.playerId === 'p-host')) })
   const s = computeFinalSummary(room)
@@ -74,7 +74,7 @@ test('awards need at least two players who actually played', () => {
 })
 
 test('Fulmine ignores instant 0-point confirms', () => {
-  const base = LAB_ROOMS.final
+  const base = FINAL_ROOMS.final
   // DJ Pinguino confirms the untouched board after 2.6 s every round.
   const room = withTotals({ ...base, results: base.results.map((r) => r.map((x) => (x.playerId === 'p-3' ? res('p-3', MESS, 2600) : x))) })
   const s = computeFinalSummary(room)
@@ -89,7 +89,7 @@ test('Fulmine ignores instant 0-point confirms', () => {
 })
 
 test('a round scored with points counts toward Fulmine, timeouts never do', () => {
-  const s = computeFinalSummary(LAB_ROOMS.final)
+  const s = computeFinalSummary(FINAL_ROOMS.final)
   for (const row of s.standings) {
     if (row.avgScoringConfirmMs != null) expect(row.avgConfirmMs).not.toBeNull()
   }

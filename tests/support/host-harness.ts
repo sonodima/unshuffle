@@ -10,7 +10,7 @@ import type { ConnStatus, HostServer } from '../../src/net/transport'
 export const T0 = 1_800_000_000_000
 
 /** Drain the microtask queue (and promise chains) completely. */
-export async function drain(): Promise<void> {
+async function drain(): Promise<void> {
   for (let i = 0; i < 6; i++) await new Promise<void>((resolve) => setImmediate(resolve))
 }
 
@@ -158,7 +158,7 @@ export function profile(id: string, name: string, avatar = 1, color = 2): Player
   return { id, name, avatar, color }
 }
 
-export function makeTrack(id: number): TrackInfo {
+function makeTrack(id: number): TrackInfo {
   return {
     id,
     title: `Canzone ${id}`,
@@ -182,11 +182,11 @@ export interface FakeBuffer {
   trackId: number
 }
 
-export function fakeBuffer(trackId: number, duration = 30): AudioBuffer {
+function fakeBuffer(trackId: number, duration = 30): AudioBuffer {
   return { duration, trackId } as FakeBuffer as unknown as AudioBuffer
 }
 
-export function uniformPlan(duration: number, n: number, bpm = 120): CutPlan {
+function uniformPlan(duration: number, n: number, bpm = 120): CutPlan {
   const start = 0.5
   const step = (duration - 1) / n
   const segments = Array.from({ length: n }, (_, i) => ({ start: start + i * step, end: start + (i + 1) * step, beats: 8 }))

@@ -1,4 +1,4 @@
-// Unit tests for the net fixes that don't need a browser:
+// Unit tests for the parts of the net layer that don't need a browser:
 //   bun test tests/unit/net.test.ts
 import { describe, expect, test } from 'bun:test'
 import { DOWNSTREAM_LIMITS, Reassembler, UPSTREAM_LIMITS, encodeMessage } from '../../src/net/wire'
@@ -20,7 +20,7 @@ function feed(rx: Reassembler, frames: ReturnType<typeof framesOf>) {
 describe('Reassembler limits', () => {
   test('real client messages pass the upstream limits', () => {
     const rx = new Reassembler(UPSTREAM_LIMITS)
-    // A 5000-number arrange (the net lab's "big upstream" case) is ~24 K chars.
+    // A 5000-number arrange is ~24 K chars.
     const order = Array.from({ length: 5000 }, (_, i) => i)
     const got = feed(rx, framesOf({ t: 'arrange', round: 1, order }))
     expect(got).toEqual([{ value: { t: 'arrange', round: 1, order } }])

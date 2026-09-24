@@ -12,9 +12,6 @@ import { afterBootIdle } from './idle'
 import { ONBOARDED_KEY, hasFlag, inviteCodeFromHash, setFlag } from './invite'
 import type { ProfilePatch } from './ProfileCard'
 
-export { HomeView } from './HomeView'
-export type { HomeViewProps, HomePending } from './HomeView'
-
 const ONBOARDING_DELAY_MS = 1400
 /** Earliest background warm-up of PeerJS (after the boot work and the first keystrokes). */
 const WARMUP_DELAY_MS = 3000

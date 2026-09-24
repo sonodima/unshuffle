@@ -10,7 +10,7 @@ import { dzCoverSize } from './dzImage'
 import { SectionHeading } from './SectionHeading'
 import type { RoundRow } from './stats'
 
-export interface SongsProps {
+interface SongsProps {
   rounds: RoundRow[]
   reduced: boolean
   className?: string

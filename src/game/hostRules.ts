@@ -22,9 +22,9 @@ import type {
 
 export { isPermutation }
 
-export const DEFAULT_PLAYER_NAME = 'Giocatore'
+const DEFAULT_PLAYER_NAME = 'Giocatore'
 /** Shortest snippet we accept from the analysis (seconds). */
-export const MIN_SEGMENT_SEC = 0.4
+const MIN_SEGMENT_SEC = 0.4
 /** Max gap/overlap tolerated between two analysis segments before they count as non-contiguous. */
 const CONTIGUITY_EPS_SEC = 0.002
 
@@ -68,7 +68,7 @@ export function sanitizeProfile(raw: unknown): PlayerProfile | null {
 }
 
 /** The option closest to `value` (ties → the smaller one); `fallback` when value isn't a number. */
-export function snapToOption(value: unknown, options: readonly number[], fallback: number): number {
+function snapToOption(value: unknown, options: readonly number[], fallback: number): number {
   if (!isFiniteNumber(value) || options.length === 0) return fallback
   let best = options[0]
   for (const option of options) if (Math.abs(option - value) < Math.abs(best - value)) best = option
@@ -85,7 +85,7 @@ function cleanText(raw: unknown, max: number): string {
 }
 
 /** A sane PlaylistRef, null for an explicit null, undefined when the input is unusable. */
-export function sanitizePlaylist(raw: unknown): PlaylistRef | null | undefined {
+function sanitizePlaylist(raw: unknown): PlaylistRef | null | undefined {
   if (raw === null) return null
   if (!isRecord(raw)) return undefined
   const id = raw.id
@@ -226,7 +226,7 @@ export function planBpm(plan: CutPlan | unknown): number {
 }
 
 /** Ranking inside a round: points desc, then faster confirm first, then player id for stability. */
-export function rankResults(results: readonly RoundResult[]): RoundResult[] {
+function rankResults(results: readonly RoundResult[]): RoundResult[] {
   return [...results].sort((a, b) => b.points - a.points || a.timeMs - b.timeMs || (a.playerId < b.playerId ? -1 : 1))
 }
 

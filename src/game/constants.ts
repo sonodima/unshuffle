@@ -1,6 +1,5 @@
 import type { GameSettings } from './types'
 
-export const GAME_NAME = 'UNSHUFFLE'
 /** Bump when the wire protocol changes incompatibly. */
 export const PROTOCOL_VERSION = 1
 /** Prefix for host peer ids on the public PeerJS server (namespaces our rooms). */

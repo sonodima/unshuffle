@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RevealTimeline } from './model'
 
-export interface RevealProgress {
+interface RevealProgress {
   board: boolean
   /** Positions whose ✓/✗ is visible (0..n). */
   marks: number

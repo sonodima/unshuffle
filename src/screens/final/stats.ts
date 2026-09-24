@@ -1,6 +1,6 @@
 // Pure derivations for the final screen: standings, per-round matrix, awards and
-// the headline. Only plain RoomState data in, plain data out, so the view can be
-// driven by fixtures and this file can be tested headless.
+// the headline. Only plain RoomState data in, plain data out, so this file can be
+// tested headless.
 
 import { MAX_ROUND_POINTS } from '../../game/constants'
 import { compareStanding } from '../../game/standing'
@@ -204,7 +204,7 @@ function best(rows: PlayerSummary[], metric: (s: PlayerSummary) => number | null
 }
 
 /** Awards compare players: none when fewer than two of them actually played. */
-export function computeAwards(standings: PlayerSummary[], snippets: number | null): Award[] {
+function computeAwards(standings: PlayerSummary[], snippets: number | null): Award[] {
   const played = standings.filter((s) => s.roundsPlayed > 0)
   const awards: Award[] = []
   if (played.length < 2) return awards

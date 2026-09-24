@@ -4,7 +4,7 @@ import type { PlaylistRef } from '../../game/types'
 import { Cover } from './PlaylistPicker'
 import { tracksWord } from './rules'
 
-export interface PlaylistHeroProps {
+interface PlaylistHeroProps {
   playlist: PlaylistRef | null
   isHost: boolean
   /** Host: "Cambia" pressed (focus the picker). Omit to hide the button. */
@@ -76,7 +76,7 @@ export function PlaylistHero({ playlist, isHost, onChange, layout = 'row', size,
   )
 }
 
-export interface PlaylistRecordProps {
+interface PlaylistRecordProps {
   playlist: PlaylistRef | null
   /** Sleeve (cover) size in px. */
   sleeve: number

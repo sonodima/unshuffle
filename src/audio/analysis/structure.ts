@@ -6,7 +6,7 @@
 import { maxIn, mean, zscore } from './dsp'
 import type { Features } from './features'
 
-export interface BeatFeatures {
+interface BeatFeatures {
   /** Kick (low-band flux) at each beat. */
   kick: Float32Array
   /** Snare / clap (high-band flux) at each beat. */
@@ -202,7 +202,7 @@ export function estimateBarPhase(bf: BeatFeatures, novelty?: Float32Array, beats
   return { phase: best, confidence, halfBarConfidence, scores }
 }
 
-export interface Meter {
+interface Meter {
   /** 4, or 3 / 5 when the music clearly repeats every 3 / 5 beats. */
   beatsPerBar: number
   /** Periodicity evidence per candidate bar length (3, 4, 5). */

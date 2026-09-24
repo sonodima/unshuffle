@@ -7,11 +7,9 @@ import { audioEngine } from '../../audio/engine'
 import type { AudioEngine, AudioLevels } from '../../audio/engine'
 import { toHex } from './color'
 import { resolveAccents, startBackground } from './runtime'
-import type { BackgroundRuntime, BackgroundStats } from './runtime'
+import type { BackgroundRuntime } from './runtime'
 import { useBackground } from './useBackground'
 import './background.css'
-
-export type { BackgroundStats } from './runtime'
 
 export interface ShaderBackgroundProps {
   /** Level source, read every frame. Default: `audioEngine.getLevels()` (silence when unavailable). */
@@ -24,8 +22,6 @@ export interface ShaderBackgroundProps {
   forceFallback?: boolean
   /** Animated film grain overlay (default true). */
   grain?: boolean
-  /** Diagnostics, ~1/s (WebGL mode only). Pass it on mount to also get GPU timings. */
-  onStats?: (stats: BackgroundStats) => void
   className?: string
 }
 
@@ -201,7 +197,6 @@ export function ShaderBackground({
   reducedMotion,
   forceFallback = false,
   grain = true,
-  onStats,
   className,
 }: ShaderBackgroundProps) {
   const hostRef = useRef<HTMLDivElement>(null)
@@ -214,12 +209,11 @@ export function ShaderBackground({
   const reduced = reducedMotion ?? prefersReduced
 
   // Latest props for the imperative loop (no restart on every render).
-  const live = useRef({ getLevels, reduced, onStats, paused })
+  const live = useRef({ getLevels, reduced, paused })
   useLayoutEffect(() => {
-    live.current = { getLevels, reduced, onStats, paused }
+    live.current = { getLevels, reduced, paused }
   })
   const [levelSource] = useState(() => () => (live.current.getLevels ?? engineLevels)())
-  const [measureGpu] = useState(() => !!onStats)
 
   const accentA = useBackground((s) => s.accentA)
   const accentB = useBackground((s) => s.accentB)
@@ -254,8 +248,6 @@ export function ShaderBackground({
             el.style.opacity = String(o)
           }
         },
-        onStats: (s) => live.current.onStats?.(s),
-        measureGpu,
       })
       rt.setPaused(live.current.paused)
       runtime = rt
@@ -267,7 +259,7 @@ export function ShaderBackground({
       runtime?.destroy()
       if (runtimeRef.current === runtime) runtimeRef.current = null
     }
-  }, [useCss, levelSource, measureGpu])
+  }, [useCss, levelSource])
 
   useEffect(() => {
     runtimeRef.current?.setPaused(paused)

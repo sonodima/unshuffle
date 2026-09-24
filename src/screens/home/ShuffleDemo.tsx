@@ -11,7 +11,7 @@ import './home.css'
 
 // ---------------------------------------------------------------- block
 
-export interface DemoBlockProps {
+interface DemoBlockProps {
   hue: number
   letter: string
   bars: number[]
@@ -155,7 +155,7 @@ const CAPTION: Record<DemoPhase, string> = {
   solved: 'Perfetto! Conferma per primo',
 }
 
-export interface ShuffleDemoProps {
+interface ShuffleDemoProps {
   /** Number of blocks. Default 8. */
   count?: number
   /** Grid columns. Default 4. */
@@ -307,7 +307,7 @@ export const ShuffleDemo = memo(function ShuffleDemo({ count = 8, columns = 4, p
 
 // ---------------------------------------------------------------- strip (phone)
 
-export interface DemoStripProps {
+interface DemoStripProps {
   count?: number
   paused?: boolean
   /** The user is idle: finish the current cycle, then rest on the solved board. */

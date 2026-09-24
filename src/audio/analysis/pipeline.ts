@@ -21,9 +21,9 @@ import type { BarPhase } from './structure'
 import { analyzeTempo, highpassOnset, MAX_BPM, MIN_BPM, salienceAt, tempoPrior } from './tempo'
 import type { CutMethod, CutPlan, CutSegment } from './types'
 
-export { clampCount, isValidPlan, uniformPlan } from './plan'
+export { isValidPlan } from './plan'
 
-export interface AnalysisInput {
+interface AnalysisInput {
   /** Mono samples at `sampleRate`. */
   samples: Float32Array
   /** Optional side channel ((L − R) / 2, same length): lets the cutter tell centred vocals from wide sounds. */
@@ -33,7 +33,7 @@ export interface AnalysisInput {
   n: number
 }
 
-export interface AnalysisDebug {
+interface AnalysisDebug {
   fps: number
   onsetShift: number
   /** High-passed, unit-std onset envelope (frame rate `fps`). */
@@ -54,13 +54,13 @@ export interface AnalysisDebug {
   timings: Record<string, number>
 }
 
-export interface AnalysisResult {
+interface AnalysisResult {
   plan: CutPlan
   debug?: AnalysisDebug
 }
 
 /** Minimum beat-grid confidence to cut on beats. */
-export const BEAT_CONFIDENCE_MIN = 0.35
+const BEAT_CONFIDENCE_MIN = 0.35
 const MIN_SEGMENT_SEC = 0.05
 /**
  * Metrical strength per bar position (4/4): bar line, beat 2, half bar, beat 4.
@@ -239,7 +239,7 @@ function timbreChange(f: Features, t: number): number {
   return d / nb
 }
 
-export function* analysisSteps(input: AnalysisInput, wantDebug = false): Generator<void, AnalysisResult, void> {
+function* analysisSteps(input: AnalysisInput, wantDebug = false): Generator<void, AnalysisResult, void> {
   const timings: Record<string, number> = {}
   let t0 = now()
   const mark = (name: string): void => {

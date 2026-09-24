@@ -11,7 +11,7 @@ import type { PlayerId, RoomState } from '../../game/types'
 import { RoundMenuContext, useRoundMenu } from './menuContext'
 import type { RoundMenuApi } from './menuContext'
 
-export interface RoundMenuProviderProps {
+interface RoundMenuProviderProps {
   room: RoomState
   me: PlayerId
   /** Leave the room (host: closes it for everyone). Without it there is no menu. */
@@ -137,7 +137,7 @@ function MenuOption({ icon, tone, title, body, onClick }: { icon: IconName; tone
   )
 }
 
-export interface GameMenuButtonProps {
+interface GameMenuButtonProps {
   size?: 'sm' | 'md'
   className?: string
 }

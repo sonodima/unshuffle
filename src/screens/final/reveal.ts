@@ -11,7 +11,7 @@ export interface Cue {
 }
 
 /** Seconds to wait (from now) so an element that just became visible respects the cue. */
-export function cueDelay(cue: Cue, stagger = 0): number {
+function cueDelay(cue: Cue, stagger = 0): number {
   const elapsed = (performance.now() - cue.mountedAt) / 1000
   return Math.max(0, cue.revealAt - elapsed) + stagger
 }

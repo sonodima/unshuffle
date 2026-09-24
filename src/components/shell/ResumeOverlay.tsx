@@ -12,7 +12,7 @@ const SHOW_AFTER_MS = 180
 /** "Annulla" appears once the wait starts to feel long. */
 const CANCEL_AFTER_MS = 3500
 
-export interface ResumeCardProps {
+interface ResumeCardProps {
   code: string | null
   role: 'host' | 'client' | null
   canCancel: boolean
@@ -20,7 +20,7 @@ export interface ResumeCardProps {
 }
 
 /** Presentational overlay (render inside AnimatePresence). */
-export function ResumeCard({ code, role, canCancel, onCancel }: ResumeCardProps) {
+function ResumeCard({ code, role, canCancel, onCancel }: ResumeCardProps) {
   return (
     <motion.div
       key="resume"

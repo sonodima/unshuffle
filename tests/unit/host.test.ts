@@ -1,9 +1,9 @@
 // HostGame state machine tests (bun test tests/unit/host.test.ts).
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 
-// The real modules are built concurrently by other engineers: keep them (and
-// any import-time side effects) out of these tests entirely. HostGame must
-// never call them when deps are injected — the mocks throw if it does.
+// Keep the real Deezer / audio modules (and any import-time side effects) out
+// of these tests entirely. HostGame must never call them when deps are
+// injected — the mocks throw if it does.
 const untouchable = (name: string) => () => {
   throw new Error(`real ${name} must not be called`)
 }
@@ -1101,9 +1101,6 @@ describe('host refresh recovery', () => {
     expect(w.game.state.phase.kind).toBe('lobby')
   })
 })
-
-// -----------------------------------------------------------------------------
-// QA round 2 fixes (see scripts/fix-game/PROGRESS.md)
 
 const SECRET_A = 'a'.repeat(32)
 const SECRET_B = 'b'.repeat(32)

@@ -9,7 +9,7 @@ import { FEATURED_PLAYLIST_IDS } from './playlistCategories'
 
 // ─── Errors ──────────────────────────────────────────────────────────────────
 
-export type DeezerErrorKind =
+type DeezerErrorKind =
   /** No answer within the timeout. */
   | 'timeout'
   /** The script request failed (offline, DNS, blocked by an ad blocker…). */
@@ -267,13 +267,8 @@ function request<T>(path: string, params: Record<string, string | number> | unde
  * calls share one request). Rejects with DeezerError on API error payloads,
  * script errors and timeouts; quota errors are retried once after 1.2 s.
  */
-export function dzGet<T>(path: string, params?: Record<string, string | number>, timeoutMs: number = DEFAULT_TIMEOUT_MS): Promise<T> {
+function dzGet<T>(path: string, params?: Record<string, string | number>, timeoutMs: number = DEFAULT_TIMEOUT_MS): Promise<T> {
   return request<T>(path, params, timeoutMs, true)
-}
-
-/** Drops every cached response (tests / manual refresh). */
-export function clearDeezerCache(): void {
-  cache.clear()
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -497,15 +492,6 @@ export function isDeezerShortLink(input: string): boolean {
   return SHORT_LINK.test(input.trim())
 }
 
-/**
- * parsePlaylistInput + getPlaylist. Resolves null when the input is not a
- * playlist link/id; rejects with DeezerError when the id does not exist.
- */
-export async function resolvePlaylistInput(input: string): Promise<PlaylistRef | null> {
-  const id = parsePlaylistInput(input)
-  return id === null ? null : getPlaylist(id)
-}
-
 // ─── Tracks ──────────────────────────────────────────────────────────────────
 
 const TRACKS_PAGE = 100
@@ -550,7 +536,7 @@ export async function getPlaylistTracks(id: number, max = 300): Promise<TrackInf
 }
 
 /** One track by id (cached unless `fresh`). Rejects with 'not-found' / 'no-preview' if it can't be played. */
-export async function getTrack(trackId: number, fresh = false): Promise<TrackInfo> {
+async function getTrack(trackId: number, fresh = false): Promise<TrackInfo> {
   if (!Number.isSafeInteger(trackId) || trackId <= 0) throw new DeezerError(MSG.trackNotFound, 'not-found')
   const path = `/track/${trackId}`
   let t: DzTrack

@@ -8,7 +8,7 @@ import { movingAverage, sampleAt } from './dsp'
 export const MIN_BPM = 58
 export const MAX_BPM = 205
 
-export interface TempoCandidate {
+interface TempoCandidate {
   bpm: number
   /** Beat period in onset frames (fractional). */
   period: number
@@ -18,7 +18,7 @@ export interface TempoCandidate {
   prior: number
 }
 
-export interface TempoAnalysis {
+interface TempoAnalysis {
   /** Normalised autocorrelation of the (high-passed) onset envelope. */
   acf: Float32Array
   bpms: Float32Array

@@ -5,7 +5,7 @@ import { Cover } from './Cover'
 import { SectionHeading } from './SectionHeading'
 import { formatPoints, type FinalSummary } from './stats'
 
-export interface RoundBreakdownProps {
+interface RoundBreakdownProps {
   summary: FinalSummary
   me: PlayerId
   className?: string

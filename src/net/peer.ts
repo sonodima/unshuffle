@@ -35,7 +35,7 @@
 // with a console warning and STUN / direct connectivity keep working.
 
 import type { DataConnection, Peer, PeerOptions } from 'peerjs'
-import { netLog, netStats, race } from './runtime'
+import { race } from './runtime'
 import { NET_TIMING } from './timing'
 
 export type PeerModule = typeof import('peerjs')
@@ -59,7 +59,6 @@ const envString = (key: string): string => (env[key] ?? '').trim()
 const warned = new Set<string>()
 /** Configuration problems are the deployer's to fix: say so once, in the console. */
 function warnOnce(message: string): void {
-  netLog('config', message)
   if (warned.has(message)) return
   warned.add(message)
   console.warn(`[net] ${message}`)
@@ -67,9 +66,7 @@ function warnOnce(message: string): void {
 
 // ---- signaling server --------------------------------------------------------
 
-export type SignalingOptions = Pick<PeerOptions, 'host' | 'port' | 'path' | 'key' | 'secure'>
-
-const CLOUD: Required<SignalingOptions> = { host: '0.peerjs.com', port: 443, path: '/', key: 'peerjs', secure: true }
+type SignalingOptions = Pick<PeerOptions, 'host' | 'port' | 'path' | 'key' | 'secure'>
 
 function parseBool(value: string): boolean | undefined {
   if (/^(1|true|yes|on)$/i.test(value)) return true
@@ -120,29 +117,7 @@ function signalingFromEnv(): SignalingOptions {
   return out
 }
 
-const ENV_SIGNALING = signalingFromEnv()
-let signaling: SignalingOptions = ENV_SIGNALING
-
-/** Debug / lab: point Peers created from now on at another PeerServer (null → build config). */
-export function setSignalingServer(options: SignalingOptions | null): void {
-  // Spread over PeerJS' defaults: an explicit `undefined` would erase them.
-  signaling = options
-    ? (Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined && v !== '')) as SignalingOptions)
-    : ENV_SIGNALING
-}
-
-/** The signaling server new Peers use, with PeerJS' defaults filled in (diagnostics). */
-export function getSignalingServer(): Required<SignalingOptions> {
-  if (!signaling.host) return { ...CLOUD }
-  const pageSecure = typeof location !== 'undefined' && location.protocol === 'https:'
-  return {
-    host: signaling.host,
-    port: signaling.port ?? CLOUD.port,
-    path: signaling.path ?? '/',
-    key: signaling.key ?? CLOUD.key,
-    secure: signaling.secure ?? pageSecure,
-  }
-}
+const signaling: SignalingOptions = signalingFromEnv()
 
 // ---- ICE servers ---------------------------------------------------------------
 
@@ -266,7 +241,6 @@ interface TurnCache {
 let turnCache: TurnCache | null = null
 let turnInflight: Promise<void> | null = null
 let turnRetryAt = 0
-let turnEndpoint = TURN_CREDENTIALS_URL
 
 /**
  * Accepts the common credential-endpoint shapes: RTCIceServer[] (Metered),
@@ -296,7 +270,7 @@ export function parseTurnResponse(json: unknown): { servers: RTCIceServer[]; ttl
 }
 
 async function fetchTurn(): Promise<void> {
-  const url = turnEndpoint
+  const url = TURN_CREDENTIALS_URL
   const ctrl = typeof AbortController === 'function' ? new AbortController() : null
   const timer = setTimeout(() => ctrl?.abort(), 10_000)
   try {
@@ -312,7 +286,6 @@ async function fetchTurn(): Promise<void> {
     const ttl = Math.max(60_000, ttlMs ?? TURN_TTL_MS)
     turnCache = { servers, expiresAt: Date.now() + ttl }
     turnRetryAt = 0
-    netLog('ice', `TURN credentials: ${servers.length} server(s), valid ${Math.round(ttl / 1000)} s`)
     applyToLivePeers()
   } catch (err) {
     turnRetryAt = Date.now() + NET_TIMING.turnRetryMs
@@ -323,7 +296,7 @@ async function fetchTurn(): Promise<void> {
 }
 
 function turnNeedsFetch(): boolean {
-  if (!turnEndpoint || typeof fetch !== 'function') return false
+  if (!TURN_CREDENTIALS_URL || typeof fetch !== 'function') return false
   const t = Date.now()
   if (turnCache && t < turnCache.expiresAt - NET_TIMING.turnRefreshMarginMs) return false
   return t >= turnRetryAt
@@ -351,30 +324,9 @@ export function prepareIceServers(waitMs: number = NET_TIMING.turnFetchTimeoutMs
   })
 }
 
-/** Debug / lab: use another credentials endpoint (null → build config) and forget the cache. */
-export function setTurnCredentialsUrl(url: string | null): void {
-  turnEndpoint = url ?? TURN_CREDENTIALS_URL
-  turnCache = null
-  turnRetryAt = 0
-}
-
-let override: RTCIceServer[] | null = null
-let iceTransportPolicy: RTCIceTransportPolicy = 'all'
-
 /** STUN first, then runtime TURN, then static TURN; validated. */
 export function getIceServers(): RTCIceServer[] {
-  return sanitizeIceServers(override ?? [DEFAULT_STUN, ...(turnCache?.servers ?? []), ...STATIC_TURN])
-}
-
-/** Replaces the ICE servers (null → defaults) for every connection created from now on. */
-export function setIceServers(servers: RTCIceServer[] | null): void {
-  override = servers
-  applyToLivePeers()
-}
-
-/** Debug override (lab only): force TURN relaying to verify a relay works. */
-export function setIceTransportPolicy(policy: RTCIceTransportPolicy): void {
-  iceTransportPolicy = policy
+  return sanitizeIceServers([DEFAULT_STUN, ...(turnCache?.servers ?? []), ...STATIC_TURN])
 }
 
 // ---- Peers ---------------------------------------------------------------------
@@ -400,16 +352,14 @@ function applyToLivePeers(): void {
  * a dropped socket, even before it noticed the old socket died.
  */
 export function createPeer(mod: PeerModule, id: string, token: string): Peer {
-  const config: PeerConfig = { iceServers: getIceServers(), iceTransportPolicy, sdpSemantics: 'unified-plan' }
+  const config: PeerConfig = { iceServers: getIceServers(), sdpSemantics: 'unified-plan' }
   const peer = new mod.Peer(id, { debug: 0, token, config, ...signaling })
   livePeers.set(peer, config)
-  netStats.peers = livePeers.size
   return peer
 }
 
 export function destroyPeer(peer: Peer | null | undefined): void {
   if (!peer || !livePeers.delete(peer)) return
-  netStats.peers = livePeers.size
   try {
     peer.destroy()
   } catch {

@@ -2,19 +2,16 @@
 
 import type { Role } from '../../game/store'
 import type { RoomState } from '../../game/types'
-import type { RouteName } from '../../lib/router'
 
-export type ScreenKey = 'home' | 'lobby' | 'round' | 'final' | 'styleguide'
+export type ScreenKey = 'home' | 'lobby' | 'round' | 'final'
 
-export interface ScreenSelectInput {
-  route: RouteName
+interface ScreenSelectInput {
   role: Role
   room: Pick<RoomState, 'phase'> | null
 }
 
 /** Pure screen selection (exported for tests). */
-export function selectScreen({ route, role, room }: ScreenSelectInput): ScreenKey {
-  if (route === 'styleguide') return 'styleguide'
+export function selectScreen({ role, room }: ScreenSelectInput): ScreenKey {
   if (role === 'none' || !room) return 'home'
   switch (room.phase.kind) {
     case 'lobby':
@@ -37,8 +34,6 @@ const BRAND = 'UNSHUFFLE'
 export function screenTitle(screen: ScreenKey, room: Pick<RoomState, 'code' | 'phase' | 'settings'> | null, lost = false): string {
   if (lost && room) return `${BRAND} · Connessione persa`
   switch (screen) {
-    case 'styleguide':
-      return `${BRAND} · Styleguide`
     case 'lobby':
       return room ? `${BRAND} · Lobby ${room.code}` : `${BRAND} · Lobby`
     case 'round': {

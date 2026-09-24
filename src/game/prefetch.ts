@@ -7,7 +7,7 @@
 // Deezer URL on its own if anything goes wrong).
 
 /** Give up on a background download after this long (the decode path will try again later). */
-export const BYTES_TIMEOUT_MS = 20_000
+const BYTES_TIMEOUT_MS = 20_000
 
 export interface PreviewBytes {
   /** Blob URL of the downloaded preview once it is here; null if the download failed. */

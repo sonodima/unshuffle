@@ -13,17 +13,17 @@ import type { Peaks } from '../../audio/peaks'
 import type { PeaksFn } from './boardAudio'
 
 /** dB range the bars are mapped onto (levels relative to the track's peak sample). */
-export interface LevelRange {
+interface LevelRange {
   lo: number
   hi: number
 }
 
-export interface TrackLevels {
+interface TrackLevels {
   rms: LevelRange
   max: LevelRange
 }
 
-export const LEVEL_GAMMA = 1.6
+const LEVEL_GAMMA = 1.6
 /** Shortest bar, as a fraction of the full height (silence still shows a dot). */
 export const LEVEL_FLOOR = 0.06
 const MIN_DB = -100
@@ -155,7 +155,7 @@ export function barHeights(peaks: Peaks, levels: TrackLevels): BarHeights {
   return { core, halo }
 }
 
-/** The previous linear mapping, kept for placeholders and as a fallback. */
+/** Linear mapping, used for placeholders and as a fallback. */
 export function linearHeights(peaks: Peaks): BarHeights {
   const n = peaks.max.length
   const core = new Float32Array(n)

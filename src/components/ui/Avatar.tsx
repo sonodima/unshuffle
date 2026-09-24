@@ -7,10 +7,10 @@ import { playSfx } from './sound'
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
-export const AVATAR_PX: Record<AvatarSize, number> = { xs: 24, sm: 32, md: 44, lg: 64, xl: 96 }
+const AVATAR_PX: Record<AvatarSize, number> = { xs: 24, sm: 32, md: 44, lg: 64, xl: 96 }
 
 /** Emoji for an AVATARS index (wraps around, safe for bad data). */
-export function avatarEmoji(index: number): string {
+function avatarEmoji(index: number): string {
   const n = AVATARS.length
   return AVATARS[((Math.trunc(index) % n) + n) % n] ?? AVATARS[0]
 }

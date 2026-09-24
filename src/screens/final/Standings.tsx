@@ -17,7 +17,7 @@ const BAR: Record<number, string> = {
   3: 'from-bronze/60 to-bronze',
 }
 
-export interface StandingsProps {
+interface StandingsProps {
   summary: FinalSummary
   me: PlayerId
   reduced: boolean

@@ -13,24 +13,11 @@
 
 import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from '../game/constants'
 import type { ClientMsg, HostMsg } from './protocol'
-import { ClientConnectionImpl, connectClient } from './client'
+import { connectClient } from './client'
 import { NetError, NET_MESSAGES } from './errors'
-import type { HostServerImpl } from './host'
-import {
-  getIceServers,
-  getSignalingServer,
-  loadPeerJs,
-  prepareIceServers,
-  setIceServers,
-  setIceTransportPolicy,
-  setSignalingServer,
-  setTurnCredentialsUrl,
-} from './peer'
-import type { PeerModule, SignalingOptions } from './peer'
-import { netStats, now, readNetLog } from './runtime'
-import type { NetLogEntry } from './runtime'
-
-export { NetError }
+import { loadPeerJs, prepareIceServers } from './peer'
+import type { PeerModule } from './peer'
+import { now } from './runtime'
 
 export type ConnStatus = 'connecting' | 'open' | 'reconnecting' | 'closed' | 'error'
 
@@ -70,24 +57,15 @@ export async function createHost(opts?: { code?: string }): Promise<HostServer> 
 }
 
 type HostImplModule = typeof import('./host')
-let hostImpl: HostImplModule | null = null
 let hostImplLoad: Promise<HostImplModule> | null = null
 
 function loadHostImpl(): Promise<HostImplModule> {
-  hostImplLoad ??= import('./host').then(
-    (m) => (hostImpl = m),
-    (err: unknown) => {
-      hostImplLoad = null
-      console.warn('[net] host module failed to load', err)
-      throw new NetError('network', NET_MESSAGES.loadFailed)
-    },
-  )
+  hostImplLoad ??= import('./host').catch((err: unknown) => {
+    hostImplLoad = null
+    console.warn('[net] host module failed to load', err)
+    throw new NetError('network', NET_MESSAGES.loadFailed)
+  })
   return hostImplLoad
-}
-
-/** A server made by createHost (false before the host module ever loaded). */
-function isHostImpl(x: unknown): x is HostServerImpl {
-  return hostImpl !== null && x instanceof hostImpl.HostServerImpl
 }
 
 /** Client side: one reliable data channel to the host, with automatic reconnection. */
@@ -145,14 +123,6 @@ export function normalizeRoomCode(input: string): string | null {
 }
 
 /**
- * Overrides the ICE servers (STUN/TURN) for connections created from now on,
- * e.g. with TURN credentials fetched at runtime. null restores the defaults.
- */
-export function configureIceServers(servers: RTCIceServer[] | null): void {
-  setIceServers(servers)
-}
-
-/**
  * Starts downloading the PeerJS chunk (and runtime TURN credentials, when
  * configured) ahead of time, e.g. when Home mounts, so "Crea stanza" / "Entra"
  * don't wait for them. Never rejects.
@@ -182,43 +152,4 @@ async function loadModule(): Promise<PeerModule> {
   }
   if (!mod.util.supports.data) throw new NetError('unsupported', NET_MESSAGES.unsupported)
   return mod
-}
-
-/** Diagnostics & fault injection for labs / tests. Not used by the game. */
-export const netDebug = {
-  /** Live resource counters: Peers, timers, DOM listeners, open hosts / clients. */
-  stats: (): typeof netStats => ({ ...netStats }),
-  /** Recent transport events (ring buffer, newest last). */
-  log: (): NetLogEntry[] => readNetLog(),
-  /** Client: close the underlying DataConnection (the transport should reconnect). */
-  breakLink: (conn: ClientConnection): boolean => conn instanceof ClientConnectionImpl && conn.debugBreak(),
-  /** Client: stop all traffic on the current link silently (heartbeat timeout path). */
-  freezeLink: (conn: ClientConnection): boolean => conn instanceof ClientConnectionImpl && conn.debugFreeze(),
-  /** Client: reconnect but leave the old channel open (the host must retire it). */
-  abandonLink: (conn: ClientConnection): boolean => conn instanceof ClientConnectionImpl && conn.debugAbandon(),
-  /** Host: close one client's DataConnection from the host side. */
-  breakHostLink: (server: HostServer, connId: string): boolean =>
-    isHostImpl(server) && server.debugBreak(connId),
-  /** Drop the signaling socket (tests peer.reconnect(); data channels must survive). */
-  dropSignaling: (target: HostServer | ClientConnection): boolean =>
-    isHostImpl(target)
-      ? target.debugDropSignaling()
-      : target instanceof ClientConnectionImpl && target.debugDropSignaling(),
-  /** Host: ids of the currently open connections. */
-  connIds: (server: HostServer): string[] => (isHostImpl(server) ? server.debugConnIds() : []),
-  /** Client: this tab's PeerJS id. */
-  peerId: (conn: ClientConnection): string | null =>
-    conn instanceof ClientConnectionImpl ? conn.debugPeerId() : null,
-  /** Force TURN relaying for Peers created from now on (verifies a relay works). */
-  forceRelay: (on: boolean): void => setIceTransportPolicy(on ? 'relay' : 'all'),
-  /** ICE servers new connections will use (validated). */
-  iceServers: (): RTCIceServer[] => getIceServers(),
-  /** Fetch runtime TURN credentials now (waits up to `waitMs`). */
-  prepareIce: (waitMs?: number): Promise<void> => prepareIceServers(waitMs),
-  /** Use another TURN credentials endpoint (null → build config); clears the cache. */
-  turnCredentialsUrl: (url: string | null): void => setTurnCredentialsUrl(url),
-  /** Point new Peers at another PeerServer (null → build config). */
-  signalingServer: (options: SignalingOptions | null): void => setSignalingServer(options),
-  /** The PeerServer new Peers use. */
-  signaling: (): ReturnType<typeof getSignalingServer> => getSignalingServer(),
 }

@@ -1,8 +1,7 @@
 // Curated entry points for the lobby playlist picker.
-// Every id and query below was checked against the live Deezer API
-// (see scripts/deezer/verify_ids.py): each featured playlist has ≥ 40 tracks
-// with a playable preview, and each chip query returns relevant, sizeable
-// playlists as its first results.
+// Every id and query below was checked against the live Deezer API: each
+// featured playlist has ≥ 40 tracks with a playable preview, and each chip
+// query returns relevant, sizeable playlists as its first results.
 
 export interface CategoryChip {
   /** Italian UI label. */

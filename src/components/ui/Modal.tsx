@@ -254,9 +254,3 @@ export function Modal({
     document.body,
   )
 }
-
-/** Same component; semantic aliases for readability at call sites. */
-export const ResponsiveSheet = Modal
-export function BottomSheet(props: Omit<ModalProps, 'presentation'>) {
-  return <Modal {...props} presentation="sheet" />
-}

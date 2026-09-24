@@ -15,7 +15,7 @@ export interface RevealAccent {
 /** Where the reveal song is: seconds elapsed / total, or null when silent. */
 export type SongProgressFn = () => { elapsed: number; duration: number } | null
 
-export interface SongCardProps {
+interface SongCardProps {
   track: TrackInfo
   accent: RevealAccent
   /** The reveal song is audible (vinyl spins, equalizer moves). */

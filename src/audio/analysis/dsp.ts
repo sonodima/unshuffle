@@ -11,7 +11,7 @@ export function mean(a: ArrayLike<number>, from = 0, to = a.length): number {
   return s / (to - from)
 }
 
-export function std(a: ArrayLike<number>): number {
+function std(a: ArrayLike<number>): number {
   const m = mean(a)
   let s = 0
   for (let i = 0; i < a.length; i++) s += (a[i] - m) * (a[i] - m)

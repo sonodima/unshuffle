@@ -6,7 +6,7 @@ import type { GameSettings, Player } from '../../game/types'
 import { PlaylistRecord, WaitingText } from './PlaylistHero'
 import { MIN_ROUNDS, playlistShortfall, tracksWord, type PlaylistShortfall } from './rules'
 
-export interface StartBarProps {
+interface StartBarProps {
   isHost: boolean
   settings: GameSettings
   players: Player[]

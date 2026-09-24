@@ -19,7 +19,7 @@ function palette(extra?: string): string[] {
   return colors.length ? colors : ['#ffffff']
 }
 
-export function prefersReducedMotion(): boolean {
+function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 }
 

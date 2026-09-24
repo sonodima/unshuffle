@@ -8,7 +8,7 @@ const SEARCH_MS = 45
 const MAX_PREROLL_MS = 30
 const MIN_PREROLL_MS = 4
 
-export interface SnapResult {
+interface SnapResult {
   time: number
   /** Detected attack time (== input time when no clear transient). */
   attack: number

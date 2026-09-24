@@ -48,7 +48,7 @@
 /* The tile repeats every 128px (64px on retina), so a jitter of t is the same as t
    mod one tile: the layer only overscans by one tile, up and left, and every
    offset stays in [0, tile). That keeps the promoted layer close to the viewport
-   size (it used to be 1.8x the viewport area on phones). */
+   size. */
 .ushf-bg-grain {
   position: absolute;
   top: -128px;

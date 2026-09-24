@@ -1,8 +1,8 @@
 // Host and guest reload their tabs at the same moment while in the lobby: the host
 // reclaims its code, the guest's resume retries until the room is back.
-//   node scripts/e2e/reload.mjs [baseUrl]   (default http://127.0.0.1:5220/)
+//   node tests/e2e/reload.mjs [baseUrl]   (default http://localhost:5173/ = `npm run dev`)
 import { chromium } from 'playwright'
-const BASE = process.argv[2] ?? 'http://127.0.0.1:5220/'
+const BASE = process.argv[2] ?? 'http://localhost:5173/'
 const b = await chromium.launch({ channel: 'chrome', args: ['--autoplay-policy=no-user-gesture-required'] })
 const errors = []
 async function open(name, opts) {

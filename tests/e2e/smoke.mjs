@@ -6,13 +6,14 @@
 //   guest : phone 390×844 @2x touch  — joins by typing the code on Home, drags with
 //                                     touch, confirms first.
 //
-// Usage: node scripts/e2e/smoke.mjs [baseUrl] (default http://127.0.0.1:5220/)
-//   env QUERY='hits 2000'  playlist search · env HEADFUL=1 to watch
-// Screenshots: scripts/e2e/shots/<run>-<step>-<who>.png
+// Usage: node tests/e2e/smoke.mjs [baseUrl]   (default http://localhost:5173/ = `npm run dev`)
+//   env QUERY='hits 2000'  playlist search · CHAOS=1 also reloads both tabs mid-round
+//   · RUN=name  screenshot prefix (default smoke) · HEADFUL=1 to watch
+// Screenshots: tests/e2e/shots/<run>-<step>-<who>.png
 import { chromium } from 'playwright'
 import { mkdirSync } from 'node:fs'
 
-const BASE = process.argv[2] ?? 'http://127.0.0.1:5220/'
+const BASE = process.argv[2] ?? 'http://localhost:5173/'
 const QUERY = process.env.QUERY ?? 'hits 2000'
 const OUT = new URL('./shots/', import.meta.url).pathname
 mkdirSync(OUT, { recursive: true })

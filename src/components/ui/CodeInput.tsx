@@ -8,7 +8,7 @@ import { playSfx } from './sound'
  * Extracts a room code from free text: a bare code ("kxqpm"), or any link /
  * hash containing `#/r/CODE`. Returns null if no valid code is found.
  */
-export function parseRoomCode(text: string): string | null {
+function parseRoomCode(text: string): string | null {
   const fromLink = /#\/r\/([A-Za-z]{3,12})/.exec(text)
   const raw = (fromLink ? fromLink[1] : text).toUpperCase().replace(/[^A-Z]/g, '')
   if (raw.length < ROOM_CODE_LENGTH) return null

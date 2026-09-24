@@ -10,12 +10,6 @@ export function usePlayback(): PlaybackState {
   return useSyncExternalStore(audioEngine.subscribe, audioEngine.getState, audioEngine.getState)
 }
 
-/** True while `usePlayback()` is playing with the given tag (e.g. "board", "block:3"). */
-export function usePlayingTag(tag: string): boolean {
-  const s = usePlayback()
-  return s.playing && s.tag === tag
-}
-
 const getUnlocked = () => audioEngine.unlocked
 const getVolume = () => audioEngine.volume
 const getSfxEnabled = () => sfx.enabled

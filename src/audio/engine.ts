@@ -101,7 +101,7 @@ export interface AudioEngine {
 }
 
 /** Rejection reason of `audioEngine.load` once every retry failed. `message` is Italian, user-facing. */
-export class AudioLoadError extends Error {
+class AudioLoadError extends Error {
   readonly key: string
   /** Last HTTP status seen (0 = network/decode failure). */
   readonly status: number
@@ -386,7 +386,7 @@ export interface PcmData {
   getChannelData(channel: number): Float32Array
 }
 
-export interface LoudnessInfo {
+interface LoudnessInfo {
   /** Integrated loudness (ITU-R BS.1770-4: K-weighted, 400 ms blocks, -70 LUFS / -10 LU gates). -Infinity when silent. */
   lufs: number
   /** Sample peak, dBFS. */
@@ -497,7 +497,6 @@ export async function measureLoudness(pcm: PcmData, sliceMs = 6): Promise<Loudne
 }
 
 const loudness = new WeakMap<AudioBuffer, LoudnessInfo>()
-let normalizeOn = true
 
 async function analyseLoudness(buf: AudioBuffer): Promise<void> {
   if (loudness.has(buf)) return
@@ -510,7 +509,7 @@ async function analyseLoudness(buf: AudioBuffer): Promise<void> {
 
 /** Linear playback trim of a buffer (1 = untouched). */
 function trimOf(buf: AudioBuffer): number {
-  const l = normalizeOn ? loudness.get(buf) : undefined
+  const l = loudness.get(buf)
   return l ? Math.pow(10, l.gainDb / 20) : 1
 }
 
@@ -651,8 +650,8 @@ interface Voice {
 type JoinKind = 'first' | 'gapless' | 'crossfade' | 'resync'
 type OutroKind = 'open' | 'gapless' | 'tail' | 'fade' | 'cut'
 
-/** Diagnostic record of one scheduled snippet (see `engineDebug.schedule()`). */
-export interface ScheduledItemInfo {
+/** One scheduled snippet: where it sits in context time and in the buffer, and how it joins its neighbours. */
+interface ScheduledItemInfo {
   position: number
   /** Context time the snippet starts (seconds) and its sample frame. */
   when: number
@@ -701,11 +700,9 @@ interface Session {
   items: Item[]
   voices: Set<Voice>
   firedPosition: number
-  log: ScheduledItemInfo[]
 }
 
 let current: Session | null = null
-let lastLog: ScheduledItemInfo[] = []
 let timer: ReturnType<typeof setTimeout> | null = null
 let positionCache: { session: Session; stamp: number; at: number; value: PlaybackPosition } | null = null
 
@@ -864,8 +861,6 @@ function revise(s: Session, g: Graph): void {
   for (const it of dropped) {
     cancelVoice(it.voice)
     if (it.tail) cancelVoice(it.tail)
-    const k = s.log.indexOf(it.info)
-    if (k >= 0) s.log.splice(k, 1)
   }
   const prev = s.items.length ? s.items[s.items.length - 1] : null
   if (prev) reopenOutro(prev)
@@ -938,7 +933,6 @@ function pump(s: Session, g: Graph): void {
       outro: 'open',
     }
     s.items.push({ info, voice, tail: null, fadeAt: 0 })
-    if (s.log.length < 1024) s.log.push(info)
     s.nextFrame += frames
     s.nextPosition += 1
   }
@@ -1070,10 +1064,8 @@ function begin(
     items: [],
     voices: new Set(),
     firedPosition: -1,
-    log: [],
   }
   current = s
-  lastLog = s.log
   positionCache = null
   setState({ playing: true, mode, key, tag: s.tag, index: reportIndex(s, o.fromPosition) })
   if (g.ctx.state === 'running') tick()
@@ -1101,7 +1093,7 @@ const BANDS = {
 const ENERGY = { floor: -36, ceil: -6, curve: 2 }
 
 /** The analyser sees normalised music: shift it back onto the windows above. */
-const levelsTrimDb = () => (normalizeOn ? LEVELS_TUNED_LUFS - TARGET_LUFS : 0)
+const LEVELS_TRIM_DB = LEVELS_TUNED_LUFS - TARGET_LUFS
 
 const lv = {
   levels: ZERO_LEVELS,
@@ -1122,8 +1114,8 @@ const lv = {
   hist: [] as { at: number; v: AudioLevels }[],
   /** Smoothed output latency (s), -1 until measured. */
   delayS: -1,
-  /** Last raw analysis (dB / flux), exposed through engineDebug for tuning. */
-  raw: { bassDb: -Infinity, midDb: -Infinity, trebleDb: -Infinity, rmsDb: -Infinity, flux: 0, threshold: 0 },
+  /** Last raw analysis (band dB, RMS dBFS), before the normalisation offset. */
+  raw: { bassDb: -Infinity, midDb: -Infinity, trebleDb: -Infinity, rmsDb: -Infinity },
 }
 
 function resetLevels(): void {
@@ -1197,7 +1189,7 @@ function computeLevels(): AudioLevels {
     let sum = 0
     for (let i = 0; i < lv.time.length; i++) sum += lv.time[i] * lv.time[i]
     raw.rmsDb = 10 * Math.log10(sum / lv.time.length)
-    const off = levelsTrimDb()
+    const off = LEVELS_TRIM_DB
     rb = mapDb(raw.bassDb + off, BANDS.bass.floor, BANDS.bass.ceil, BANDS.bass.curve)
     rm = mapDb(raw.midDb + off, BANDS.mid.floor, BANDS.mid.ceil, BANDS.mid.curve)
     rt = mapDb(raw.trebleDb + off, BANDS.treble.floor, BANDS.treble.ceil, BANDS.treble.curve)
@@ -1212,8 +1204,6 @@ function computeLevels(): AudioLevels {
   const flux = Math.max(0, rb - lv.prevBass)
   lv.prevBass = rb
   const thr = lv.fluxMean + 1.5 * Math.sqrt(lv.fluxVar) + 0.04
-  lv.raw.flux = flux
-  lv.raw.threshold = thr
   if (flux > thr && rb > 0.12 && now - lv.lastBeatAt > 200) lv.lastBeatAt = now
   const k = 1 - Math.exp(-dt / 0.9)
   const d = flux - lv.fluxMean
@@ -1475,17 +1465,12 @@ export const audioEngine: AudioEngine = {
   getLevels: computeLevels,
 }
 
-/* ------------------------------------------------------------------ extras (beyond the AudioEngine contract) */
+/* ------------------------------------------------------------------ extras (beyond the AudioEngine interface) */
 
 /** Drop a decoded buffer (and any in-flight load) to free memory, e.g. for finished rounds. */
 export function evictAudio(key: string): void {
   buffers.delete(key)
   inflight.delete(key)
-}
-
-/** The shared AudioContext, or null before anything created it. */
-export function getAudioContext(): AudioContext | null {
-  return graph?.ctx ?? null
 }
 
 /** SFX routing (used by sfx.ts): the running context + SFX bus input, or null while locked. Never creates the context. */
@@ -1530,38 +1515,6 @@ export function subscribeAudioSettings(listener: () => void): () => void {
   return () => {
     settingsListeners.delete(listener)
   }
-}
-
-/** Diagnostics for labs/tests. */
-export const engineDebug = {
-  /** Every snippet scheduled by the current (or last) playback, in order (re-planned ones replaced). */
-  schedule: (): ScheduledItemInfo[] => lastLog.map((i) => ({ ...i, range: { ...i.range } })),
-  /** Context time currently audible (latency-compensated), or null without a context. */
-  audibleTime: (): number | null => (graph ? audibleTime(graph.ctx) : null),
-  /** Raw analysis behind the last getLevels() (band dB, RMS dBFS, bass flux and beat threshold), before the normalisation offset. */
-  levelsRaw: () => ({ ...lv.raw }),
-  /** Output latency the levels are delayed by (s). */
-  levelsDelay: (): number => Math.max(0, lv.delayS),
-  /** The music bus (normalised, pre-volume, pass-through analyser) for recording taps in tests. */
-  musicTap: (): AudioNode | null => graph?.analyser ?? null,
-  /** Measured loudness and trim of a loaded track. */
-  loudness: (key: string): LoudnessInfo | null => {
-    const b = buffers.get(key)
-    return (b && loudness.get(b)) ?? null
-  },
-  /** Linear trim the next playback of `key` gets (1 when normalisation is off or unmeasured). */
-  trimOf: (key: string): number => {
-    const b = buffers.get(key)
-    return b ? trimOf(b) : 1
-  },
-  /** A/B switch for labs: loudness normalisation on (default) / off, from the next playback. */
-  setNormalization(on: boolean): void {
-    normalizeOn = !!on
-  },
-  /** Whether the Home screen's soft-unlock hold is active. */
-  softUnlockHeld: (): boolean => softHolds > 0,
-  /** iOS < 17 keep-alive element state. */
-  legacySession: () => ({ applies: legacyIos(), created: !!keepAlive, playing: !!keepAlive && !keepAlive.paused }),
 }
 
 /* ------------------------------------------------------------------ gesture unlock + warm-up */

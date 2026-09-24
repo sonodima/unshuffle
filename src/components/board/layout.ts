@@ -12,7 +12,7 @@ export interface GridLayout {
   height: number
 }
 
-export interface GridFitOptions {
+interface GridFitOptions {
   /** Upper bound for a block, CSS px. */
   maxW?: number
   maxH?: number
@@ -133,9 +133,4 @@ export function snippetLetters(hues: readonly number[]): string[] {
 export function formatTime(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds + 1e-6))
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
-
-/** CSS custom properties for a snippet face of hue `h` (0..360). */
-export function hueVars(h: number): Record<string, string> {
-  return { '--h': String(Math.round(((h % 360) + 360) % 360)) }
 }

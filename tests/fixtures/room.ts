@@ -1,5 +1,5 @@
-// Realistic RoomState fixtures for building/previewing screens in isolation
-// (lab pages, styleguide). Not imported by production code.
+// Realistic RoomState fixtures for every phase, shared by the unit tests.
+// Not imported by production code.
 
 import { DEFAULT_SETTINGS } from '../../src/game/constants'
 import { scoreArrangement } from '../../src/game/scoring'
@@ -44,7 +44,7 @@ function result(playerId: string, order: number[], timeMs: number, timedOut = fa
   return { playerId, order, ...s, timeMs, timedOut }
 }
 
-export const fxResults: RoundResult[] = [
+const fxResults: RoundResult[] = [
   result('p-2', [0, 1, 2, 3, 4, 5, 6, 7], 41200),
   result('p-host', [0, 1, 2, 4, 3, 5, 6, 7], 55800),
   result('p-3', [1, 0, 2, 3, 6, 7, 4, 5], 71000),

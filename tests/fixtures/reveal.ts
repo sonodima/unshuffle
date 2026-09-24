@@ -1,4 +1,4 @@
-// Reveal fixtures on top of src/dev/fixtures.ts: earlier rounds with different
+// Reveal fixtures on top of ./room: earlier rounds with different
 // results (so the leaderboard actually reshuffles) and any snippet count.
 import { fxPlayers, fxReveal, fxRound, fxTrack } from './room'
 import { scoreArrangement } from '../../src/game/scoring'

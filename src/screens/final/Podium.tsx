@@ -9,7 +9,7 @@ import { PODIUM_TIMING, landingTime } from './timing'
 /** Display order of the three podium places: 2nd, 1st, 3rd. */
 const SLOT_ORDER = [1, 0, 2]
 
-export interface PodiumProps {
+interface PodiumProps {
   /** Standings, best first (only the first three are shown). */
   standings: PlayerSummary[]
   me: PlayerId

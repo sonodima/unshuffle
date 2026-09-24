@@ -1,5 +1,5 @@
 // Round reveal — presentational. Renders entirely from props (RoomState, my id,
-// host clock) so it can be previewed from fixtures. The choreography (~4 s):
+// host clock). The choreography (~4 s):
 //   1. song card: cover flips over, vinyl slides out
 //   2. my arrangement appears, each position pops ✓ / ✗ (rising pitch on streaks)
 //   3. blocks slide into the correct order (misplaced ones turn neutral with an
@@ -47,8 +47,6 @@ import { useRevealProgress } from './useRevealProgress'
 import type { RevealCue } from './useRevealProgress'
 import './reveal.css'
 
-export type { RevealAccent, SongProgressFn } from './SongCard'
-
 /** Side effects the choreography triggers; all optional and never allowed to throw. */
 export interface RevealEffects {
   sfx(name: SfxName, opts?: { pitch?: number; gain?: number }): void
@@ -56,7 +54,7 @@ export interface RevealEffects {
   pulse(strength: number): void
 }
 
-export interface RevealLayoutProps {
+interface RevealLayoutProps {
   /** Room in the `reveal` phase (anything else renders nothing). */
   room: RoomState
   me: PlayerId
@@ -81,13 +79,9 @@ export interface RevealLayoutProps {
   songSegmentProgress?: (segment: number) => number | null
   /** Tap on a board block (the connected view seeks the song there). Default: the board plays the lone snippet. */
   onTapSegment?: (segment: number) => void
-  /** Mount the inline sound control in the header (hides the shell's floating one). Default true. */
-  soundControl?: boolean
   /** Per-frame song position for the now-playing bar (md+). */
   songProgress?: SongProgressFn
   effects?: Partial<RevealEffects>
-  /** Force the settled end state (default: auto — reduced motion or a reveal already under way). */
-  skipChoreography?: boolean
   className?: string
 }
 
@@ -142,10 +136,8 @@ function RevealContent({
   songSegment = -1,
   songSegmentProgress,
   onTapSegment,
-  soundControl = true,
   songProgress,
   effects,
-  skipChoreography,
   className,
   model,
 }: RevealLayoutProps & { model: RevealModel }) {
@@ -156,7 +148,7 @@ function RevealContent({
 
   // Mount-time decision: replay the choreography or jump to the end state.
   const nextAt = room.phase.kind === 'reveal' ? room.phase.nextAt : null
-  const [skip] = useState(() => skipChoreography ?? (!!reduce || shouldSkipChoreography(nextAt, now, REVEAL_AUTO_ADVANCE_MS)))
+  const [skip] = useState(() => !!reduce || shouldSkipChoreography(nextAt, now, REVEAL_AUTO_ADVANCE_MS))
   const timeline = useMemo(() => buildTimeline(n, personal), [n, personal])
 
   // Network updates re-create every array: keep the board's inputs referentially
@@ -360,7 +352,7 @@ function RevealContent({
             {/* Exit menu (only inside the round screen's provider) + the inline sound control. */}
             <div className="ml-auto flex shrink-0 items-center gap-2 self-center">
               <GameMenuButton size={wideHeader ? 'md' : 'sm'} />
-              {soundControl && <SoundControls placement="inline" />}
+              <SoundControls placement="inline" />
             </div>
           </motion.header>
 

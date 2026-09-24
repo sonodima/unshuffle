@@ -312,16 +312,8 @@ function netErrorMessage(err: unknown, fallback: string): string {
 }
 
 function toRoomCode(input: string): string | null {
-  try {
-    const code = normalizeRoomCode(input)
-    return code && isRoomCode(code) ? code : null
-  } catch {
-    // Transport module unavailable: same rules, locally.
-  }
-  const upper = String(input ?? '').toUpperCase()
-  const fromUrl = /#\/R\/([A-Z]+)/.exec(upper)?.[1]
-  const code = fromUrl ?? upper.replace(/[^A-Z]/g, '')
-  return isRoomCode(code) ? code : null
+  const code = normalizeRoomCode(input)
+  return code && isRoomCode(code) ? code : null
 }
 
 function roomCodeFromHash(): string | null {
@@ -1402,12 +1394,6 @@ export const useGame = create<GameStore>()(() => ({
     withHostGame((game) => game.backToLobby())
   },
 }))
-
-/** Diagnostics for labs / E2E scripts (the app never uses it): the live transport objects. */
-export const storeDebug = {
-  connection: (): ClientConnection | null => session?.conn ?? null,
-  server: (): HostServer | null => session?.server ?? null,
-}
 
 // Dev only: hot-swapping this module would leave the old session's peer and
 // HostGame running behind a fresh, empty store. Reload instead — the tab's

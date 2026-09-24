@@ -16,7 +16,7 @@ import { roundInfo } from './model'
 import { PlayView } from './PlayView'
 import { PreparingView } from './PreparingView'
 
-export interface RoundViewProps {
+interface RoundViewProps {
   room: RoomState
   me: PlayerId
   /** Host clock (ms), refreshed a few times per second (useHostNow). */

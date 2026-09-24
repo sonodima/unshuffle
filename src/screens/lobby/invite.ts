@@ -75,7 +75,7 @@ export function canNativeShare(url: string): boolean {
   }
 }
 
-export type ShareResult = 'shared' | 'cancelled' | 'failed'
+type ShareResult = 'shared' | 'cancelled' | 'failed'
 
 export async function nativeShare(code: string, url: string): Promise<ShareResult> {
   try {
@@ -90,7 +90,7 @@ export async function nativeShare(code: string, url: string): Promise<ShareResul
   }
 }
 
-export type CopyState = 'idle' | 'copied' | 'failed'
+type CopyState = 'idle' | 'copied' | 'failed'
 
 /** Copy with a transient "copied" / "failed" flag (resets after `ms`). */
 export function useCopy(ms = 2000) {

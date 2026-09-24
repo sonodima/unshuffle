@@ -6,7 +6,7 @@ import type { Player, PlayerId, PlayerProfile } from '../../game/types'
 
 export type ProfilePatch = Partial<Omit<PlayerProfile, 'id'>>
 
-export interface PlayerListProps {
+interface PlayerListProps {
   players: Player[]
   me: PlayerId
   /** Host view: shows the kick buttons (never on yourself). */

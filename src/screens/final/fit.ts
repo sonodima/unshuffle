@@ -1,7 +1,7 @@
 // Fit-to-width for display type that must never spill out of its box (headline, podium names).
 import { useLayoutEffect, type RefObject } from 'react'
 
-export interface FitWordsOptions {
+interface FitWordsOptions {
   /** Smallest font size (px) before long words are allowed to break anywhere. */
   min: number
   /** First let the box use its parent's full width (drops a max-width) before shrinking. */

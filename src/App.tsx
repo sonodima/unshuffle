@@ -40,7 +40,7 @@ function Shell() {
   )
 }
 
-export function App() {
+function App() {
   return (
     <MotionConfig reducedMotion="user">
       <ErrorBoundary name="app">

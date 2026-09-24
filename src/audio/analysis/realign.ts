@@ -27,7 +27,7 @@ export interface TimeSpan {
   end: number
 }
 
-export interface CutAlignment {
+interface CutAlignment {
   /** Boundaries on the local decode (same length as the input). */
   cuts: number[]
   /** Local time − host time of the same music (s); 0 when unchanged. */

@@ -12,7 +12,7 @@ import type { LeaderRow } from './model'
 import { formatPoints, formatSeconds, roundStats } from './model'
 import { RankDelta } from './ScorePanel'
 
-export interface RoundLeaderboardProps {
+interface RoundLeaderboardProps {
   rows: LeaderRow[]
   prevOrder: PlayerId[]
   me: PlayerId

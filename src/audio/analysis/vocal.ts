@@ -14,7 +14,7 @@
 import { createRealFft, hann } from './fft'
 import { clamp, decimate, percentile } from './dsp'
 
-export interface CentreHarmonic {
+interface CentreHarmonic {
   /** Frames per second; frame f is centred at f / fps seconds. */
   fps: number
   /** Bins per frame in `sus`. */

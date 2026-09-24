@@ -4,7 +4,7 @@
 
 import { dbPow, percentile } from './dsp'
 
-export interface Region {
+interface Region {
   start: number
   end: number
   /** Reference loudness (≈ 90th percentile, dB). */
