@@ -1,2 +1,0 @@
-phone cpu4x click->lobby 615 ms; long tasks after click: [[55,268],[324,56],[696,96]]
-search+pick playlist long tasks: [[1454,51]]

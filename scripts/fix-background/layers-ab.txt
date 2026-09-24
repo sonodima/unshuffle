@@ -1,6 +1,0 @@
-== http://localhost:5464/
-phone home: 17 drawing layers, est 99 MB; top: div.ushf-bg-grain 582x1036css 20.7MB | div.hm-root.h-dvh 410x844css 11.9MB | div.pointer-events-none.fixed 399x844css 11.6MB | ##document 390x844css 11.3MB | div.ushf-bg 390x844css 11.3MB | canvas. 390x844css 11.3MB
-phone lobby: 81 drawing layers, est 160 MB; top: section.glass.@container 534x2656css 48.7MB | div.ushf-bg-grain 582x1036css 20.7MB | ##document 390x844css 11.3MB | div.ushf-bg 390x844css 11.3MB | canvas. 390x844css 11.3MB | div.glass.relative 566x315css 6.1MB
-== http://localhost:5465/
-phone home: 17 drawing layers, est 92 MB; top: div.ushf-bg-grain 454x908css 14.2MB | div.hm-root.h-dvh 410x844css 11.9MB | div.pointer-events-none.fixed 399x844css 11.6MB | ##document 390x844css 11.3MB | div.ushf-bg 390x844css 11.3MB | canvas. 390x844css 11.3MB
-phone lobby: 78 drawing layers, est 187 MB; top: section.glass.@container 534x2656css 48.7MB | div.relative.flex 390x2977css 39.9MB | div.ushf-bg-grain 454x908css 14.2MB | ##document 390x844css 11.3MB | div.ushf-bg 390x844css 11.3MB | canvas. 390x844css 11.3MB

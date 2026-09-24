@@ -136,8 +136,6 @@ function headTags(env: Env): Plugin {
 export default defineConfig(({ mode }) => ({
   base: './',
   plugins: [react(), tailwindcss(), headTags(loadEnv(mode, process.cwd(), 'VITE_'))],
-  // Lets several dev servers run side by side without fighting over the dep cache.
-  cacheDir: process.env.UNSHUFFLE_VITE_CACHE ?? 'node_modules/.vite',
   worker: { format: 'es' },
   build: { target: 'es2022', sourcemap: true },
   server: { host: true },

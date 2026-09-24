@@ -1,8 +1,6 @@
-/* Class names only live in src/ (and the dev labs): scan just those, not the test
-   tooling, reports or docs — a change to any scanned file (even README.md) makes
-   the dev server full-reload every open page. */
+/* Class names only live in src/: scan just that, not tests or docs — a change to any
+   scanned file (even README.md) makes the dev server full-reload every open page. */
 @import 'tailwindcss' source('../src');
-@source '../lab';
 @import '@fontsource-variable/unbounded';
 @import '@fontsource-variable/manrope';
 @import '@fontsource-variable/jetbrains-mono';

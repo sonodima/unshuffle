@@ -1,3 +1,0 @@
-lobby phone default                canvas=195x422   renderer 14.0/15.5%  gpu 40.2/41.3%
-lobby phone no-backdrop-filter     canvas=195x422   renderer 13.3/11.1%  gpu 8.7/8.4%
-lobby phone no-bg-at-all           canvas=195x422   renderer 10.6/12.5%  gpu 1.3/1.2%

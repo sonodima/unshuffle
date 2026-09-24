@@ -1,3 +1,0 @@
-desktop cpu1x {"fcp":892,"ctx":[["webgl2",389,18]],"status":160.6,"draws":[["firstDraw",898,0]],"lt":[[321,66],[388,600],[2265,319]]}
-phone cpu1x {"fcp":488,"ctx":[["webgl2",284,63.1]],"status":135.4,"draws":[["firstDraw",506,0]],"lt":[[283,239],[549,257]]}
-phone cpu4x {"fcp":776,"ctx":[["webgl2",639,155.7]],"status":14.9,"draws":[["firstDraw",873,0]],"lt":[[140,133],[276,141],[419,182],[635,324],[1010,174]]}

@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "lint": "oxlint",
-    "test": "for f in $(find ./scripts -name '*.test.ts' | sort); do bun test \"$f\" || exit 1; done",
+    "test": "for f in tests/unit/*.test.ts; do bun test \"./$f\" || exit 1; done",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -23,25 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Per-agent Vite dep caches
-node_modules/.vite-*
+# End-to-end test screenshots
+tests/e2e/shots/
 
-# Test / QA artifacts: screenshots, recordings, build snapshots, logs.
-scripts/**/shots*/
-scripts/**/out/
-scripts/**/frames/
-scripts/**/sheets/
-scripts/**/logs/
-scripts/**/dist*/
-scripts/**/*.png
-scripts/**/*.jpg
-scripts/**/*.webp
-scripts/**/*.webm
-
-# Never commit audio: cached Deezer previews are copyrighted.
-scripts/**/cache/
+# Never commit audio (Deezer previews are copyrighted)
 *.mp3
 *.wav
 *.m4a
 *.ogg
-scripts/**/*-dist/

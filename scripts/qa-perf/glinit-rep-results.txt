@@ -1,5 +1,0 @@
-desktop cpu1x {"fcp":392,"ctx":[["webgl2",224,168.7]],"status":16.1,"draws":[["firstDraw",419,0.1]],"lt":[[169,53],[223,217],[474,204]]}
-desktop cpu1x {"fcp":436,"ctx":[["webgl2",254,75.9]],"status":118.5,"draws":[["firstDraw",458,0]],"lt":[[186,65],[252,229],[516,183]]}
-desktop cpu1x {"fcp":448,"ctx":[["webgl2",265,172.9]],"status":14.5,"draws":[["firstDraw",471,0]],"lt":[[210,53],[264,229],[524,183]]}
-phone cpu1x {"fcp":764,"ctx":[["webgl2",296,69.7]],"status":20.4,"draws":[["firstDraw",415,0]],"lt":[[295,145],[601,380]]}
-phone cpu1x {"fcp":452,"ctx":[["webgl2",228,52.9]],"status":16.4,"draws":[["firstDraw",327,0]],"lt":[[227,127],[430,328]]}

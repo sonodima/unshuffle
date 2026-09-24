@@ -1,2 +1,0 @@
-phone lobby: shelf-only images {"500x500":{"n":14,"KB":538}} | after search+pick {"500x500":{"n":27,"KB":1254}} | displayed {"500x500 shown 45css":1,"500x500 shown 100css":1,"500x500 shown 150css":1,"500x500 shown 156css":13,"500x500 shown 44css":1} dpr=3
-desktop lobby: shelf-only images {"500x500":{"n":20,"KB":821}} | after search+pick {"500x500":{"n":43,"KB":2232}} | displayed {"500x500 shown 163css":1,"500x500 shown 170css":23,"500x500 shown 67css":1,"500x500 shown 150css":1,"500x500 shown 56css":1} dpr=1

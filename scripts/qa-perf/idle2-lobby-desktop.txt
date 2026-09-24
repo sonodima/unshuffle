@@ -1,6 +1,0 @@
-lobby desktop default                canvas=1080x675  renderer 8.6/7.9%  gpu 42.3/38.7%
-lobby desktop no-backdrop-filter     canvas=1080x675  renderer 5.9/5.3%  gpu 7.0/6.5%
-lobby desktop no-grain               canvas=907x567   renderer 7.8/7.1%  gpu 44.2/41.7%
-lobby desktop no-bg-canvas           canvas=1080x675  renderer 5.5/4.4%  gpu 10.3/8.6%
-lobby desktop no-bg-at-all           canvas=1080x675  renderer 3.2/3.3%  gpu 1.1/0.9%
-lobby desktop no-backdrop+no-grain   canvas=1080x675  renderer 6.1/5.2%  gpu 8.1/6.8%

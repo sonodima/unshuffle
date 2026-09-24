@@ -1,7 +1,0 @@
-desktop idle board | default               renderer  10.8%  gpu  21.0%   (reps gpu: 21/22/21)
-desktop idle board | no backdrop-filter    renderer  10.0%  gpu  18.8%   (reps gpu: 18/21/19)
-desktop idle board | no timer ring svg     renderer   8.4%  gpu  17.9%   (reps gpu: 18/21/18)
-desktop idle board | no background         renderer  10.9%  gpu  10.2%   (reps gpu: 10/11/10)
-desktop idle board | no grain              renderer   9.9%  gpu  20.0%   (reps gpu: 19/23/20)
-desktop play-all | default                 renderer  19.4%  gpu  28.9%   (reps gpu: 29)
-desktop play-all | no background           renderer  19.2%  gpu  26.8%   (reps gpu: 27)

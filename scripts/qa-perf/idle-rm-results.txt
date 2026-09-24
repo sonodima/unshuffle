@@ -1,2 +1,0 @@
-lobby desktop reduced-motion (shader 30fps) vis=visible canvas=1080x675  renderer=  4.4%  gpu= 15.0%  browser= 0.2%  rAF/s= 60  main: script 3ms/s layout 0ms/s style 0ms/s task 16ms/s  layouts/s 0
-lobby phone reduced-motion (shader 30fps) vis=visible canvas=195x422   renderer=  4.6%  gpu= 12.6%  browser= 0.2%  rAF/s= 60  main: script 3ms/s layout 0ms/s style 0ms/s task 17ms/s  layouts/s 0

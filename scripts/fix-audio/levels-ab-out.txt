@@ -1,8 +1,0 @@
-Annalisa – Bellissima                  trim  -8.72 | raw E 0.87/0.92 B 0.79/0.88 beats/s 0.54 | norm E 0.66/0.7 B 0.66/0.74 beats/s 1.79
-Måneskin – Zitti e buoni (rock)        trim   -7.2 | raw E 0.78/0.91 B 0.78/0.92 beats/s 2.14 | norm E 0.67/0.81 B 0.71/0.85 beats/s 2.32
-Mahmood – Soldi                        trim  -4.96 | raw E 0.86/0.96 B 0.9/0.99 beats/s 1.96 | norm E 0.87/0.97 B 0.9/0.99 beats/s 1.96
-Metallica – Enter Sandman (metal)      trim     -2 | raw E 0.52/0.6 B 0.58/0.69 beats/s 1.79 | norm E 0.67/0.76 B 0.67/0.8 beats/s 1.43
-Dave Brubeck – Take Five (jazz 5/4)    trim      0 | raw E 0.34/0.48 B 0.27/0.4 beats/s 1.79 | norm E 0.55/0.74 B 0.39/0.55 beats/s 1.61
-Miles Davis – So What (jazz)           trim   4.55 | raw E 0.08/0.2 B 0.08/0.22 beats/s 1.07 | norm E 0.29/0.56 B 0.24/0.43 beats/s 0.89
-Eagles – Hotel California (live)       trim      0 | raw E 0.29/0.54 B 0.35/0.72 beats/s 1.07 | norm E 0.47/0.8 B 0.48/0.89 beats/s 1.07
-Pendulum – Watercolour (dnb)           trim  -7.85 | raw E 0.88/0.93 B 0.89/0.94 beats/s 0.71 | norm E 0.72/0.77 B 0.79/0.86 beats/s 1.25

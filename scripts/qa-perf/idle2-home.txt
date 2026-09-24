@@ -1,3 +1,0 @@
-home desktop default                canvas=1080x675  renderer 24.3/27.2%  gpu 40.5/47.6%
-home desktop no-backdrop-filter     canvas=1080x675  renderer 26.9/26.4%  gpu 28.9/30.1%
-home desktop no-bg-at-all           canvas=1080x675  renderer 28.8/28.9%  gpu 42.0/46.1%

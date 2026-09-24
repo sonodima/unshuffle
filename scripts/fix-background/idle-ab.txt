@@ -1,8 +1,0 @@
-home desktop webgl [http://localhost:5464/] vis=visible canvas=1080x675  renderer= 15.1%  gpu= 12.3%  browser= 2.3%  rAF/s= 60  main: script 11ms/s layout 6ms/s style 29ms/s task 86ms/s  layouts/s 9
-home phone webgl [http://localhost:5464/] vis=visible canvas=195x422   renderer= 10.5%  gpu= 10.1%  browser= 6.8%  rAF/s= 61  main: script 11ms/s layout 0ms/s style 9ms/s task 55ms/s  layouts/s 4
-lobby desktop webgl [http://localhost:5464/] vis=visible canvas=1080x675  renderer=  7.6%  gpu= 15.1%  browser= 0.3%  rAF/s= 60  main: script 5ms/s layout 0ms/s style 3ms/s task 24ms/s  layouts/s 0
-lobby phone webgl [http://localhost:5464/] vis=visible canvas=195x422   renderer= 10.4%  gpu= 15.5%  browser= 8.8%  rAF/s= 60  main: script 5ms/s layout 0ms/s style 8ms/s task 52ms/s  layouts/s 0
-home desktop webgl [http://localhost:5465/] vis=visible canvas=1080x675  renderer= 12.8%  gpu=  9.6%  browser= 8.1%  rAF/s= 60  main: script 9ms/s layout 5ms/s style 25ms/s task 75ms/s  layouts/s 10
-home phone webgl [http://localhost:5465/] vis=visible canvas=195x422   renderer=  8.4%  gpu=  7.3%  browser= 6.9%  rAF/s= 60  main: script 8ms/s layout 0ms/s style 8ms/s task 45ms/s  layouts/s 4
-lobby desktop webgl [http://localhost:5465/] vis=visible canvas=1080x675  renderer=  5.3%  gpu=  8.4%  browser= 3.8%  rAF/s= 60  main: script 4ms/s layout 0ms/s style 3ms/s task 18ms/s  layouts/s 0
-lobby phone webgl [http://localhost:5465/] vis=visible canvas=195x422   renderer=  8.9%  gpu= 10.4%  browser= 4.4%  rAF/s= 60  main: script 3ms/s layout 0ms/s style 7ms/s task 47ms/s  layouts/s 0
