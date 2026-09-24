@@ -222,9 +222,12 @@ export default {
     seconds: '{seconds}秒',
     /** Screen readers, a snippets option: "8 · 普通". */
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     /** Row titles are also the pickers' names. Hints are one short line (they truncate). */
     rounds: { title: '回合数', hint: '每回合一首歌' },
     snippets: { title: '片段数', hint: '片段越多越难' },
+    cuts: { title: '切法', hint: '用菜刀更简单' },
+    cutsDetail: { beat: '按节拍', free: '随手切' },
     roundTime: { title: '回合时长', hint: '排序限时' },
     finalTimer: { title: '最后倒计时', hint: '有人确认后开始' },
   },

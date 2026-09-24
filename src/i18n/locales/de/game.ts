@@ -93,4 +93,8 @@ export default {
     hard: 'Schwer',
     insane: 'Extrem',
   },
+  cut: {
+    beat: 'Skalpell',
+    free: 'Hackbeil',
+  },
 } satisfies Catalog['game']

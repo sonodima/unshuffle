@@ -162,8 +162,11 @@ export default {
     /** 4 options share a row. */
     seconds: '{seconds}초',
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     rounds: { title: '라운드', hint: '라운드마다 한 곡' },
     snippets: { title: '조각', hint: '많을수록 어려워요' },
+    cuts: { title: '자르기', hint: '도끼가 더 쉬워요' },
+    cutsDetail: { beat: '박자에 맞춰', free: '아무 데나' },
     roundTime: { title: '라운드 시간', hint: '순서를 맞추는 시간' },
     /** The final timer is called 카운트다운 everywhere. */
     finalTimer: { title: '카운트다운', hint: '첫 확정 후 시작' },

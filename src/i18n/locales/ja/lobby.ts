@@ -171,8 +171,11 @@ export default {
     /** Option label in seconds, e.g. "90秒" (4 options share a row). */
     seconds: '{seconds}秒',
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     rounds: { title: 'ラウンド数', hint: '1ラウンドにつき1曲' },
     snippets: { title: 'ピース数', hint: '多いほどむずかしい' },
+    cuts: { title: 'カット', hint: 'ナタのほうがかんたん' },
+    cutsDetail: { beat: 'ビートどおり', free: 'どこでも' },
     roundTime: { title: '制限時間', hint: '1ラウンドあたり' },
     finalTimer: { title: 'ラストタイマー', hint: '誰かが確定したら' },
   },

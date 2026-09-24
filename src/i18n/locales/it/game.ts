@@ -98,4 +98,9 @@ export default {
     hard: 'Difficile',
     insane: 'Folle',
   },
+  /** Cut styles (lobby rules, round facts): on the beat / anywhere else, the easier one. Short names. */
+  cut: {
+    beat: 'Bisturi',
+    free: 'Mannaia',
+  },
 }

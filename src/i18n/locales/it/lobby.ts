@@ -220,9 +220,14 @@ export default {
     seconds: '{seconds}s',
     /** Screen readers, a snippets option: "8 · Normale". */
     snippetsOption: '{snippets} · {difficulty}',
+    /** Screen readers, a cut option: "Mannaia · Dove capita". */
+    cutsOption: '{name} · {detail}',
     /** Row titles are also the pickers' names. Hints are one short line (they truncate). */
     rounds: { title: 'Round', hint: 'Una canzone per round' },
     snippets: { title: 'Spezzoni', hint: 'Più pezzi, più difficile' },
+    cuts: { title: 'Taglio', hint: 'La mannaia è più facile' },
+    /** Under each cut style name (small, uppercase): where the cuts fall. Very short. */
+    cutsDetail: { beat: 'Sul beat', free: 'Dove capita' },
     roundTime: { title: 'Tempo per round', hint: 'Per riordinare' },
     finalTimer: { title: 'Timer finale', hint: 'Dopo la prima conferma' },
   },

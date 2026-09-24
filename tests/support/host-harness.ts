@@ -1,7 +1,7 @@
 // Test harness for HostGame: fake PeerJS host server, fake clock/timers and
 // fake Deezer/audio/analysis deps. Everything is deterministic and headless.
 
-import type { CutPlan } from '../../src/audio/analysis'
+import type { CutPlan, CutStyle } from '../../src/audio/analysis'
 import type { HostGameDeps } from '../../src/game/host'
 import type { GameEvent, PlayerProfile, RoomState, TrackInfo } from '../../src/game/types'
 import type { ClientMsg, HostMsg } from '../../src/net/protocol'
@@ -210,9 +210,11 @@ export interface FakeControl {
   failAnalysis: Set<number>
   loads: string[]
   analyses: number[]
+  /** Cut style of each analysis, in the order of `analyses`. */
+  cutStyles: CutStyle[]
   getPlaylistTracks: (id: number) => Promise<TrackInfo[]>
   loadAudio: (key: string, url: string, refresh: () => Promise<string>) => Promise<AudioBuffer>
-  analyzeAndCut: (buffer: AudioBuffer, n: number) => Promise<CutPlan>
+  analyzeAndCut: (buffer: AudioBuffer, n: number, style: CutStyle) => Promise<CutPlan>
   /** The host's own listening history (deps.localHistory). */
   localHistory: Record<string, number>
   /** The exposure function of the last pickGameTracks call. */
@@ -226,6 +228,7 @@ export function makeDeps(clock: FakeClock, tracks: TrackInfo[] = makeTracks(20))
     failAnalysis: new Set(),
     loads: [],
     analyses: [],
+    cutStyles: [],
     getPlaylistTracks: async () => ctl.tracks,
     localHistory: {},
     exposure: null,
@@ -235,9 +238,10 @@ export function makeDeps(clock: FakeClock, tracks: TrackInfo[] = makeTracks(20))
       if (ctl.failLoad.has(id)) throw new Error(`HTTP 403 ${key}`)
       return fakeBuffer(id)
     },
-    analyzeAndCut: async (buffer, n) => {
+    analyzeAndCut: async (buffer, n, style) => {
       const { trackId, duration } = buffer as unknown as FakeBuffer
       ctl.analyses.push(trackId)
+      ctl.cutStyles.push(style)
       if (ctl.failAnalysis.has(trackId)) throw new Error(`analysis failed ${trackId}`)
       return uniformPlan(duration, n, 123.456)
     },
@@ -251,7 +255,7 @@ export function makeDeps(clock: FakeClock, tracks: TrackInfo[] = makeTracks(20))
     localHistory: () => ctl.localHistory,
     refreshPreview: async (id) => `https://fresh.example/${id}.mp3`,
     loadAudio: (key, url, refresh) => ctl.loadAudio(key, url, refresh),
-    analyzeAndCut: (buffer, n) => ctl.analyzeAndCut(buffer, n),
+    analyzeAndCut: (buffer, n, style) => ctl.analyzeAndCut(buffer, n, style),
     now: () => clock.now,
     setTimeout: clock.setTimeout,
     clearTimeout: clock.clearTimeout,

@@ -36,6 +36,7 @@ export default {
       sliceDone: 'Faixa fatiada',
       /** Under "Faixa fatiada": the song is cut on the beat. One line, ~35 chars. */
       sliceDetail: { one: '{count} trecho no ritmo da música', other: '{count} trechos no ritmo da música' },
+      sliceDetailFree: { one: '{count} trecho a golpes de cutelo', other: '{count} trechos a golpes de cutelo' },
     },
     /** Small uppercase label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: 'Prontos <b>{ready}</b><dim>/{total}</dim>',
@@ -54,6 +55,7 @@ export default {
     pairs: 'Dois blocos vizinhos na ordem certa valem pontos mesmo fora do lugar.',
     firstConfirm: 'Quem confirma primeiro dispara a contagem final para todo mundo.',
     edges: 'Procure a entrada da música e o ponto em que ela vai sumindo: são os primeiros e os últimos blocos.',
+    cleaver: 'Com o cutelo, os cortes caem no meio de palavras e notas: procure o bloco que as completa.',
     /** {points} = the maximum score of a round (5000, formatted). */
     perfect: 'Ordem perfeita = {points} pontos. Sem pressão.',
   },

@@ -6,11 +6,12 @@
 // back a CutPlan: exactly n contiguous, evenly sized segments whose boundaries
 // sit just before the attacks of beats — bar lines / phrase boundaries
 // whenever the music allows, never through a held sung note if it can be
-// avoided. If the worker cannot be created or fails, the same pure
-// pipeline runs on the main thread, yielding between stages; it is imported
-// lazily, so the entry chunk only carries the tiny plan helpers (the worker
-// chunk has its own copy of the pipeline). It never rejects: the last resort
-// is an even split of the usable region.
+// avoided. The 'free' style cuts the other way round: off the beat, through
+// held notes and words (see ./types). If the worker cannot be created or
+// fails, the same pure pipeline runs on the main thread, yielding between
+// stages; it is imported lazily, so the entry chunk only carries the tiny
+// plan helpers (the worker chunk has its own copy of the pipeline). It never
+// rejects: the last resort is an even split of the usable region.
 //
 // realignSegments() (./realign) adapts a plan computed on another peer's
 // decode to this browser's decode of the same MP3 (WebKit vs Chrome differ by
@@ -19,9 +20,9 @@
 import { getMono } from '../peaks'
 import { clampCount, isValidPlan, uniformPlan } from './plan'
 import type { AnalyzeRequest, AnalyzeResponse } from './protocol'
-import type { CutPlan } from './types'
+import type { CutPlan, CutStyle } from './types'
 
-export type { CutPlan } from './types'
+export type { CutPlan, CutStyle } from './types'
 
 /** A worker that doesn't answer within this time is abandoned for the main thread. */
 const WORKER_TIMEOUT_MS = 20000
@@ -36,7 +37,8 @@ let worker: Worker | null = null
 let workerDisabled = false
 let nextId = 1
 const jobs = new Map<number, Job>()
-const planCache = new WeakMap<AudioBuffer, Map<number, Promise<CutPlan>>>()
+/** Plans per buffer, keyed by style and count ("beat:8"). */
+const planCache = new WeakMap<AudioBuffer, Map<string, Promise<CutPlan>>>()
 
 function failAll(err: Error): void {
   for (const [id, job] of jobs) {
@@ -107,7 +109,7 @@ function sideOf(buffer: AudioBuffer): Float32Array | null {
   }
 }
 
-function runInWorker(samples: Float32Array, side: Float32Array | null, sampleRate: number, n: number): Promise<CutPlan> {
+function runInWorker(samples: Float32Array, side: Float32Array | null, sampleRate: number, n: number, style: CutStyle): Promise<CutPlan> {
   const w = getWorker()
   if (!w) return Promise.reject(new Error('worker unavailable'))
   return new Promise<CutPlan>((resolve, reject) => {
@@ -116,7 +118,7 @@ function runInWorker(samples: Float32Array, side: Float32Array | null, sampleRat
       if (jobs.delete(id)) reject(new Error('analysis worker timeout'))
     }, WORKER_TIMEOUT_MS)
     jobs.set(id, { resolve, reject, timer })
-    const req: AnalyzeRequest = { id, samples, side, sampleRate, n }
+    const req: AnalyzeRequest = { id, samples, side, sampleRate, n, style }
     try {
       w.postMessage(req, side ? [samples.buffer, side.buffer] : [samples.buffer])
     } catch (err) {
@@ -129,9 +131,9 @@ function runInWorker(samples: Float32Array, side: Float32Array | null, sampleRat
 
 const pause = (): Promise<void> => new Promise((r) => setTimeout(r, 0))
 
-async function runOnMainThread(buffer: AudioBuffer, n: number): Promise<CutPlan> {
+async function runOnMainThread(buffer: AudioBuffer, n: number, style: CutStyle): Promise<CutPlan> {
   const { analyzeAsync } = await import('./pipeline')
-  const { plan } = await analyzeAsync({ samples: getMono(buffer), side: sideOf(buffer), sampleRate: buffer.sampleRate, n }, pause)
+  const { plan } = await analyzeAsync({ samples: getMono(buffer), side: sideOf(buffer), sampleRate: buffer.sampleRate, n, style }, pause)
   return plan
 }
 
@@ -153,17 +155,17 @@ function durationOf(buffer: AudioBuffer | null | undefined): number {
   }
 }
 
-async function analyze(buffer: AudioBuffer, n: number): Promise<CutPlan> {
+async function analyze(buffer: AudioBuffer, n: number, style: CutStyle): Promise<CutPlan> {
   const duration = durationOf(buffer)
   try {
     let plan: CutPlan | null = null
     try {
       // The cached mono mix is shared with the waveform renderer: send a copy.
-      plan = await runInWorker(getMono(buffer).slice(), sideOf(buffer), buffer.sampleRate, n)
+      plan = await runInWorker(getMono(buffer).slice(), sideOf(buffer), buffer.sampleRate, n, style)
     } catch {
       plan = null
     }
-    if (!plan || !isValidPlan(plan, n, duration)) plan = await runOnMainThread(buffer, n)
+    if (!plan || !isValidPlan(plan, n, duration)) plan = await runOnMainThread(buffer, n, style)
     return isValidPlan(plan, n, duration) ? plan : uniformPlan(n, duration)
   } catch {
     return uniformPlan(n, duration)
@@ -171,27 +173,30 @@ async function analyze(buffer: AudioBuffer, n: number): Promise<CutPlan> {
 }
 
 /**
- * Analyze the decoded preview and cut it into `n` musically sensible,
- * contiguous segments (on beats, preferring bar lines / phrase boundaries).
+ * Analyze the decoded preview and cut it into `n` contiguous segments: on
+ * beats, preferring bar lines / phrase boundaries ('beat', the default), or
+ * off the beat through held notes ('free').
  * Heavy lifting runs in a Web Worker; always resolves (falls back gracefully).
- * Results are cached per (buffer, n); each call gets its own copy.
+ * Results are cached per (buffer, style, n); each call gets its own copy.
  */
-export function analyzeAndCut(buffer: AudioBuffer, n: number): Promise<CutPlan> {
+export function analyzeAndCut(buffer: AudioBuffer, n: number, style: CutStyle = 'beat'): Promise<CutPlan> {
   const count = clampCount(n)
-  let byCount: Map<number, Promise<CutPlan>> | undefined
+  const cut: CutStyle = style === 'free' ? 'free' : 'beat'
+  const key = `${cut}:${count}`
+  let byKey: Map<string, Promise<CutPlan>> | undefined
   try {
-    byCount = planCache.get(buffer)
-    if (!byCount) {
-      byCount = new Map()
-      planCache.set(buffer, byCount)
+    byKey = planCache.get(buffer)
+    if (!byKey) {
+      byKey = new Map()
+      planCache.set(buffer, byKey)
     }
   } catch {
-    byCount = undefined
+    byKey = undefined
   }
-  let pending = byCount?.get(count)
+  let pending = byKey?.get(key)
   if (!pending) {
-    pending = analyze(buffer, count)
-    byCount?.set(count, pending)
+    pending = analyze(buffer, count, cut)
+    byKey?.set(key, pending)
   }
   return pending.then(clonePlan).catch(() => uniformPlan(count, durationOf(buffer)))
 }

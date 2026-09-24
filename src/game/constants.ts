@@ -1,8 +1,8 @@
 import type { MessageKey } from '../i18n'
-import type { GameSettings } from './types'
+import type { CutStyle, GameSettings } from './types'
 
 /** Bump when the wire protocol changes incompatibly. */
-export const PROTOCOL_VERSION = 2
+export const PROTOCOL_VERSION = 3
 /** Prefix for host peer ids on the public PeerJS server (namespaces our rooms). */
 export const PEER_PREFIX = 'unshuffle-v1-'
 
@@ -38,6 +38,19 @@ export const SETTINGS_OPTIONS = {
   finalTimer: [10, 15, 20, 30],
 } as const
 
+/** Cut styles, in picker order (the non-numeric rule). */
+export const CUT_STYLES: readonly CutStyle[] = ['beat', 'free']
+
+export function isCutStyle(x: unknown): x is CutStyle {
+  return (CUT_STYLES as readonly unknown[]).includes(x)
+}
+
+/** Picker names of the cut styles ("Bisturi" / "Mannaia"; Scalpel / Cleaver in English). */
+export const CUT_STYLE_NAME: Record<CutStyle, MessageKey> = {
+  beat: 'game.cut.beat',
+  free: 'game.cut.free',
+}
+
 /** Human labels for snippet counts (difficulty). */
 export const SNIPPET_DIFFICULTY: Record<number, MessageKey> = {
   6: 'game.difficulty.easy',
@@ -49,6 +62,7 @@ export const SNIPPET_DIFFICULTY: Record<number, MessageKey> = {
 export const DEFAULT_SETTINGS: GameSettings = {
   rounds: 5,
   snippets: 8,
+  cuts: 'beat',
   roundTime: 90,
   finalTimer: 15,
   playlist: null,

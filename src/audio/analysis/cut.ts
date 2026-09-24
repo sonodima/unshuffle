@@ -2,6 +2,8 @@
 // candidates (beats, bar lines, onsets) with dynamic programming, trading off
 // equal snippet lengths (per snippet, and max/min over the whole plan) against
 // metrical strength, phrase boundaries, clean attacks and held (sung) notes.
+// The same DP places the free cuts, with the preferences turned around
+// (FREE_WEIGHTS).
 
 export interface Candidate {
   /** Seconds. */
@@ -69,6 +71,30 @@ export const ONSET_WEIGHTS: CutWeights = {
   wholeBars: 0,
   edge: 0.4,
   balance: 7,
+  balanceFree: 1.5,
+}
+
+/**
+ * Free cuts (CutStyle 'free'): the boundary preferences turned around. The
+ * candidates are a fine time grid whose `metric` is minus the closeness to a
+ * beat, so a positive weight keeps cuts off the beat; the negative weights
+ * make attacks and section changes costly and sustained sound and held sung
+ * notes attractive, so a snippet ends in the middle of something its
+ * neighbour finishes. Lengths may drift more than on the beat grid, within
+ * the same balance rule.
+ */
+export const FREE_WEIGHTS: CutWeights = {
+  length: 0.6,
+  short: 6,
+  long: 6,
+  metric: 0.8,
+  novelty: -0.3,
+  onset: -0.6,
+  sustain: -0.5,
+  vocal: -0.8,
+  wholeBars: 0,
+  edge: 0.4,
+  balance: 5,
   balanceFree: 1.5,
 }
 

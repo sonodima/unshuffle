@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { Icon, Panel, Segmented, cn, type IconName, type SegmentedTone } from '../../components/ui'
-import { SETTINGS_OPTIONS, SNIPPET_DIFFICULTY } from '../../game/constants'
-import type { GameSettings } from '../../game/types'
+import { CUT_STYLE_NAME, CUT_STYLES, SETTINGS_OPTIONS, SNIPPET_DIFFICULTY } from '../../game/constants'
+import type { CutStyle, GameSettings } from '../../game/types'
 import { formatNumber, t, type MessageKey } from '../../i18n'
 import { useT } from '../../i18n/react'
 import { withNum } from './num'
@@ -19,16 +19,22 @@ interface SettingsPanelProps {
 
 type NumericKey = keyof typeof SETTINGS_OPTIONS
 
-interface Row {
-  key: NumericKey
+interface RowHead {
   title: MessageKey
   hint: MessageKey
   icon: IconName
   tone: SegmentedTone
-  /** Called at render (translated). */
-  label(v: number): string
-  sublabel?(v: number): string
 }
+
+/** A numeric rule (SETTINGS_OPTIONS), or the cut style picker. */
+type Row =
+  | (RowHead & {
+      key: NumericKey
+      /** Called at render (translated). */
+      label(v: number): string
+      sublabel?(v: number): string
+    })
+  | (RowHead & { key: 'cuts' })
 
 const seconds = (v: number) => t('lobby.rules.seconds', { seconds: v })
 
@@ -43,6 +49,7 @@ const ROWS: Row[] = [
     label: (v) => formatNumber(v),
     sublabel: (v) => (SNIPPET_DIFFICULTY[v] ? t(SNIPPET_DIFFICULTY[v]) : ''),
   },
+  { key: 'cuts', title: 'lobby.rules.cuts.title', hint: 'lobby.rules.cuts.hint', icon: 'wave', tone: 'lime' },
   { key: 'roundTime', title: 'lobby.rules.roundTime.title', hint: 'lobby.rules.roundTime.hint', icon: 'clock', tone: 'cyan', label: seconds },
   {
     key: 'finalTimer',
@@ -54,7 +61,15 @@ const ROWS: Row[] = [
   },
 ]
 
-/** Game rules: four segmented pickers. Read-only for guests. */
+/** Scalpel / Cleaver, each with where its cuts fall. */
+const cutOptions = () =>
+  CUT_STYLES.map((v: CutStyle) => {
+    const name = t(CUT_STYLE_NAME[v])
+    const detail = t(`lobby.rules.cutsDetail.${v}`)
+    return { value: v, label: name, sublabel: detail, ariaLabel: t('lobby.rules.cutsOption', { name, detail }) }
+  })
+
+/** Game rules: five segmented pickers. Read-only for guests. */
 export function SettingsPanel({ settings, editable, onChange, density = 'regular', className }: SettingsPanelProps) {
   const t = useT()
   const titleId = useId()
@@ -89,20 +104,32 @@ export function SettingsPanel({ settings, editable, onChange, density = 'regular
               </span>
               <span className="line-clamp-2 min-w-28 flex-1 basis-0 text-right text-[11px] font-medium text-pretty text-ink-400">{t(row.hint)}</span>
             </div>
-            <Segmented<number>
-              label={t(row.title)}
-              value={settings[row.key]}
-              readOnly={!editable}
-              size={compact ? 'sm' : 'md'}
-              tone={row.tone}
-              onChange={(v) => onChange({ [row.key]: v })}
-              options={SETTINGS_OPTIONS[row.key].map((v) => ({
-                value: v,
-                label: row.label(v),
-                sublabel: row.sublabel?.(v),
-                ariaLabel: row.sublabel ? t('lobby.rules.snippetsOption', { snippets: v, difficulty: row.sublabel(v) }) : undefined,
-              }))}
-            />
+            {row.key === 'cuts' ? (
+              <Segmented<CutStyle>
+                label={t(row.title)}
+                value={settings.cuts}
+                readOnly={!editable}
+                size={compact ? 'sm' : 'md'}
+                tone={row.tone}
+                onChange={(v) => onChange({ cuts: v })}
+                options={cutOptions()}
+              />
+            ) : (
+              <Segmented<number>
+                label={t(row.title)}
+                value={settings[row.key]}
+                readOnly={!editable}
+                size={compact ? 'sm' : 'md'}
+                tone={row.tone}
+                onChange={(v) => onChange({ [row.key]: v })}
+                options={SETTINGS_OPTIONS[row.key].map((v) => ({
+                  value: v,
+                  label: row.label(v),
+                  sublabel: row.sublabel?.(v),
+                  ariaLabel: row.sublabel ? t('lobby.rules.snippetsOption', { snippets: v, difficulty: row.sublabel(v) }) : undefined,
+                }))}
+              />
+            )}
           </div>
         ))}
       </div>

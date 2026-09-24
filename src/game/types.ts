@@ -2,7 +2,10 @@
 // the network layer and the UI. Keep it dependency-free and serializable:
 // everything in RoomState travels over the wire as JSON.
 
+import type { CutStyle } from '../audio/analysis/types'
 import type { MessageKey, Msg } from '../i18n'
+
+export type { CutStyle } from '../audio/analysis/types'
 
 export type PlayerId = string
 
@@ -41,6 +44,8 @@ export interface GameSettings {
   rounds: number
   /** Number of snippets each song is cut into. */
   snippets: number
+  /** Where the cuts fall: on the beat (Scalpel) or anywhere else (Cleaver, easier). */
+  cuts: CutStyle
   /** Seconds per round. */
   roundTime: number
   /** Seconds left for everyone once the first player confirms (GeoGuessr style). */

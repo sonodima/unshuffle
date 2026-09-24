@@ -4,7 +4,7 @@ import { formatList, t } from '../../i18n'
 import { SNIPPET_DIFFICULTY } from '../../game/constants'
 import { compareStanding } from '../../game/standing'
 import type { RankKey } from '../../game/standing'
-import type { Phase, Player, PlayerId, RoomState, RoundPublic, TrackInfo } from '../../game/types'
+import type { CutStyle, Phase, Player, PlayerId, RoomState, RoundPublic, TrackInfo } from '../../game/types'
 
 export interface RoundInfo {
   /** 0-based round index. */
@@ -22,6 +22,8 @@ export interface RoundInfo {
   finalTimerSec: number
   /** Difficulty name in the current language ('' when unknown). */
   difficulty: string
+  /** Where the cuts fall (the game's rule). */
+  cuts: CutStyle
   data: RoundPublic | null
   track: TrackInfo | null
 }
@@ -39,6 +41,7 @@ export function roundInfo(room: RoomState, index: number): RoundInfo {
     roundTimeSec: room.settings.roundTime,
     finalTimerSec: room.settings.finalTimer,
     difficulty: SNIPPET_DIFFICULTY[snippets] ? t(SNIPPET_DIFFICULTY[snippets]) : '',
+    cuts: room.settings.cuts,
     data,
     track: data?.track ?? room.tracks[index] ?? null,
   }

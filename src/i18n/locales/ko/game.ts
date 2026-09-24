@@ -92,4 +92,8 @@ export default {
     hard: '어려움',
     insane: '지옥',
   },
+  cut: {
+    beat: '메스',
+    free: '도끼',
+  },
 } satisfies Catalog['game']

@@ -23,7 +23,7 @@ own phone with the code, the link or the QR code. You can also play on your own.
 
 **The lobby.** The host picks a Deezer playlist: search for one, browse the
 featured ones or paste a link. Then the rules: how many rounds, how many pieces,
-how much time.
+how they're cut, how much time.
 
 **The round.** The song shows up as a row of shuffled tiles. Tap one to hear it,
 drag it where you think it belongs, and press ▶ to hear the whole thing in your
@@ -54,13 +54,18 @@ in faster.
 | --------------- | ------------------------------------------------ |
 | Rounds          | 3, 5, 7 or 10, one song each                     |
 | Pieces per song | 6 (easy), 8 (normal), 12 (hard) or 16 (insane)   |
+| Cut             | Scalpel (on the beat) or Cleaver (anywhere else) |
 | Time per round  | 60, 90, 120 or 180 seconds                       |
 | Final countdown | 10, 15, 20 or 30 seconds after the first lock-in |
 
 ## Details
 
-- The cuts fall on beats and bar lines and try not to split a held note. Put the
-  tiles in the right order and you hear the original song, with no gaps or clicks.
+- With the Scalpel, the cuts fall on beats and bar lines and try not to split a
+  held note, so every tile sounds complete on its own. The Cleaver does the
+  opposite: it cuts off the beat, right through words and held notes, and the
+  rough edges tell you which tile comes next. It's the easier way to play.
+- Either way, put the tiles in the right order and you hear the original song,
+  with no gaps or clicks.
 - Every song plays at the same loudness, so no round is suddenly louder than the
   one before.
 - The game remembers which songs you've heard and picks the ones nobody in the

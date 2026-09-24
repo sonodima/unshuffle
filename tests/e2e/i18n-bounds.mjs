@@ -1249,9 +1249,10 @@ async function runLocale(code, { headful }) {
     await first.click()
     await host.waitForFunction(() => document.querySelector('li button[aria-pressed="true"]') !== null, null, { timeout: 5000 })
 
-    // settings: 3 rounds, 6 snippets, 60 s, 10 s final timer
+    // settings: 3 rounds, 6 snippets, the cleaver (its own texts in every round screen), 60 s, 10 s final timer
     await setRadio(host, 'lobby.rules.rounds.title', 0)
     await setRadio(host, 'lobby.rules.snippets.title', 0)
+    await setRadio(host, 'lobby.rules.cuts.title', 1)
     await setRadio(host, 'lobby.rules.roundTime.title', 0)
     await setRadio(host, 'lobby.rules.finalTimer.title', 0)
     await host.waitForTimeout(700)
@@ -1363,11 +1364,12 @@ async function runLocale(code, { headful }) {
       await Promise.all([check(host, 'final-rematch'), check(guest, 'final-rematch')])
     }
 
-    // ------------------------------------------------------------ game 2: 16 snippets on the phone
+    // ------------------------------------------------------------ game 2: 16 snippets on the phone, the scalpel
     await host.getByRole('button', { name: P('final.dock.playAgain'), exact: true }).click()
     await Promise.all([waitScreen(host, 'lobby', 20_000), waitScreen(guest, 'lobby', 20_000)])
     await host.waitForTimeout(800)
     await setRadio(host, 'lobby.rules.snippets.title', 3)
+    await setRadio(host, 'lobby.rules.cuts.title', 0)
     await host.waitForTimeout(500)
     await host.getByRole('button', { name: P('lobby.start') }).first().click()
     await Promise.all([waitPhase(host, 'playing', 90_000), waitPhase(guest, 'playing', 90_000)])

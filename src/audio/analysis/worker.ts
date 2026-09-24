@@ -11,9 +11,9 @@ interface WorkerScope {
 const scope = self as unknown as WorkerScope
 
 scope.onmessage = (e) => {
-  const { id, samples, side, sampleRate, n } = e.data
+  const { id, samples, side, sampleRate, n, style } = e.data
   try {
-    const { plan } = analyzeSync({ samples, side, sampleRate, n })
+    const { plan } = analyzeSync({ samples, side, sampleRate, n, style })
     scope.postMessage({ id, ok: true, plan })
   } catch (err) {
     scope.postMessage({ id, ok: false, error: err instanceof Error ? err.message : String(err) })

@@ -313,13 +313,15 @@ function RevealContent({
   const secondsLeft = secondsUntil(nextAt, now)
   const trackKey = `track:${model.track.id}`
   const canHover = useCanHover()
+  const cuts = room.settings.cuts
   const facts = useMemo(() => {
     const out = [t('reveal.song.snippets', { count: n })]
     if (SNIPPET_DIFFICULTY[n]) out.push(t(SNIPPET_DIFFICULTY[n]))
+    if (cuts === 'free') out.push(t('game.cut.free'))
     if (data && data.bpm > 0) out.push(t('reveal.song.bpm', { bpm: Math.round(data.bpm) }))
     return out
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [n, data, t, locale])
+  }, [n, cuts, data, t, locale])
 
   // Round progress dots: my perfect rounds in gold.
   const myPerfect = useMemo(() => {

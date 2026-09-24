@@ -95,4 +95,8 @@ export default {
     hard: 'むずかしい',
     insane: 'おに',
   },
+  cut: {
+    beat: 'メス',
+    free: 'ナタ',
+  },
 } satisfies Catalog['game']

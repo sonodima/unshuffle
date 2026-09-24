@@ -27,6 +27,7 @@ export default {
       sliceActive: 'Song wird zerschnipselt…',
       sliceDone: 'Song zerschnipselt',
       sliceDetail: { one: '{count} Schnipsel im Takt der Musik', other: '{count} Schnipsel im Takt der Musik' },
+      sliceDetailFree: { one: '{count} Schnipsel, grob gehackt', other: '{count} Schnipsel, grob gehackt' },
     },
     ready: 'Bereit <b>{ready}</b><dim>/{total}</dim>',
     readyPlayers: 'Schon bereit',
@@ -41,6 +42,7 @@ export default {
     pairs: 'Zwei Blöcke in richtiger Folge nebeneinander bringen Punkte – auch an der falschen Stelle.',
     firstConfirm: 'Wer zuerst bestätigt, startet den Endspurt für alle.',
     edges: 'Achte auf den Einstieg und das Ausklingen des Songs: Das sind die ersten und die letzten Blöcke.',
+    cleaver: 'Mit dem Hackbeil landen Schnitte mitten in Wörtern und Tönen: Such den Block, der sie zu Ende bringt.',
     perfect: 'Perfekte Reihenfolge = {points} Punkte. Nur kein Druck.',
   },
 

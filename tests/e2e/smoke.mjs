@@ -8,6 +8,7 @@
 //
 // Usage: node tests/e2e/smoke.mjs [baseUrl]   (default http://localhost:5173/ = `npm run dev`)
 //   env QUERY='hits 2000'  playlist search · CHAOS=1 also reloads both tabs mid-round
+//   · CLEAVER=1 cut with the Mannaia (off the beat) instead of the Bisturi
 //   · RUN=name  screenshot prefix (default smoke) · HEADFUL=1 to watch
 // Screenshots: tests/e2e/shots/<run>-<step>-<who>.png
 import { chromium } from 'playwright'
@@ -21,6 +22,8 @@ const RUN = process.env.RUN ?? 'smoke'
 const ROUNDS = 3
 /** CHAOS=1: also reload both tabs at once in the middle of round 2. */
 const CHAOS = !!process.env.CHAOS
+/** CLEAVER=1: the Mannaia cut style (free cuts) instead of the default Bisturi. */
+const CLEAVER = !!process.env.CLEAVER
 const T0 = Date.now()
 
 const log = (...a) => console.log(`[${((Date.now() - T0) / 1000).toFixed(1).padStart(6)}s]`, ...a)
@@ -203,6 +206,7 @@ try {
   }
   await setRadio('Round', '3')
   await setRadio('Spezzoni', /^6/)
+  if (CLEAVER) await setRadio('Taglio', /^Mannaia/)
   await setRadio('Timer finale', '10s')
   await host.waitForTimeout(700)
   // Guest sees the host's settings (read-only) and the playlist.
@@ -212,10 +216,12 @@ try {
       const r = g?.querySelector('[role="radio"][aria-checked="true"]')
       return r?.textContent?.trim() ?? null
     }
-    return { rounds: read('Round'), snippets: read('Spezzoni'), final: read('Timer finale') }
+    return { rounds: read('Round'), snippets: read('Spezzoni'), cuts: read('Taglio'), final: read('Timer finale') }
   })
   log('guest sees settings', guestSettings)
   check(guestSettings.rounds === '3' && (guestSettings.snippets ?? '').startsWith('6'), 'guest sees rounds=3 / snippets=6')
+  const cutName = CLEAVER ? 'Mannaia' : 'Bisturi'
+  check((guestSettings.cuts ?? '').startsWith(cutName), `guest sees cut=${cutName}`)
   await shot('lobby-configured')
 
   // ------------------------------------------------------------ start

@@ -30,6 +30,7 @@ export default {
       sliceDone: 'Pista rebanada',
       /** Cut on the beat. One line, ~35 characters. */
       sliceDetail: { one: '{count} fragmento al compás', other: '{count} fragmentos al compás' },
+      sliceDetailFree: { one: '{count} fragmento a hachazos', other: '{count} fragmentos a hachazos' },
     },
     /** Small uppercase label. <b> = ready players, <dim> = "/total". */
     ready: 'Listos <b>{ready}</b><dim>/{total}</dim>',
@@ -47,6 +48,7 @@ export default {
     pairs: 'Dos bloques vecinos en el orden correcto suman puntos aunque estén fuera de lugar.',
     firstConfirm: 'Quien confirma primero activa el temporizador final para todos.',
     edges: 'Busca el arranque de la canción y el punto donde se apaga: son los primeros y los últimos bloques.',
+    cleaver: 'Con el hacha, los cortes caen a mitad de palabras y notas: busca el bloque que las completa.',
     perfect: 'Orden perfecto = {points} puntos. Sin presión.',
   },
 

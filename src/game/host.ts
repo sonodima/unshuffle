@@ -46,6 +46,7 @@ import type { HistoryDigest } from './history'
 import { isPlayerSecret, STORAGE_KEYS } from './persist'
 import { randomHues, scrambledOrder, shuffleInPlace } from './shuffle'
 import type {
+  CutStyle,
   GameEvent,
   GameSettings,
   Phase,
@@ -70,7 +71,7 @@ export interface HostGameDeps {
   refreshPreview(trackId: number): Promise<string>
   /** Download + decode (key convention `track:${id}`). */
   loadAudio(key: string, url: string, refresh: () => Promise<string>): Promise<AudioBuffer>
-  analyzeAndCut(buffer: AudioBuffer, n: number): Promise<CutPlan>
+  analyzeAndCut(buffer: AudioBuffer, n: number, style: CutStyle): Promise<CutPlan>
   now(): number
   setTimeout(fn: () => void, ms: number): unknown
   clearTimeout(handle: unknown): void
@@ -154,7 +155,7 @@ const realDeps: HostGameDeps = {
   localHistory: () => localDigest(),
   refreshPreview: (id) => refreshPreview(id),
   loadAudio: (key, url, refresh) => audioEngine.load(key, url, refresh),
-  analyzeAndCut: (buffer, n) => analyzeAndCut(buffer, n),
+  analyzeAndCut: (buffer, n, style) => analyzeAndCut(buffer, n, style),
   now: () => Date.now(),
   setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
   clearTimeout: (handle) => globalThis.clearTimeout(handle as ReturnType<typeof globalThis.setTimeout>),
@@ -1134,7 +1135,7 @@ export class HostGame {
    * back to an equal-length cut of it rather than aborting the game.
    */
   private async doPrepare(r: number, gen: number): Promise<RoundPublic | null> {
-    const n = this.current.settings.snippets
+    const { snippets: n, cuts } = this.current.settings
     let fallback: { track: TrackInfo; buffer: AudioBuffer } | null = null
     for (let attempt = 0; attempt <= MAX_SPARE_RETRIES; attempt++) {
       if (gen !== this.gen) return null
@@ -1151,7 +1152,7 @@ export class HostGame {
       if (gen !== this.gen) return null
       if (!buffer) continue
       if (!fallback && uniformSegments(buffer.duration, n)) fallback = { track, buffer }
-      const plan = await this.attempt(() => this.deps.analyzeAndCut(buffer, n))
+      const plan = await this.attempt(() => this.deps.analyzeAndCut(buffer, n, cuts))
       if (gen !== this.gen) return null
       const segments = plan ? segmentsFromPlan(plan, n, buffer.duration) : null
       if (segments) return this.buildRound(r, track, segments, planBpm(plan))

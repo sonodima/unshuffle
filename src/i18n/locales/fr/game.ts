@@ -100,4 +100,8 @@ export default {
     hard: 'Difficile',
     insane: 'Infernal',
   },
+  cut: {
+    beat: 'Scalpel',
+    free: 'Hachoir',
+  },
 } satisfies Catalog['game']

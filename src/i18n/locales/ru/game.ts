@@ -103,4 +103,8 @@ export default {
     hard: 'Сложно',
     insane: 'Хардкор',
   },
+  cut: {
+    beat: 'Скальпель',
+    free: 'Тесак',
+  },
 } satisfies Catalog['game']

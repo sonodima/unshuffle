@@ -130,6 +130,7 @@ export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewPr
             <Fact icon="scissors">{rich(t('round.intro.snippets', { count: info.snippets }), { b: factNumber })}</Fact>
             <Fact icon="clock">{rich(t('round.intro.seconds', { seconds: info.roundTimeSec }), { b: factNumber })}</Fact>
             {info.difficulty && <Fact icon="bolt">{info.difficulty}</Fact>}
+            {info.cuts === 'free' && <Fact icon="wave">{t('game.cut.free')}</Fact>}
           </motion.ul>
         </div>
 
@@ -156,7 +157,7 @@ export function IntroView({ room, me, now, clock: clockProp, onGo }: IntroViewPr
 
 const factNumber = (c: string) => <b className="num text-white">{c}</b>
 
-function Fact({ icon, children }: { icon: 'scissors' | 'clock' | 'bolt'; children: ReactNode }) {
+function Fact({ icon, children }: { icon: 'scissors' | 'clock' | 'bolt' | 'wave'; children: ReactNode }) {
   return (
     <li className="glass-subtle flex h-9 items-center gap-2 rounded-full pr-4 pl-3 text-[13px] font-bold text-ink-200 sm:h-10 sm:text-sm">
       <Icon name={icon} size={15} strokeWidth={2.4} className="text-violet-bright" />

@@ -41,6 +41,12 @@ export default {
         many: '{count} фрагментов точно в такт',
         other: '{count} фрагмента точно в такт',
       },
+      sliceDetailFree: {
+        one: '{count} фрагмент, рубили тесаком',
+        few: '{count} фрагмента, рубили тесаком',
+        many: '{count} фрагментов, рубили тесаком',
+        other: '{count} фрагмента, рубили тесаком',
+      },
     },
     /** Small uppercase label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: 'Готовы <b>{ready}</b><dim>/{total}</dim>',
@@ -59,6 +65,7 @@ export default {
     pairs: 'Два соседних блока в верном порядке приносят очки, даже если стоят не на своих местах.',
     firstConfirm: 'Первое «Готово» запускает финальный таймер для всех.',
     edges: 'Ищи начало песни и место, где она затихает: это первые и последние блоки.',
+    cleaver: 'С тесаком разрезы приходятся на середину слов и нот: ищи блок, который их продолжает.',
     /** {points} = the maximum score of a round (5 000, formatted). */
     perfect: 'Идеальный порядок = {points} очков. Без напряга.',
   },

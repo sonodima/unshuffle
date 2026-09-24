@@ -1,6 +1,6 @@
 // Messages between the main thread and the analysis worker.
 
-import type { CutPlan } from './types'
+import type { CutPlan, CutStyle } from './types'
 
 export interface AnalyzeRequest {
   id: number
@@ -10,6 +10,7 @@ export interface AnalyzeRequest {
   side: Float32Array | null
   sampleRate: number
   n: number
+  style: CutStyle
 }
 
 export type AnalyzeResponse = { id: number; ok: true; plan: CutPlan } | { id: number; ok: false; error: string }

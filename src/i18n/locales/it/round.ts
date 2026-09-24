@@ -34,6 +34,8 @@ export default {
       sliceDone: 'Traccia affettata',
       /** Under "Traccia affettata": the song is cut on the beat. One line, ~35 chars. */
       sliceDetail: { one: '{count} spezzone a tempo di musica', other: '{count} spezzoni a tempo di musica' },
+      /** Same, for the cleaver (free cuts: anywhere but on the beat). One line, ~35 chars. */
+      sliceDetailFree: { one: '{count} spezzone a colpi di mannaia', other: '{count} spezzoni a colpi di mannaia' },
     },
     /** Small uppercase label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: 'Pronti <b>{ready}</b><dim>/{total}</dim>',
@@ -52,6 +54,8 @@ export default {
     pairs: 'Due blocchi vicini nell’ordine giusto valgono punti anche se sono fuori posto.',
     firstConfirm: 'Chi conferma per primo fa partire il timer finale per tutti.',
     edges: 'Cerca l’attacco della canzone e il punto in cui sfuma: sono i primi e gli ultimi blocchi.',
+    /** Only in cleaver games: cuts fall mid-word and mid-note, so the edges give the order away. */
+    cleaver: 'Con la mannaia i tagli cadono a metà di parole e note: cerca il blocco che le completa.',
     /** {points} = the maximum score of a round (5000, formatted). */
     perfect: 'Ordine perfetto = {points} punti. Nessuna pressione.',
   },

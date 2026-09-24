@@ -171,8 +171,11 @@ export default {
     /** Option label, e.g. "90s": very short (4 options share a row). */
     seconds: '{seconds}s',
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     rounds: { title: 'Rondas', hint: 'Una canción por ronda' },
     snippets: { title: 'Fragmentos', hint: 'Más piezas, más difícil' },
+    cuts: { title: 'Corte', hint: 'Con el hacha es más fácil' },
+    cutsDetail: { beat: 'Al compás', free: 'Donde caiga' },
     roundTime: { title: 'Tiempo por ronda', hint: 'Para ordenar' },
     /** Hints are one short line next to the title (~110px on 360px phones). */
     finalTimer: { title: 'Temporizador final', hint: 'Si alguien confirma' },

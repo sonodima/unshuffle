@@ -36,6 +36,7 @@ export default {
       sliceDone: '切片完成',
       /** Under "切片完成": the song is cut on the beat. One line, ~35 chars. */
       sliceDetail: { other: '按节拍切成了{count}个片段' },
+      sliceDetailFree: { other: '用菜刀随手剁成了{count}个片段' },
     },
     /** Small uppercase label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: '已就位<b>{ready}</b><dim>/{total}</dim>',
@@ -54,6 +55,7 @@ export default {
     pairs: '相邻两个方块的先后顺序对了，就算不在正确位置也能得分。',
     firstConfirm: '第一个确认的人，会为所有人启动最后倒计时。',
     edges: '找找歌曲的开头和淡出的结尾：它们就是第一个和最后一个方块。',
+    cleaver: '用菜刀切时，切口会落在字词和音符中间：找找能把它们接上的方块。',
     /** {points} = the maximum score of a round (5,000, formatted). */
     perfect: '完美顺序 = {points}分。没压力哈。',
   },

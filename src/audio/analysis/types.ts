@@ -6,7 +6,15 @@ export interface CutSegment {
   beats: number
 }
 
-export type CutMethod = 'beat-grid' | 'onset' | 'uniform'
+/**
+ * How a song is cut. 'beat': on beats and bar lines, never through a held note
+ * (clean, self-contained snippets). 'free': anywhere but on the beat, through
+ * held notes and words where possible, so a snippet's edges hint at its
+ * neighbours (the easier game).
+ */
+export type CutStyle = 'beat' | 'free'
+
+export type CutMethod = 'beat-grid' | 'onset' | 'free' | 'uniform'
 
 export interface CutPlan {
   /** Estimated tempo (BPM), 0 if no reliable beat. */

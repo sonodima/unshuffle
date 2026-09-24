@@ -36,6 +36,7 @@ export default {
       sliceDone: 'Morceau découpé',
       /** Under "Morceau découpé": the song is cut on the beat. One line, ~35 chars. */
       sliceDetail: { one: '{count} extrait calé sur le tempo', other: '{count} extraits calés sur le tempo' },
+      sliceDetailFree: { one: '{count} extrait taillé au hachoir', other: '{count} extraits taillés au hachoir' },
     },
     /** Small uppercase label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: 'Prêts <b>{ready}</b><dim>/{total}</dim>',
@@ -54,6 +55,7 @@ export default {
     pairs: 'Deux blocs voisins dans le bon ordre rapportent des points, même s’ils ne sont pas à leur place.',
     firstConfirm: 'La première validation lance le chrono final pour tout le monde.',
     edges: 'Repère le début de la chanson et le fondu de fin : ce sont les premiers et les derniers blocs.',
+    cleaver: 'Au hachoir, les coupes tombent en plein mot ou en pleine note : cherche le bloc qui les termine.',
     /** {points} = the maximum score of a round (5 000, formatted). */
     perfect: 'Ordre parfait = {points} points. Zéro pression.',
   },

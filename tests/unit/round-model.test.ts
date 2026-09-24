@@ -23,6 +23,8 @@ describe('roundInfo', () => {
     expect(info.total).toBe(5)
     expect(info.snippets).toBe(8)
     expect(info.difficulty).toBe('Normale')
+    expect(info.cuts).toBe('beat')
+    expect(roundInfo({ ...fxIntro, settings: { ...fxIntro.settings, cuts: 'free' } }, 2).cuts).toBe('free')
     expect(info.isLast).toBe(false)
     expect(info.track?.id).toBe(fxRound.track.id)
   })

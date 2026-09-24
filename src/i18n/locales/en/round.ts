@@ -36,6 +36,8 @@ export default {
       sliceDone: 'Track sliced',
       /** Under "Track sliced": the song is cut on the beat. One line, ~35 chars. */
       sliceDetail: { one: '{count} snippet, cut on the beat', other: '{count} snippets, cut on the beat' },
+      /** Same, for the cleaver (free cuts: anywhere but on the beat). One line, ~35 chars. */
+      sliceDetailFree: { one: '{count} snippet, cleaver-chopped', other: '{count} snippets, cleaver-chopped' },
     },
     /** Small uppercase label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: 'Ready <b>{ready}</b><dim>/{total}</dim>',
@@ -54,6 +56,8 @@ export default {
     pairs: 'Two neighboring tiles in the right order score points, even if they’re in the wrong spot.',
     firstConfirm: 'The first to lock in starts the final countdown for everyone.',
     edges: 'Listen for where the song kicks in and where it fades out: those are the first and last tiles.',
+    /** Only in cleaver games: cuts fall mid-word and mid-note, so the edges give the order away. */
+    cleaver: 'With the cleaver, cuts land mid-word and mid-note: find the tile that finishes them.',
     /** {points} = the maximum score of a round (5,000, formatted). */
     perfect: 'Perfect order = {points} points. No pressure.',
   },

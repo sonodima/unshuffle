@@ -100,4 +100,9 @@ export default {
     hard: 'Hard',
     insane: 'Insane',
   },
+  /** Cut styles (lobby rules, round facts): on the beat / anywhere else, the easier one. Short names. */
+  cut: {
+    beat: 'Scalpel',
+    free: 'Cleaver',
+  },
 } satisfies Catalog['game']

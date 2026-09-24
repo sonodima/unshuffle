@@ -227,9 +227,12 @@ export default {
     seconds: '{seconds}s',
     /** Screen readers, a snippets option: "8 · Normal". */
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     /** Row titles are also the pickers' names. Hints are one short line (they truncate). */
     rounds: { title: 'Rodadas', hint: 'Uma música por rodada' },
     snippets: { title: 'Trechos', hint: 'Mais trechos, mais difícil' },
+    cuts: { title: 'Corte', hint: 'Com o cutelo é mais fácil' },
+    cutsDetail: { beat: 'No ritmo', free: 'Onde cair' },
     roundTime: { title: 'Tempo por rodada', hint: 'Para reordenar' },
     finalTimer: { title: 'Contagem final', hint: 'Quando alguém confirma' },
   },

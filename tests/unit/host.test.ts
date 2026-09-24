@@ -16,7 +16,7 @@ mock.module('../../src/lib/deezer', () => ({
 mock.module('../../src/audio/engine', () => ({ audioEngine: null }))
 mock.module('../../src/audio/analysis', () => ({ analyzeAndCut: untouchable('analyzeAndCut') }))
 
-import type { GameEvent, PlaylistRef, RoomState } from '../../src/game/types'
+import type { GameEvent, GameSettings, PlaylistRef, RoomState } from '../../src/game/types'
 import type { HostMsg } from '../../src/net/protocol'
 import type { Msg } from '../../src/i18n'
 import {
@@ -286,6 +286,7 @@ describe('settings', () => {
     expect(w.game.state.settings).toEqual({
       rounds: 5,
       snippets: 16,
+      cuts: 'beat',
       roundTime: 60,
       finalTimer: 15,
       playlist: { id: 5, title: 'Rap italiano', picture: 'x.jpg', nbTracks: 0 },
@@ -296,6 +297,29 @@ describe('settings', () => {
     expect(w.game.state.seq).toBe(seq)
     w.game.updateSettings({ playlist: null })
     expect(w.game.state.settings.playlist).toBeNull()
+  })
+
+  test('cut style: Scalpel by default, Cleaver on request, anything else ignored', () => {
+    const w = world()
+    expect(w.game.state.settings.cuts).toBe('beat')
+    w.game.updateSettings({ cuts: 'free' })
+    expect(w.game.state.settings.cuts).toBe('free')
+    const seq = w.game.state.seq
+    w.game.updateSettings({ cuts: 'wild' } as unknown as Partial<GameSettings>)
+    w.game.updateSettings({ cuts: null } as unknown as Partial<GameSettings>)
+    w.game.updateSettings({ cuts: 'free' })
+    expect(w.game.state.seq).toBe(seq)
+    expect(w.game.state.settings.cuts).toBe('free')
+  })
+
+  test('the cut style reaches the analysis of every round', async () => {
+    const w = world()
+    w.game.updateSettings({ playlist: PLAYLIST, rounds: 3, snippets: 6, cuts: 'free' })
+    await w.game.startGame()
+    await w.clock.advance(0)
+    expect(w.game.state.rounds[0]!.segments.length).toBe(6)
+    expect(w.ctl.cutStyles.length).toBeGreaterThan(0)
+    expect(w.ctl.cutStyles.every((s) => s === 'free')).toBe(true)
   })
 
   test('profile updates from clients and from the host UI', async () => {
@@ -679,8 +703,8 @@ describe('preparation failures', () => {
   test('invalid cut plans count as failures; last resort is an equal cut of audio that decoded', async () => {
     const w = world()
     const real = w.ctl.analyzeAndCut
-    w.ctl.analyzeAndCut = async (buffer, n) => {
-      const plan = await real(buffer, n)
+    w.ctl.analyzeAndCut = async (buffer, n, style) => {
+      const plan = await real(buffer, n, style)
       return { ...plan, segments: plan.segments.slice(1) } // n − 1 segments: invalid
     }
     w.game.updateSettings({ playlist: PLAYLIST, rounds: 3, snippets: 6 })

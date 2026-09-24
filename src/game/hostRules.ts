@@ -2,7 +2,7 @@
 // effects, no timers: everything here is safe to unit-test in isolation.
 
 import type { CutPlan } from '../audio/analysis'
-import { AVATARS, DEFAULT_SETTINGS, PLAYER_COLORS, SETTINGS_OPTIONS } from './constants'
+import { AVATARS, DEFAULT_SETTINGS, PLAYER_COLORS, SETTINGS_OPTIONS, isCutStyle } from './constants'
 import { isMessageKey, t } from '../i18n'
 import { sanitizeName } from './names'
 import { isPermutation, isPlayerId } from './persist'
@@ -101,12 +101,13 @@ function sanitizePlaylist(raw: unknown): PlaylistRef | null | undefined {
   return playlist
 }
 
-/** Apply an untrusted settings patch: numbers snap to SETTINGS_OPTIONS, invalid keys are ignored. */
+/** Apply an untrusted settings patch: numbers snap to SETTINGS_OPTIONS, invalid values are ignored. */
 export function applySettingsPatch(current: GameSettings, patch: unknown): GameSettings {
   if (!isRecord(patch)) return current
   const next: GameSettings = { ...current }
   if ('rounds' in patch) next.rounds = snapToOption(patch.rounds, SETTINGS_OPTIONS.rounds, current.rounds)
   if ('snippets' in patch) next.snippets = snapToOption(patch.snippets, SETTINGS_OPTIONS.snippets, current.snippets)
+  if (isCutStyle(patch.cuts)) next.cuts = patch.cuts
   if ('roundTime' in patch) next.roundTime = snapToOption(patch.roundTime, SETTINGS_OPTIONS.roundTime, current.roundTime)
   if ('finalTimer' in patch) next.finalTimer = snapToOption(patch.finalTimer, SETTINGS_OPTIONS.finalTimer, current.finalTimer)
   if ('playlist' in patch) {
@@ -125,6 +126,7 @@ export function settingsEqual(a: GameSettings, b: GameSettings): boolean {
   return (
     a.rounds === b.rounds &&
     a.snippets === b.snippets &&
+    a.cuts === b.cuts &&
     a.roundTime === b.roundTime &&
     a.finalTimer === b.finalTimer &&
     JSON.stringify(a.playlist) === JSON.stringify(b.playlist)

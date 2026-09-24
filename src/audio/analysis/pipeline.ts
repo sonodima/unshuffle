@@ -3,10 +3,12 @@
 // (with octave resolution) → DP beat tracking → centred held-note track →
 // meter (4/4 unless 3 or 5 is clear) + bar phase + structural novelty →
 // boundary DP (even lengths, bar lines, no chopped held notes) → attack
-// snapping. Written as a generator so the main-thread fallback can yield
-// between stages; the worker simply runs it to completion.
+// snapping. The 'free' style replaces the last three steps with the same DP on
+// a fine time grid that keeps off the beat and seeks held notes, unsnapped.
+// Written as a generator so the main-thread fallback can yield between stages;
+// the worker simply runs it to completion.
 
-import { chooseBoundaries, BEAT_WEIGHTS, ONSET_WEIGHTS } from './cut'
+import { chooseBoundaries, BEAT_WEIGHTS, FREE_WEIGHTS, ONSET_WEIGHTS } from './cut'
 import type { Candidate } from './cut'
 import { clamp, decimate, maxIn, mean, movingAverage, percentile } from './dsp'
 import { bandFlux, computeFeatures } from './features'
@@ -19,7 +21,7 @@ import { snapToAttack } from './snap'
 import { beatFeatures, estimateBarPhase, estimateMeter, structuralNovelty } from './structure'
 import type { BarPhase } from './structure'
 import { analyzeTempo, highpassOnset, MAX_BPM, MIN_BPM, salienceAt, tempoPrior } from './tempo'
-import type { CutMethod, CutPlan, CutSegment } from './types'
+import type { CutMethod, CutPlan, CutSegment, CutStyle } from './types'
 
 export { isValidPlan } from './plan'
 
@@ -31,6 +33,8 @@ interface AnalysisInput {
   sampleRate: number
   /** Number of segments wanted. */
   n: number
+  /** How to cut (default 'beat'). */
+  style?: CutStyle
 }
 
 interface AnalysisDebug {
@@ -78,6 +82,10 @@ const GREY_ZONE_MAX = 0.5
 const GRID_QUALITY_MIN = 0.6
 /** Octave decisions closer than this (log-odds) keep the slower bar grid in play. */
 const OCTAVE_CLOSE_CALL = 0.35
+/** Spacing of the free-cut candidate grid (s). */
+const FREE_STEP_SEC = 0.04
+/** A free cut this close to a beat (s) counts as on it; closeness fades to 0 at this distance. */
+const FREE_BEAT_RADIUS_SEC = 0.1
 
 /** Softmax over bar-phase template scores, scaled by their spread. */
 function phasePosterior(scores: number[]): number[] {
@@ -248,6 +256,7 @@ function* analysisSteps(input: AnalysisInput, wantDebug = false): Generator<void
     t0 = t
   }
   const n = clampCount(input.n)
+  const free = input.style === 'free'
   const sr = input.sampleRate
   const x = input.samples
   const duration = sr > 0 ? x.length / sr : 0
@@ -396,9 +405,34 @@ function* analysisSteps(input: AnalysisInput, wantDebug = false): Generator<void
     return sol ? sol.path.map((j) => cands[j].time) : null
   }
 
+  // Free cuts: a fine grid over the usable region, each candidate scored for
+  // closeness to a beat (to avoid), attacks and timbre changes (to avoid) and
+  // sustained sound / held centred notes right at the cut (to seek).
+  const freeCut = (): number[] | null => {
+    const beatAt = (t: number): number => {
+      let d = Infinity
+      for (const b of beats) {
+        const e = Math.abs(b - t)
+        if (e < d) d = e
+        else if (b > t) break
+      }
+      return Math.max(0, 1 - d / FREE_BEAT_RADIUS_SEC)
+    }
+    const cands: Candidate[] = []
+    for (let t = region.start; t <= region.end + 1e-9; t += FREE_STEP_SEC) {
+      const vocal = vocalTrack ? throughAt(vocalTrack, vocalRef, t) : 0
+      cands.push({ time: t, metric: -beatAt(t), novelty: 0, onset: onsetAt(t), sustain: sustainAt(t), vocal, beat: NaN })
+    }
+    const tc = cands.map((c) => timbreChange(f, c.time))
+    const tcMax = Math.max(1e-9, ...tc)
+    cands.forEach((c, i) => (c.novelty = tc[i] / tcMax))
+    const sol = chooseBoundaries({ candidates: cands, n, start: region.start, end: region.end, beatsPerBar: 4, barSec: 0, weights: FREE_WEIGHTS })
+    return sol ? sol.path.map((j) => cands[j].time) : null
+  }
+
   // Grey zone (rubato, free time, sparse ballads): the grid is trusted only
   // if its beats really carry attacks — decided once, independently of n.
-  let gridOk = confidence >= BEAT_CONFIDENCE_MIN && beats.length >= 8
+  let gridOk = !free && confidence >= BEAT_CONFIDENCE_MIN && beats.length >= 8
   if (gridOk) {
     quality.beats = cutQuality(beats.filter((t) => t >= region.start && t <= region.end))
     if (confidence < GREY_ZONE_MAX && quality.beats < GRID_QUALITY_MIN) gridOk = false
@@ -516,7 +550,10 @@ function* analysisSteps(input: AnalysisInput, wantDebug = false): Generator<void
       quality.cuts = cutQuality(chosen.times)
     }
   }
-  if (!boundaries) {
+  if (free) {
+    boundaries = freeCut()
+    if (boundaries) method = 'free'
+  } else if (!boundaries) {
     boundaries = onsetCut()
     if (boundaries) method = 'onset'
   }
@@ -525,10 +562,15 @@ function* analysisSteps(input: AnalysisInput, wantDebug = false): Generator<void
 
   if (!boundaries) return { plan: uniformPlan(n, duration, region.start, region.end) }
 
-  // Attack snapping on the full-rate signal, keeping order and minimum gaps.
+  // Attack snapping on the full-rate signal, keeping order and minimum gaps
+  // (free cuts stay where they are: in the middle of the sound on purpose).
   const grid = boundaries.slice()
   const attacks: number[] = []
   const snapped = boundaries.map((t) => {
+    if (free) {
+      attacks.push(t)
+      return clamp(t, 0, duration)
+    }
     const s = snapToAttack(x, sr, clamp(t, 0, duration))
     attacks.push(s.attack)
     return s.time

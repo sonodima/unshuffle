@@ -222,9 +222,12 @@ export default {
     seconds: '{seconds} s',
     /** Screen readers, a snippets option: "8 · Normal". */
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     /** Row titles are also the pickers' names. Hints are one short line (they truncate). */
     rounds: { title: 'Manches', hint: 'Une chanson par manche' },
     snippets: { title: 'Extraits', hint: 'Plus d’extraits, plus dur' },
+    cuts: { title: 'Découpe', hint: 'Le hachoir est plus facile' },
+    cutsDetail: { beat: 'En rythme', free: 'N’importe où' },
     roundTime: { title: 'Temps par manche', hint: 'Pour tout replacer' },
     finalTimer: { title: 'Chrono final', hint: 'Après la 1re validation' },
   },

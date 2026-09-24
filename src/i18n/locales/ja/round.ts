@@ -32,6 +32,7 @@ export default {
       sliceDone: 'カット完了',
       /** One line, ~17 full-width characters. */
       sliceDetail: { other: 'ビートに合わせて{count}ピースに' },
+      sliceDetailFree: { other: 'ナタで{count}ピースにぶった切り' },
     },
     /** Small label before the avatars. <b> = ready players, <dim> = "/total". */
     ready: '準備OK <b>{ready}</b><dim>/{total}</dim>',
@@ -49,6 +50,7 @@ export default {
     pairs: '正しい順で隣り合った2つのブロックは、位置がずれていても得点になります。',
     firstConfirm: '最初に確定した人が、全員のラストタイマーをスタートさせます。',
     edges: '曲のイントロと、フェードアウトする部分を探そう。それが最初と最後のブロックです。',
+    cleaver: 'ナタだと、言葉や音の途中で切れます。その続きになるブロックを探そう。',
     /** {points} = the maximum score of a round (formatted). */
     perfect: '完璧に並べれば{points}点。プレッシャー？ないない。',
   },

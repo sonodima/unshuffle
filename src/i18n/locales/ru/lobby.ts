@@ -270,12 +270,15 @@ export default {
     seconds: '{seconds} с',
     /** Screen readers, a snippets option: "8 · Средне". */
     snippetsOption: '{snippets} · {difficulty}',
+    cutsOption: '{name} · {detail}',
     /**
      * Row titles are also the pickers' names. Hints are one short line (they truncate).
      * On a 360 px phone the finalTimer hint gets ~105 px next to its long title: ≤ ~16 characters.
      */
     rounds: { title: 'Раунды', hint: 'Одна песня на раунд' },
     snippets: { title: 'Фрагменты', hint: 'Больше кусочков — сложнее' },
+    cuts: { title: 'Нарезка', hint: 'С тесаком проще' },
+    cutsDetail: { beat: 'В такт', free: 'Где попало' },
     roundTime: { title: 'Время раунда', hint: 'На расстановку' },
     finalTimer: { title: 'Финальный таймер', hint: 'После «Готово»' },
   },

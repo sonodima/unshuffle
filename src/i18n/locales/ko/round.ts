@@ -29,6 +29,7 @@ export default {
       sliceDone: '송송 썰기 완료',
       /** One line, ~35 characters. */
       sliceDetail: { other: '박자에 맞춘 조각 {count}개' },
+      sliceDetailFree: { other: '도끼로 막 자른 조각 {count}개' },
     },
     ready: '준비 <b>{ready}</b><dim>/{total}</dim>',
     readyPlayers: '준비된 플레이어',
@@ -44,6 +45,7 @@ export default {
     pairs: '나란히 놓인 두 블록의 순서가 맞으면, 제자리가 아니어도 점수를 받아요.',
     firstConfirm: '가장 먼저 확정한 사람이 모두의 카운트다운을 시작해요.',
     edges: '곡이 시작되는 부분과 잦아드는 부분을 찾아보세요. 그게 첫 블록과 마지막 블록이에요.',
+    cleaver: '도끼로 자르면 단어와 음 중간에서 잘려요. 그걸 이어 주는 블록을 찾아보세요.',
     perfect: '완벽한 순서 = {points}점. 부담은 갖지 마시고요.',
   },
 

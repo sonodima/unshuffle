@@ -27,9 +27,12 @@ type StepState = 'done' | 'active' | 'pending' | 'error'
 
 /** 'howTo' is worded for the device (click / tap). */
 const TIPS = ['howTo', 'playAll', 'hold', 'pairs', 'firstConfirm', 'edges', 'perfect'] as const
+type Tip = (typeof TIPS)[number] | 'cleaver'
+/** Cleaver games add the tip about their cuts. */
+const CLEAVER_TIPS: readonly Tip[] = ['cleaver', ...TIPS]
 const TIP_MS = 5200
 
-function tipText(t: ReturnType<typeof useT>, tip: (typeof TIPS)[number], canHover: boolean): string {
+function tipText(t: ReturnType<typeof useT>, tip: Tip, canHover: boolean): string {
   if (tip === 'howTo') return canHover ? t('round.tips.howToHover') : t('round.tips.howToTouch')
   if (tip === 'perfect') return t('round.tips.perfect', { points: MAX_ROUND_POINTS })
   return t(`round.tips.${tip}`)
@@ -176,7 +179,11 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
               big={big}
               state={slice}
               label={slice === 'done' ? t('round.preparing.steps.sliceDone') : t('round.preparing.steps.sliceActive')}
-              detail={slice === 'done' ? t('round.preparing.steps.sliceDetail', { count: info.snippets }) : undefined}
+              detail={
+                slice === 'done'
+                  ? t(info.cuts === 'free' ? 'round.preparing.steps.sliceDetailFree' : 'round.preparing.steps.sliceDetail', { count: info.snippets })
+                  : undefined
+              }
             />
           </motion.ol>
 
@@ -194,7 +201,7 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
 
           {big && (
             <motion.div {...rise(0.4)} className="mt-10 w-full max-w-[480px]">
-              <Tips />
+              <Tips cleaver={info.cuts === 'free'} lead={info.index === 0} />
             </motion.div>
           )}
         </div>
@@ -202,7 +209,7 @@ export function PreparingView({ room, me, audio, onRetryAudio }: PreparingViewPr
 
       {!big && (
         <motion.div {...rise(0.4)} className="mx-auto w-full max-w-[440px] pt-7 md:max-w-[560px] md:pt-10 [@media(max-height:700px)]:hidden">
-          <Tips />
+          <Tips cleaver={info.cuts === 'free'} lead={info.index === 0} />
         </motion.div>
       )}
     </div>
@@ -260,14 +267,16 @@ function StepIcon({ state }: { state: StepState }) {
   )
 }
 
-function Tips() {
+/** Rotating tips. `cleaver`: the game cuts off the beat (its tip joins, and `lead`s the first round). */
+function Tips({ cleaver, lead }: { cleaver: boolean; lead: boolean }) {
   const t = useT()
   const canHover = useCanHover()
-  const [i, setI] = useState(() => Math.floor(Math.random() * TIPS.length))
+  const tips = cleaver ? CLEAVER_TIPS : TIPS
+  const [i, setI] = useState(() => (cleaver && lead ? 0 : Math.floor(Math.random() * tips.length)))
   useEffect(() => {
-    const id = setInterval(() => setI((x) => (x + 1) % TIPS.length), TIP_MS)
+    const id = setInterval(() => setI((x) => (x + 1) % tips.length), TIP_MS)
     return () => clearInterval(id)
-  }, [])
+  }, [tips.length])
   return (
     <div className="glass-subtle flex items-start gap-3 rounded-[20px] px-4 py-3">
       <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-gold/15 text-gold">
@@ -278,7 +287,7 @@ function Tips() {
         <div className="relative mt-1 min-h-[2.8em] text-[13px] leading-snug font-semibold text-ink-100">
           <AnimatePresence mode="wait" initial={false}>
             <motion.p key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
-              {tipText(t, TIPS[i], canHover)}
+              {tipText(t, tips[i % tips.length], canHover)}
             </motion.p>
           </AnimatePresence>
         </div>
