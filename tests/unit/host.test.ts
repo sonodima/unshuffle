@@ -1405,3 +1405,37 @@ describe('welcome', () => {
     expect((w.server.of('cB2', 'welcome')[0] as { mine?: unknown }).mine).toBeUndefined()
   })
 })
+
+describe('listening history', () => {
+  test('the picker sees what the whole room heard: host history + guest digests (validated)', async () => {
+    const w = world()
+    w.ctl.localHistory = { '1': 1, '2': 0.5 }
+    w.server.connect('c1')
+    w.server.deliver('c1', { t: 'hello', profile: profile('p-a', 'A'), version: PROTOCOL_VERSION, history: { '1': 2, '3': 1 } })
+    w.server.connect('c2')
+    // Untrusted input: junk keys and values are dropped, huge weights capped.
+    const junk = { '2': 1, abc: 5, '4': -1, '5': Number.NaN, '6': 1e9 } as unknown as Record<string, number>
+    w.server.deliver('c2', { t: 'hello', profile: profile('p-b', 'B'), version: PROTOCOL_VERSION, history: junk })
+    await startAndPlay(w, ['c1', 'c2'])
+    const exposure = w.ctl.exposure!
+    expect(exposure(1)).toBeCloseTo(3)
+    expect(exposure(2)).toBeCloseTo(1.5)
+    expect(exposure(3)).toBeCloseTo(1)
+    expect(exposure(4)).toBe(0)
+    expect(exposure(6)).toBe(100)
+    expect(exposure(99)).toBe(0)
+  })
+
+  test('songs played in this room count for the next game', async () => {
+    const w = world()
+    hello(w, 'c1', 'p-a', 'A')
+    const { round } = await startAndPlay(w, ['c1'], { rounds: 3 })
+    const trackId = w.game.state.rounds[round]!.track.id
+    w.game.handleLocal({ t: 'submit', round, order: solved(8) })
+    w.server.deliver('c1', { t: 'submit', round, order: solved(8) })
+    expect(w.game.state.phase.kind).toBe('reveal')
+    w.game.backToLobby()
+    await w.game.startGame()
+    expect(w.ctl.exposure!(trackId)).toBeCloseTo(1) // guest heard it here (the host records its own locally)
+  })
+})

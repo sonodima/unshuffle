@@ -11,8 +11,10 @@ export type ClientMsg =
    * player. `secret` is the sender's private re-attach secret (kept in localStorage, never
    * broadcast): the host binds a seat to the first secret it sees for that id, so a copied
    * profile id can't take someone else's seat. Optional so older clients still get in.
+   * `history`: songs this player heard lately (track id → faded play count, see
+   * game/history.ts), so the host can pick songs nobody in the room knows by heart.
    */
-  | { t: 'hello'; profile: PlayerProfile; version: number; secret?: string }
+  | { t: 'hello'; profile: PlayerProfile; version: number; secret?: string; history?: Record<string, number> }
   /** Profile edited in the lobby (name / avatar / color). */
   | { t: 'profile'; profile: PlayerProfile }
   /** Audio for this round is downloaded + decoded on this peer. */

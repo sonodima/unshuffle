@@ -39,6 +39,8 @@ import {
   settingsEqual,
   uniformSegments,
 } from './hostRules'
+import { localDigest, sanitizeDigest } from './history'
+import type { HistoryDigest } from './history'
 import { isPlayerSecret, STORAGE_KEYS } from './persist'
 import { randomHues, scrambledOrder, shuffleInPlace } from './shuffle'
 import type {
@@ -59,7 +61,10 @@ import type {
 /** Injectable side effects (defaults = real modules) so the state machine is testable headless. */
 export interface HostGameDeps {
   getPlaylistTracks(playlistId: number): Promise<TrackInfo[]>
-  pickGameTracks(tracks: TrackInfo[], count: number): TrackInfo[]
+  /** `exposure(id)`: how much the room has already heard a track (0 = nobody). */
+  pickGameTracks(tracks: TrackInfo[], count: number, exposure?: (trackId: number) => number): TrackInfo[]
+  /** The host's own listening history (see ./history). */
+  localHistory(): HistoryDigest
   refreshPreview(trackId: number): Promise<string>
   /** Download + decode (key convention `track:${id}`). */
   loadAudio(key: string, url: string, refresh: () => Promise<string>): Promise<AudioBuffer>
@@ -142,7 +147,8 @@ function trackKey(trackId: number): string {
 // deps never touches them (they may be unavailable, e.g. in tests).
 const realDeps: HostGameDeps = {
   getPlaylistTracks: (id) => getPlaylistTracks(id),
-  pickGameTracks: (tracks, count) => pickGameTracks(tracks, count),
+  pickGameTracks: (tracks, count, exposure) => pickGameTracks(tracks, count, exposure),
+  localHistory: () => localDigest(),
   refreshPreview: (id) => refreshPreview(id),
   loadAudio: (key, url, refresh) => audioEngine.load(key, url, refresh),
   analyzeAndCut: (buffer, n) => analyzeAndCut(buffer, n),
@@ -284,6 +290,8 @@ export class HostGame {
   private readonly banned = new Set<PlayerId>()
   /** Re-attach secret per player id: whoever joined first with an id owns its seat. */
   private readonly secrets = new Map<PlayerId, string>()
+  /** What each guest has heard lately: their `hello` digest, plus the songs played here since. */
+  private readonly histories = new Map<PlayerId, HistoryDigest>()
   /** Remote PeerJS id (one per browser tab) → the one player identity that tab uses. */
   private readonly peerOwner = new Map<string, PlayerId>()
   /** Connections we rejected: nothing they still send counts (connection ids are never reused). */
@@ -548,7 +556,7 @@ export class HostGame {
       return
     }
     if (msg.t === 'hello') {
-      this.onHello(connId, msg.profile, msg.version, msg.secret)
+      this.onHello(connId, msg.profile, msg.version, msg.secret, msg.history)
       return
     }
     const playerId = this.connToPlayer.get(connId)
@@ -563,7 +571,7 @@ export class HostGame {
     this.applyPlayerMsg(playerId, msg)
   }
 
-  private onHello(connId: string, rawProfile: unknown, version: unknown, rawSecret: unknown): void {
+  private onHello(connId: string, rawProfile: unknown, version: unknown, rawSecret: unknown, rawHistory: unknown): void {
     this.clearHelloTimer(connId)
     if (version !== PROTOCOL_VERSION) return this.reject(connId, 'version')
     const profile = sanitizeProfile(rawProfile)
@@ -605,6 +613,7 @@ export class HostGame {
       this.clearLeftNotice(profile.id)
       this.clearDrop(profile.id)
       this.restoredPending.delete(profile.id)
+      this.histories.set(profile.id, sanitizeDigest(rawHistory))
       const { name, avatar, color } = profile
       if (!existing.connected || existing.name !== name || existing.avatar !== avatar || existing.color !== color) {
         this.updatePlayer(profile.id, { connected: true, name, avatar, color })
@@ -615,6 +624,8 @@ export class HostGame {
 
     if (this.current.players.length >= MAX_PLAYERS) return this.reject(connId, 'full')
     if (secret !== null) this.rememberSecret(profile.id, secret)
+    this.histories.set(profile.id, sanitizeDigest(rawHistory))
+    for (const id of this.histories.keys()) if (this.histories.size > MAX_SECRETS && !this.findPlayer(id)) this.histories.delete(id)
     const player: Player = { ...profile, isHost: false, connected: true, score: 0, activeFromRound: this.joinRound() }
     this.connToPlayer.set(connId, player.id)
     this.playerToConn.set(player.id, connId)
@@ -1026,8 +1037,9 @@ export class HostGame {
     const playable = (Array.isArray(all) ? all : []).filter((t) => isTrackInfo(t) && !seen.has(t.id) && seen.add(t.id))
     const want = settings.rounds + SPARE_TRACKS
     let picks: TrackInfo[]
+    const exposure = this.roomExposure()
     try {
-      picks = this.deps.pickGameTracks(playable, want)
+      picks = this.deps.pickGameTracks(playable, want, (id) => exposure.get(id) ?? 0)
     } catch {
       picks = shuffleInPlace([...playable]).slice(0, want)
     }
@@ -1225,6 +1237,36 @@ export class HostGame {
     if (phase.kind === 'playing' && this.allSubmitted(phase.round)) this.endRound(phase.round)
   }
 
+  /** Track id → how much the players in the room have heard it (host included). */
+  private roomExposure(): Map<number, number> {
+    const exposure = new Map<number, number>()
+    const add = (digest: HistoryDigest) => {
+      for (const [id, w] of Object.entries(digest)) exposure.set(Number(id), (exposure.get(Number(id)) ?? 0) + w)
+    }
+    try {
+      add(sanitizeDigest(this.deps.localHistory()))
+    } catch {
+      // No local history (blocked storage): the guests' still count.
+    }
+    for (const p of this.current.players) {
+      const digest = p.isHost ? undefined : this.histories.get(p.id)
+      if (digest) add(digest)
+    }
+    return exposure
+  }
+
+  /** Everyone who played round r has now heard its song (the host records its own locally). */
+  private noteHeard(r: number, playerIds: readonly PlayerId[]): void {
+    const round = this.current.rounds[r]
+    if (!round) return
+    const key = String(round.track.id)
+    for (const id of playerIds) {
+      if (id === this.current.hostId) continue
+      const digest = this.histories.get(id) ?? {}
+      this.histories.set(id, { ...digest, [key]: (digest[key] ?? 0) + 1 })
+    }
+  }
+
   private endRound(r: number): void {
     const s = this.current
     const phase = s.phase
@@ -1260,6 +1302,7 @@ export class HostGame {
     const results = Array.from({ length: Math.max(s.results.length, r + 1) }, (_, i) => (i === r ? list : (s.results[i] ?? [])))
     const nextAt = this.deps.now() + REVEAL_AUTO_ADVANCE_MS
     this.set({ players, results, phase: { kind: 'reveal', round: r, nextAt } })
+    this.noteHeard(r, s.players.filter((p) => p.connected).map((p) => p.id))
     this.armPhaseTimer(nextAt, () => this.nextRound())
     this.prefetchRound(r + 1)
   }

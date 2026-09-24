@@ -33,6 +33,7 @@ import {
   saveProfile,
   saveSession,
 } from './persist'
+import { localDigest, recordPlay } from './history'
 import { canPrefetchBytes, prefetchPreviewBytes } from './prefetch'
 import type { PreviewBytes } from './prefetch'
 import type { GameEvent, GameSettings, Phase, Player, PlayerId, PlayerProfile, RoomState, TrackInfo } from './types'
@@ -207,6 +208,8 @@ interface Session {
   joinPromise: Promise<void> | null
   /** Rounds I already told the host I'm ready for. */
   readySent: Set<number>
+  /** `${round}:${trackId}` songs already written to the listening history this session. */
+  heard: Set<string>
   /** `${round}:${trackId}` the current arrangement belongs to. */
   arrangementKey: string
   /** Arrangement changed but not yet delivered to the host. */
@@ -255,6 +258,7 @@ function newSession(role: Session['role'], code: string): Session {
     welcome: null,
     joinPromise: null,
     readySent: new Set(),
+    heard: new Set(),
     arrangementKey: '',
     arrangeDirty: false,
     lastArrangeAt: Number.NEGATIVE_INFINITY,
@@ -441,7 +445,13 @@ function sendHello(s: Session): void {
   s.helloOnLink = true
   const { id, name, avatar, color } = get().profile
   // The secret proves this browser owns the seat (player ids are public); it never leaves the host.
-  const hello: HelloMsg = { t: 'hello', profile: { id, name, avatar, color }, version: PROTOCOL_VERSION, secret: loadPlayerSecret(id) }
+  const hello: HelloMsg = {
+    t: 'hello',
+    profile: { id, name, avatar, color },
+    version: PROTOCOL_VERSION,
+    secret: loadPlayerSecret(id),
+    history: localDigest(),
+  }
   safe(() => conn.send(hello))
 }
 
@@ -574,6 +584,11 @@ function applyRoom(s: Session, room: RoomState, attached = false): void {
     s.inLobby = false
     const r = phaseRound(phase)
     const round = r >= 0 ? room.rounds[r] : null
+    if (round && phase.kind === 'reveal' && !s.heard.has(`${r}:${round.track.id}`)) {
+      // The song was just revealed to everyone here, spectators included.
+      s.heard.add(`${r}:${round.track.id}`)
+      safe(() => recordPlay(round.track.id))
+    }
     if (round) {
       const key = `${r}:${round.track.id}`
       const confirmedByHost = phase.kind === 'playing' && room.submissions[st.me]?.submitted === true

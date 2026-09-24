@@ -566,6 +566,8 @@ export function previewExpiresAt(previewUrl: string): number | null {
 const MIN_POOL = 20
 /** Weight of the most popular track in the pool relative to the least popular one. */
 const TOP_WEIGHT = 3
+/** Tracks outside the popular pool count as if this many players had already heard them. */
+const LESS_KNOWN_EXPOSURE = 1
 
 /** Uniform float in (0, 1), crypto-backed when available. */
 function randomUnit(): number {
@@ -578,17 +580,21 @@ function randomUnit(): number {
 }
 
 /**
- * Pick `count` tracks for a game: favour popular ones (rank), avoid repeating
- * artists, randomize. Returns fewer if the playlist is too small.
+ * Pick `count` tracks for a game: songs the room has heard least come first, then
+ * popular ones (rank); no repeated artists when possible; randomized. Returns fewer
+ * if the playlist is too small.
  *
- * Tracks are sorted by rank; the pool is the top half (at least 20, and at
- * least 1.5 × count). A weighted random permutation of the pool (popular
- * tracks up to 3× more likely) is walked keeping one track per artist; if that
- * isn't enough, distinct artists outside the pool come next, then repeats.
- * The result is in pick order, so trailing items (used as spares) are the
- * least ideal ones.
+ * `exposure(id)` is how much the players in the room have already heard a track
+ * (the sum of their faded play counts, see src/game/history.ts; 0 = nobody). Tracks
+ * are grouped by rounded exposure, where tracks outside the popular pool (the top
+ * half by rank, at least 20 and at least 1.5 × count) count as heard by one more
+ * player. Groups are taken least-heard first; inside a group, a weighted random
+ * order (popular tracks up to 3× more likely) is walked keeping one track per
+ * artist, then repeats fill the gaps. The result is in pick order, so trailing
+ * items (used as spares) are the least ideal ones. Without history this is the
+ * popular pool first, then the rest.
  */
-export function pickGameTracks(tracks: TrackInfo[], count: number): TrackInfo[] {
+export function pickGameTracks(tracks: TrackInfo[], count: number, exposure: (trackId: number) => number = () => 0): TrackInfo[] {
   const want = Math.floor(count)
   if (want <= 0 || tracks.length === 0) return []
   const sorted = uniqueById(tracks)
@@ -599,32 +605,31 @@ export function pickGameTracks(tracks: TrackInfo[], count: number): TrackInfo[] 
   const poolSize = Math.min(n, Math.max(MIN_POOL, Math.ceil(n / 2), Math.ceil(want * 1.5)))
 
   // Efraimidis–Spirakis: key = ln(u) / w, larger keys first ⇒ weighted sampling without replacement.
-  const keyed = sorted.map((t, i) => {
-    const inPool = i < poolSize
-    const w = inPool ? 1 + (TOP_WEIGHT - 1) * (poolSize > 1 ? 1 - i / (poolSize - 1) : 1) : 1
-    return { t, inPool, key: Math.log(randomUnit()) / w }
-  })
-  keyed.sort((a, b) => b.key - a.key)
-  const pool = keyed.filter((k) => k.inPool).map((k) => k.t)
-  const rest = keyed.filter((k) => !k.inPool).map((k) => k.t)
+  const ordered = sorted
+    .map((t, i) => {
+      const inPool = i < poolSize
+      const w = inPool ? 1 + (TOP_WEIGHT - 1) * (poolSize > 1 ? 1 - i / (poolSize - 1) : 1) : 1
+      const heard = exposure(t.id)
+      const tier = Math.round((Number.isFinite(heard) && heard > 0 ? heard : 0) + (inPool ? 0 : LESS_KNOWN_EXPOSURE))
+      return { t, tier, key: Math.log(randomUnit()) / w }
+    })
+    .sort((a, b) => a.tier - b.tier || b.key - a.key)
+    .map((k) => k.t)
 
   const picked: TrackInfo[] = []
   const chosen = new Set<number>()
   const artists = new Set<string>()
-  const take = (t: TrackInfo) => {
+  for (const t of ordered) {
+    if (picked.length >= want) return picked
+    const artist = normalizeArtist(t.artist)
+    if (artists.has(artist)) continue
     picked.push(t)
     chosen.add(t.id)
-    artists.add(normalizeArtist(t.artist))
+    artists.add(artist)
   }
-  for (const list of [pool, rest]) {
-    for (const t of list) {
-      if (picked.length >= want) return picked
-      if (!artists.has(normalizeArtist(t.artist))) take(t)
-    }
-  }
-  for (const t of [...pool, ...rest]) {
+  for (const t of ordered) {
     if (picked.length >= want) break
-    if (!chosen.has(t.id)) take(t)
+    if (!chosen.has(t.id)) picked.push(t)
   }
   return picked
 }

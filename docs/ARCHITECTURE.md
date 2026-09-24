@@ -49,6 +49,7 @@ src/
     clock.ts            host clock offset from ping/pong, hostNow(), useHostNow()
     prefetch.ts         compressed Blob-URL prefetch of later rounds' previews
     persist.ts          profile (localStorage) and session / host snapshot (sessionStorage)
+    history.ts          listening history: fading play counts, digest sent in hello
     names.ts            default nicknames, name sanitising
   net/
     protocol.ts         ClientMsg / HostMsg, reject reasons
@@ -197,8 +198,15 @@ created. It owns the `RoomState`, applies `ClientMsg`s, broadcasts state
 (Deezer, audio, analysis, clock, timers) goes through injectable `HostGameDeps`,
 so the whole machine runs headless in the unit tests.
 
-- **Start**: `getPlaylistTracks` → `pickGameTracks(rounds + 4 spares)` (popular
-  tracks favoured, one per artist where possible). The tracks are broadcast at
+- **Start**: `getPlaylistTracks` → `pickGameTracks(rounds + 4 spares, exposure)`.
+  Exposure is how much the room has heard a track: the host's own history plus
+  every guest's `hello` digest (validated, ≤ 400 entries) plus the songs played
+  in this room since. Each browser records a song when its round is revealed
+  (`game/history.ts`: a play weighs 1, halving every 30 days; a replay within
+  15 min is the same play). Tracks are taken by rounded exposure, least heard
+  first (tracks outside the popular top half count as heard by one more
+  player), then by popularity-weighted random order, one per artist where
+  possible. The tracks are broadcast at
   once so every peer starts prefetching, then round 0 is prepared: download →
   `analyzeAndCut(buffer, snippets)` → segments, `scrambledOrder`, random hues. A
   track that fails to download or cut (30 s per step) is replaced by a spare; if

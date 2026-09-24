@@ -213,6 +213,10 @@ export interface FakeControl {
   getPlaylistTracks: (id: number) => Promise<TrackInfo[]>
   loadAudio: (key: string, url: string, refresh: () => Promise<string>) => Promise<AudioBuffer>
   analyzeAndCut: (buffer: AudioBuffer, n: number) => Promise<CutPlan>
+  /** The host's own listening history (deps.localHistory). */
+  localHistory: Record<string, number>
+  /** The exposure function of the last pickGameTracks call. */
+  exposure: ((trackId: number) => number) | null
 }
 
 export function makeDeps(clock: FakeClock, tracks: TrackInfo[] = makeTracks(20)): { deps: HostGameDeps; ctl: FakeControl } {
@@ -223,6 +227,8 @@ export function makeDeps(clock: FakeClock, tracks: TrackInfo[] = makeTracks(20))
     loads: [],
     analyses: [],
     getPlaylistTracks: async () => ctl.tracks,
+    localHistory: {},
+    exposure: null,
     loadAudio: async (key) => {
       ctl.loads.push(key)
       const id = Number(key.replace('track:', ''))
@@ -238,7 +244,11 @@ export function makeDeps(clock: FakeClock, tracks: TrackInfo[] = makeTracks(20))
   }
   const deps: HostGameDeps = {
     getPlaylistTracks: (id) => ctl.getPlaylistTracks(id),
-    pickGameTracks: (list, count) => list.slice(0, count),
+    pickGameTracks: (list, count, exposure) => {
+      ctl.exposure = exposure ?? null
+      return list.slice(0, count)
+    },
+    localHistory: () => ctl.localHistory,
     refreshPreview: async (id) => `https://fresh.example/${id}.mp3`,
     loadAudio: (key, url, refresh) => ctl.loadAudio(key, url, refresh),
     analyzeAndCut: (buffer, n) => ctl.analyzeAndCut(buffer, n),

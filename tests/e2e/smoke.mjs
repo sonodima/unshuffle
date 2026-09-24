@@ -369,6 +369,12 @@ try {
   await host.waitForTimeout(1200)
   await shot('final-bottom')
 
+  // Every revealed song is in both players' listening history (the next game avoids them).
+  for (const [who, p] of [['host', host], ['guest', guest]]) {
+    const heard = await p.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('unshuffle:history') ?? '{}')).length)
+    check(heard === ROUNDS, `${who}: listening history has the ${ROUNDS} songs of the game (got ${heard})`)
+  }
+
   await host.getByRole('button', { name: 'Rigioca' }).click()
   await Promise.all([waitScreen(host, 'lobby', 15_000), waitScreen(guest, 'lobby', 15_000)])
   await host.waitForTimeout(900)

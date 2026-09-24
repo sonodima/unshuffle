@@ -25,6 +25,10 @@ everyone else. Italian UI, phone and desktop.
 - **Any Deezer playlist**: search, category chips, featured playlists, or paste a
   playlist link. Settings: 3/5/7/10 rounds, 6/8/12/16 snippets
   (Facile → Folle), 60–180 s per round, 10–30 s final timer.
+- **Fresh songs**: every browser remembers the songs it has heard in a game
+  (locally, fading over a few weeks) and shares a small summary with the host,
+  who picks the songs nobody in the room has heard lately first, the most famous
+  among equals.
 - **Musical cuts**: beat and bar tracking (4/4, plus 3/4 and 5/4 when clear) in a
   Web Worker. Cuts avoid chopping held vocal notes, snippets have near-even
   lengths, and every guest re-aligns the host's cuts to its own browser's decode

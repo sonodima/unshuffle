@@ -16,6 +16,8 @@ export const STORAGE_KEYS = {
   hostSnapshot: (code: string) => `unshuffle:host:${code}`,
   arrangement: (code: string, round: number) => `unshuffle:arr:${code}:${round}`,
   arrangementPrefix: (code: string) => `unshuffle:arr:${code}:`,
+  /** Songs this browser has heard in a game (see ./history). */
+  history: 'unshuffle:history',
 } as const
 
 /** A host snapshot older than this is not resumed after a refresh. */
@@ -58,6 +60,14 @@ function remove(kind: StorageKind, key: string): void {
   } catch {
     // Blocked storage: nothing to clean up.
   }
+}
+
+export function loadHistoryRaw(): unknown {
+  return readJson('local', STORAGE_KEYS.history)
+}
+
+export function saveHistoryRaw(value: unknown): void {
+  writeJson('local', STORAGE_KEYS.history, value)
 }
 
 function isRecord(x: unknown): x is Record<string, unknown> {

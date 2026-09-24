@@ -107,6 +107,36 @@ describe('pickGameTracks', () => {
     expect(first10).toBeGreaterThan(last10 * 1.6) // rank bias
     expect(Math.min(...hits.slice(0, 50))).toBeGreaterThan(20) // but every pool track shows up
   })
+  test('songs the room has heard come after the ones nobody heard', () => {
+    const tracks = fakeTracks(100, 100)
+    const heard = new Set(tracks.slice(0, 40).map((t) => t.id)) // the 40 most popular
+    for (let run = 0; run < 300; run++) {
+      const picks = pickGameTracks(tracks, 9, (id) => (heard.has(id) ? 2 : 0))
+      // 10 unheard pool tracks are left (pool = top 50): they come first, then the unheard
+      // less known ones — never the famous songs everyone knows by now.
+      expect(picks.filter((t) => heard.has(t.id))).toHaveLength(0)
+    }
+  })
+  test('a famous song heard once ties with an unheard less known one; heard twice loses', () => {
+    const tracks = fakeTracks(100, 100)
+    const top = tracks.slice(0, 50)
+    let fromTop = 0
+    for (let run = 0; run < 300; run++) {
+      const once = pickGameTracks(tracks, 9, (id) => (top.some((t) => t.id === id) ? 1 : 0))
+      fromTop += once.filter((t) => top.includes(t)).length
+      const twice = pickGameTracks(tracks, 9, (id) => (top.some((t) => t.id === id) ? 2 : 0))
+      expect(twice.filter((t) => top.includes(t))).toHaveLength(0)
+    }
+    // Same tier: popular tracks still weigh more, but both halves get picked.
+    expect(fromTop).toBeGreaterThan(300 * 9 * 0.4)
+    expect(fromTop).toBeLessThan(300 * 9 * 0.9)
+  })
+  test('faded plays: a song heard long ago is fresh again', () => {
+    const tracks = fakeTracks(60, 60)
+    const hits = new Array<number>(60).fill(0)
+    for (let run = 0; run < 300; run++) for (const t of pickGameTracks(tracks, 9, () => 0.3)) hits[t.id - 1000]++
+    expect(hits.slice(0, 20).reduce((a, b) => a + b, 0)).toBeGreaterThan(0)
+  })
   test('distinct artists when possible', () => {
     const tracks = fakeTracks(60, 12) // 12 artists, 5 songs each
     for (let run = 0; run < 200; run++) {

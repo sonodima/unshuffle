@@ -527,7 +527,7 @@ describe('client', () => {
     expect(st().roomCode).toBe('KXQPM')
     await tick()
     const conn = net.conns[0]
-    expect(conn.sent).toEqual([{ t: 'hello', profile: st().profile, version: PROTOCOL_VERSION, secret: persist.loadPlayerSecret(me()) }])
+    expect(conn.sent).toEqual([{ t: 'hello', profile: st().profile, version: PROTOCOL_VERSION, secret: persist.loadPlayerSecret(me()), history: {} }])
     // The re-attach secret is private: 48 hex chars, stable, stored next to the profile.
     expect(persist.loadPlayerSecret(me())).toMatch(/^[0-9a-f]{48}$/)
     expect(JSON.parse(local.getItem('unshuffle:secret')!)).toEqual({ id: me(), secret: persist.loadPlayerSecret(me()) })
@@ -745,6 +745,23 @@ describe('client', () => {
     expect(st().arrangementRound).toBe(1)
     expect(st().arrangement).toEqual(r1.initialOrder)
     expect(st().submitted).toBe(false)
+  })
+
+  test('a revealed song goes into the listening history once (spectators too)', async () => {
+    const t0 = track(1)
+    const base = lobbyRoom('KXQPM', 'host-1', [me()])
+    base.players[1].activeFromRound = 1 // spectating round 0: still hears the song
+    const { conn } = await joinWelcomed('KXQPM', base)
+    const playing = withPhase(base, { kind: 'playing', round: 0, startedAt: 0, endsAt: Date.now() + 1000, firstSubmit: null }, { tracks: [t0], rounds: [round(0, t0)] })
+    localStorage.removeItem('unshuffle:history')
+    conn.deliver({ t: 'state', state: playing, hostNow: 0 })
+    expect(localStorage.getItem('unshuffle:history')).toBeNull()
+    const reveal = withPhase(playing, { kind: 'reveal', round: 0, nextAt: null })
+    conn.deliver({ t: 'state', state: reveal, hostNow: 0 })
+    conn.deliver({ t: 'state', state: { ...reveal, seq: reveal.seq + 1 }, hostNow: 0 })
+    const history = JSON.parse(localStorage.getItem('unshuffle:history') ?? '{}') as Record<string, { w: number }>
+    expect(Object.keys(history)).toEqual([String(t0.id)])
+    expect(history[String(t0.id)].w).toBe(1)
   })
 
   test('spectators cannot submit; host-confirmed submission is picked up', async () => {
