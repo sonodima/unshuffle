@@ -67,7 +67,8 @@ export default {
 
   qr: {
     title: '友だちを招待',
-    description: 'スマホのカメラでQRを読み取るか、リンクを共有しよう。',
+    /** One line on phones (~17 full-width characters). */
+    description: 'スマホでQRを読むか、リンクを送ろう。',
     code: 'コード',
     copy: 'コピー',
     copied: 'コピー済み',
@@ -173,7 +174,7 @@ export default {
     rounds: { title: 'ラウンド数', hint: '1ラウンドにつき1曲' },
     snippets: { title: 'ピース数', hint: '多いほどむずかしい' },
     roundTime: { title: '制限時間', hint: '1ラウンドあたり' },
-    finalTimer: { title: 'ラストタイマー', hint: '最初の確定のあと' },
+    finalTimer: { title: 'ラストタイマー', hint: '誰かが確定したら' },
   },
 
   /** "How to play" card (guests, while they wait). */
@@ -183,10 +184,10 @@ export default {
     listen: {
       title: '聴く',
       bodyClick: {
-        other: '曲は{count}個のピースにカットされ、シャッフルされています。ブロックをクリックして聴いてみよう。',
+        other: '曲は{count}ピースにカットされ、シャッフルされています。ブロックをクリックして聴いてみよう。',
       },
       bodyTap: {
-        other: '曲は{count}個のピースにカットされ、シャッフルされています。ブロックをタップして聴いてみよう。',
+        other: '曲は{count}ピースにカットされ、シャッフルされています。ブロックをタップして聴いてみよう。',
       },
     },
     reorder: {
@@ -197,7 +198,7 @@ export default {
       title: '確定',
       /** {count}: seconds of the final timer (10–30). */
       body: {
-        other: '最初に確定した人が出るとラストタイマーがスタート。ほかのプレイヤーの残り時間は{count}秒！',
+        other: '最初の1人が確定するとラストタイマーがスタート。ほかのプレイヤーは残り{count}秒！',
       },
     },
   },
@@ -209,10 +210,13 @@ export default {
     snippets: { other: '<num>{count}</num>ピース' },
     snippetsLevel: { other: '<num>{count}</num>ピース（{difficulty}）' },
     roundTime: '<num>{seconds}秒</num>',
-    /** Guests. Animated dots follow: no final punctuation. */
-    waitingStart: 'ホストがゲームを始めるのを待っています',
-    /** Guests. Animated dots follow: no final punctuation. */
-    waitingPlaylist: 'ホストがプレイリストを選んでいます',
+    /**
+     * Guests, one line next to the record (~178px on a 360px phone: ≤ 13 full-width
+     * characters with the dots). Animated dots follow: no final punctuation.
+     */
+    waitingStart: 'ホストの開始を待っています',
+    /** Same slot. Noun style, like hero.incoming (プレイリスト選択中). */
+    waitingPlaylist: 'ホストがプレイリスト選択中',
     pickPlaylist: 'プレイリストを選んでスタート',
     solo: 'ひとりでも遊べます',
     noPlaylist: 'プレイリスト未選択',

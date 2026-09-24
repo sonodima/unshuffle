@@ -352,8 +352,9 @@
     display: inline-block;
     font-size: 15px;
   }
+  /* A verdict longer than its column takes a second, balanced line instead of running under the total. */
   .rv-score-verdict > p {
-    white-space: nowrap;
+    text-wrap: balance;
   }
 }
 .rv-score-wash {

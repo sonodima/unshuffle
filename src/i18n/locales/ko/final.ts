@@ -54,8 +54,9 @@ export default {
     rematch: '한 판 더!',
     rematchSent: '요청 보냄',
     waiting: '호스트가 다시 시작하길 기다리는 중…',
-    rematchNamed: { other: '{names} 님이 한 판 더 원해요!' },
-    rematchMany: { other: '{count}명이 한 판 더 원해요!' },
+    /** 하재요 = 하자고 해요 ("says: let's play again"). */
+    rematchNamed: { other: '{names} 님이 한 판 더 하재요!' },
+    rematchMany: { other: '{count}명이 한 판 더 하재요!' },
   },
 
   leaveDialog: {
@@ -98,7 +99,8 @@ export default {
     },
     lightning: {
       title: '번개손',
-      description: '점수 낸 라운드에서 가장 빨리 확정',
+      /** No-break spaces keep "가장 빨리 확정" on one line in the narrow card. */
+      description: '득점 라운드에서 가장\u00A0빨리\u00A0확정',
       value: '평균 {time}',
     },
     sniper: {
@@ -109,7 +111,7 @@ export default {
     /** Tongue-in-cheek award for running out of time: 벼락치기 = last-minute cramming. */
     lastSecond: {
       title: '벼락치기',
-      description: '시간 초과 라운드 최다',
+      description: '시간 초과 최다',
       value: { other: '시간 초과 {count}회' },
     },
   },
@@ -128,7 +130,7 @@ export default {
   },
 
   songs: {
-    title: '이번 게임의 곡',
+    title: '이번 게임에 나온 곡',
     aside: '여기서 또는 Deezer에서 다시 들어 보세요',
     play: '{round}라운드: {artist}의 {title} 미리 듣기',
     stop: '{round}라운드: {artist}의 {title} 미리 듣기 멈추기',

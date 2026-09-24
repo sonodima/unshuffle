@@ -65,7 +65,7 @@ export default {
   },
   timer: {
     /** Countdown ring / bar, read by screen readers. */
-    secondsLeft: { one: 'Falta {count} segundo', other: 'Faltam {count} segundos' },
+    secondsLeft: { zero: 'Faltam {count} segundos', one: 'Falta {count} segundo', other: 'Faltam {count} segundos' },
   },
   progressDots: {
     /** Round progress dots. {current} = 1-based round, {total} = rounds in the game. */

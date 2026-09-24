@@ -58,7 +58,7 @@ export default {
       one: '{count} player',
       other: '1 to {count} players',
     },
-    noAccount: 'No sign-up, plays in your browser',
+    noAccount: 'No sign-up, right in your browser',
     deezer: 'Music previews from Deezer',
   },
   profile: {
@@ -71,7 +71,7 @@ export default {
     randomName: 'Random name',
     /** Title of the avatar / color picker dialog. */
     lookTitle: 'Your look',
-    lookDescription: 'Pick an emoji and a color: this is how other players will see you.',
+    lookDescription: 'Pick an emoji and a color. That’s how others will see you.',
     /** Closes the picker. */
     done: 'Done',
     /** Small heading over the preview of your avatar and name (uppercase). */
@@ -116,7 +116,7 @@ export default {
         bodyTouch: 'A famous hit gets cut up on the beat and shuffled. Tap a tile to hear it.',
       },
       sort: {
-        title: 'Drag them into the right order',
+        title: 'Drag them into order',
         /** <play></play> is replaced by a small ▶ icon (the "play your order" button). Keep it empty. */
         body: 'Move the tiles around until the song sounds like the original. Hit <play></play> to hear your order.',
       },

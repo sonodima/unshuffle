@@ -93,10 +93,13 @@ export default {
       artist: 'Неизвестный исполнитель',
     },
   },
-  /** Difficulty by snippet count (6 / 8 / 12 / 16). Also shown lowercased: "8 фрагментов (нормально)". */
+  /**
+   * Difficulty by snippet count (6 / 8 / 12 / 16). Also shown lowercased: "8 фрагментов (средне)".
+   * Tiny uppercase sublabels of the 4-way snippets picker (~55 px on a 360 px phone): ≤ 7 letters.
+   */
   difficulty: {
     easy: 'Легко',
-    normal: 'Нормально',
+    normal: 'Средне',
     hard: 'Сложно',
     insane: 'Хардкор',
   },

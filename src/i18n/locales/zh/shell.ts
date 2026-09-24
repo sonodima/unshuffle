@@ -140,7 +140,7 @@ export default {
   toast: {
     /** Stands in for {name} when the player's nickname is unknown. */
     someone: '一位玩家',
-    joined: '{name}进入了房间',
+    joined: '{name}加入了房间',
     /** Under "joined": players in the room now (always 2 or more). */
     roomCount: { other: '房间里现在有{count}人' },
     left: '{name}离开了房间',

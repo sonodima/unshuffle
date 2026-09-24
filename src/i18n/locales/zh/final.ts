@@ -125,7 +125,10 @@ export default {
     points: { other: '分' },
   },
 
-  /** Award cards. Titles are small display type in a half-width card on phones: keep them short. */
+  /**
+   * Award cards. Titles are small display type in a half-width card on phones: keep them short.
+   * Descriptions: ≤ 6 characters stay on one line in a 360px phone card (7+ leave an orphan).
+   */
   awards: {
     title: '奖项',
     /** Next to the title (small, uppercase). */
@@ -139,19 +142,19 @@ export default {
     },
     lightning: {
       title: '闪电手',
-      description: '得分回合里确认最快',
+      description: '确认速度最快',
       /** {time}: average time, e.g. "38.3秒". */
       value: '平均{time}',
     },
     sniper: {
       title: '神枪手',
-      description: '放对位置的片段最多',
+      description: '放对位置最多',
       /** {accuracy}: snippets in place per round ("6.8/8") or a percentage ("85%"). */
       value: '平均{accuracy}',
     },
     lastSecond: {
       title: '拖延大王',
-      description: '超时的回合最多',
+      description: '超时回合最多',
       value: { other: '超时{count}次' },
     },
   },

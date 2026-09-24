@@ -417,7 +417,8 @@ function Tabs({ tab, onTab, playerCount, needsPlaylist }: { tab: LobbyTab; onTab
               aria-label={name}
               tabIndex={selected ? 0 : -1}
               onClick={() => onTab(item.id)}
-              className="relative flex h-11 min-w-0 flex-1 basis-0 items-center justify-center gap-1.5 rounded-[16px] px-1 tap-none"
+              // Equal thirds while the labels fit; a longer label (+ its badge) widens its own tab instead of being cut.
+              className="relative flex h-11 flex-1 basis-0 items-center justify-center gap-1.5 rounded-[16px] px-1 tap-none"
             >
               {selected && (
                 <motion.span

@@ -74,7 +74,7 @@ export default {
     snippets: { one: '<b>{count}</b> snippet', other: '<b>{count}</b> snippets' },
     /** Round duration; "sec" = seconds. */
     seconds: '<b>{seconds}</b> sec',
-    spectator: 'You’re sitting this one out: you’ll jump in next round.',
+    spectator: 'You’re sitting this one out. You’ll jump in next round.',
     howToHover: 'Click a tile to hear it, then drag it into place.',
     howToTouch: 'Tap a tile to hear it, then drag it into place.',
     /** Shown inside the countdown ring before "3" (small, uppercase). */
@@ -134,7 +134,7 @@ export default {
     /** Main button (uppercase). */
     confirm: 'Lock in',
     /** The board is still the starting shuffle: the button asks for a second press. */
-    unchanged: 'You haven’t moved anything',
+    unchanged: 'Nothing’s moved yet',
     armTap: 'Tap again to lock in',
     armClick: 'Click again to lock in',
     /** {mod} = ⌘ or Ctrl, {enter} = the Enter key name. */

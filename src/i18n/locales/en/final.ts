@@ -43,7 +43,7 @@ export default {
     rounds: { one: '{count} round', other: '{count} rounds' },
     /** Several players, nobody scored. */
     allZero: 'All zeros!',
-    allZeroSub: 'Nobody scored this time: run it back and redeem yourselves.',
+    allZeroSub: 'Nobody scored. Run it back and redeem yourselves!',
     /** Shared first place. */
     tie: 'It’s a tie!',
     /** I'm one of the tied winners. {names}: the other winners, already joined ("Giulia and Marco"). */
@@ -151,8 +151,8 @@ export default {
       value: '{accuracy} on average',
     },
     lastSecond: {
-      title: 'Fashionably Late',
-      description: 'Most rounds that ran out of time',
+      title: 'Out of Time',
+      description: 'Most rounds that timed out',
       value: { one: '{count} timeout', other: '{count} timeouts' },
     },
   },

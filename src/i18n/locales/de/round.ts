@@ -34,11 +34,11 @@ export default {
 
   tips: {
     title: 'Schon gewusst?',
-    howToHover: 'Klick auf einen Block, um ihn anzuhören, und zieh ihn, um ihn zu verschieben.',
-    howToTouch: 'Tipp auf einen Block, um ihn anzuhören, und zieh ihn, um ihn zu verschieben.',
+    howToHover: 'Klicken spielt einen Block ab, Ziehen verschiebt ihn.',
+    howToTouch: 'Antippen spielt einen Block ab, Ziehen verschiebt ihn.',
     playAll: '„Alles anhören“ spielt die Blöcke in deiner aktuellen Reihenfolge: Klingt es rund, bist du fast am Ziel.',
     hold: 'Halte einen Block gedrückt, um die Folge ab dort zu hören.',
-    pairs: 'Passende Paare zählen: Zwei Blöcke, die in richtiger Folge nebeneinanderliegen, bringen Punkte – auch an der falschen Stelle.',
+    pairs: 'Zwei Blöcke in richtiger Folge nebeneinander bringen Punkte – auch an der falschen Stelle.',
     firstConfirm: 'Wer zuerst bestätigt, startet den Endspurt für alle.',
     edges: 'Achte auf den Einstieg und das Ausklingen des Songs: Das sind die ersten und die letzten Blöcke.',
     perfect: 'Perfekte Reihenfolge = {points} Punkte. Nur kein Druck.',
@@ -52,8 +52,8 @@ export default {
     snippets: { one: '<b>{count}</b> Schnipsel', other: '<b>{count}</b> Schnipsel' },
     seconds: '<b>{seconds}</b> s',
     spectator: 'In dieser Runde schaust du zu – ab der nächsten spielst du mit.',
-    howToHover: 'Klick auf einen Block, um ihn anzuhören, und zieh ihn dann an die richtige Stelle.',
-    howToTouch: 'Tipp auf einen Block, um ihn anzuhören, und zieh ihn dann an die richtige Stelle.',
+    howToHover: 'Klick auf einen Block, um ihn zu hören – dann zieh ihn an seinen Platz.',
+    howToTouch: 'Tipp auf einen Block, um ihn zu hören – dann zieh ihn an seinen Platz.',
     ready: 'Bereit?',
     readyLabel: 'Bereit',
     countdownLabel: 'Los geht’s in {seconds}',
@@ -106,13 +106,14 @@ export default {
     spectator: 'Du schaust zu',
     spectatorBody: 'Ab nächster Runde dabei',
     audioFailed: 'Kein Ton verfügbar',
-    audioFailedBody: 'Neu laden oder ohne Ton spielen',
+    audioFailedBody: 'Nochmal laden oder ohne Ton spielen',
     retryAudio: 'Ton erneut laden',
     hints: {
       playAll: '<kbd>{space}</kbd> alles anhören',
       confirm: '<kbd>{mod}</kbd> + <kbd>{enter}</kbd> <action>bestätigen</action>',
-      pointer: 'Block anklicken zum Anhören · gedrückt halten, um ab dort zu hören · ziehen zum Verschieben',
-      pointerLocked: 'Block anklicken zum Anhören · gedrückt halten, um ab dort zu hören',
+      /** Legend style, like the key hints: "gesture: action". */
+      pointer: 'Block anklicken: anhören · gedrückt halten: ab dort abspielen · ziehen: verschieben',
+      pointerLocked: 'Block anklicken: anhören · gedrückt halten: ab dort abspielen',
     },
   },
 

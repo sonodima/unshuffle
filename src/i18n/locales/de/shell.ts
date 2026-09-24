@@ -108,7 +108,7 @@ export default {
   toast: {
     someone: 'Jemand',
     joined: '{name} ist dabei',
-    roomCount: { one: 'Jetzt seid ihr zu {count}', other: 'Jetzt seid ihr zu {count}' },
+    roomCount: { one: 'Jetzt seid ihr {count} im Raum', other: 'Jetzt seid ihr {count} im Raum' },
     left: '{name} hat den Raum verlassen',
     submitted: '{name} hat bestätigt',
     lastSeconds: { one: 'Letzte Sekunde für alle!', other: 'Letzte {count} Sekunden für alle!' },

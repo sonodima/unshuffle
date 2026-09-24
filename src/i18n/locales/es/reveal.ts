@@ -41,7 +41,7 @@ export default {
       label: 'Orden mostrado',
       mine: 'Tu orden',
       mineShort: 'El tuyo',
-      correct: 'Orden correcto',
+      correct: 'El correcto',
       correctShort: 'Correcto',
     },
     tallyCorrect: { one: '{count} en su lugar', other: '{count} en su lugar' },
@@ -138,12 +138,13 @@ export default {
 
   lead: {
     title: 'Clasificación',
-    after: 'tras la ronda {round}',
+    /** The no-break space keeps the number with «ronda» when the label wraps. */
+    after: 'tras la ronda {round}',
     /** Tiny badge: 2–4 letters. */
     you: 'tú',
     top: 'Mejor puntuación de la ronda',
     spectator: 'Espectador',
-    spectatorFrom: 'Espectador · juega desde la ronda {round}',
+    spectatorFrom: 'Espectador · juega desde la ronda {round}',
     noAnswer: 'Sin respuesta',
     /** Tiny labels, three columns. */
     stats: {

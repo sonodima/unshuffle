@@ -54,8 +54,11 @@ export default {
     copied: '¡Código copiado!',
     copyFailed: 'No se pudo copiar',
     copyLabel: 'Código de sala {code}. Copiar código',
-    /** Short (phones: shares a row). */
-    copyLink: 'Copiar enlace',
+    /**
+     * Short (phones: shares a row with «Compartir» and the QR button, ~130px at 360).
+     * «link» here on purpose: «Copiar enlace» does not fit; «Copiar» alone would read as copying the code.
+     */
+    copyLink: 'Copiar link',
     linkCopied: '¡Copiado!',
     share: 'Compartir',
     showQr: 'Mostrar código QR',
@@ -108,8 +111,8 @@ export default {
     title: 'Elige la playlist',
     source: 'Canciones de Deezer · vistas previas de 30 segundos',
     searchLabel: 'Buscar playlists',
-    /** ~32 characters. */
-    searchPlaceholder: 'Busca o pega un enlace de Deezer',
+    /** Must fit ~215px on 360px phones: «…un enlace de Deezer» was cut. */
+    searchPlaceholder: 'Busca o pega un enlace',
     searching: 'Buscando',
     clear: 'Borrar búsqueda',
     featured: 'Destacadas',
@@ -171,7 +174,8 @@ export default {
     rounds: { title: 'Rondas', hint: 'Una canción por ronda' },
     snippets: { title: 'Fragmentos', hint: 'Más piezas, más difícil' },
     roundTime: { title: 'Tiempo por ronda', hint: 'Para ordenar' },
-    finalTimer: { title: 'Temporizador final', hint: 'Tras la primera confirmación' },
+    /** Hints are one short line next to the title (~110px on 360px phones). */
+    finalTimer: { title: 'Temporizador final', hint: 'Si alguien confirma' },
   },
 
   /** "How to play" card (guests, while they wait). */
@@ -210,9 +214,9 @@ export default {
     snippetsLevel: { one: '<num>{count}</num> fragmento ({difficulty})', other: '<num>{count}</num> fragmentos ({difficulty})' },
     roundTime: '<num>{seconds}s</num>',
     /** Animated dots follow: no final punctuation. */
-    waitingStart: 'Esperando a que el anfitrión inicie la partida',
+    waitingStart: 'Esperando al anfitrión',
     /** Animated dots follow: no final punctuation. */
-    waitingPlaylist: 'El anfitrión está eligiendo la playlist',
+    waitingPlaylist: 'El anfitrión elige la playlist',
     pickPlaylist: 'Elige una playlist para empezar',
     solo: 'También puedes jugar en solitario',
     noPlaylist: 'Sin playlist',

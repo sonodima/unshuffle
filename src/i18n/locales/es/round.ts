@@ -94,7 +94,7 @@ export default {
   /** The final-countdown banner in the HUD. */
   banner: {
     someone: 'Alguien',
-    mine: '¡Confirmas antes que nadie!',
+    mine: '¡Has confirmado primero!',
     /** On phones only the name is shortened (one line). */
     confirmedBy: '¡<name>{name}</name> ha confirmado!',
     /** <n> is the live seconds count. */

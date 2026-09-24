@@ -102,7 +102,8 @@ export default {
     title: 'Playlist wählen',
     source: 'Songs von Deezer · 30-Sekunden-Hörproben',
     searchLabel: 'Playlists suchen',
-    searchPlaceholder: 'Suchen oder Deezer-Link einfügen',
+    /** Must fit a ~260 px field on phones: ≤ 26 characters. */
+    searchPlaceholder: 'Suchen oder Link einfügen',
     searching: 'Suche läuft',
     clear: 'Suche leeren',
     featured: 'Empfohlen',
@@ -153,7 +154,7 @@ export default {
   /** "Endspurt" = the final timer that starts after the first confirmation. */
   rules: {
     title: 'Regeln',
-    duration: 'Dauer: max. <num>~{minutes} Min.</num>',
+    duration: 'Dauer: max. <num>~{minutes}</num> Min.',
     hostDecides: 'Host bestimmt',
     seconds: '{seconds} s',
     snippetsOption: '{snippets} · {difficulty}',
@@ -179,7 +180,7 @@ export default {
     },
     reorder: {
       title: 'Sortieren',
-      body: 'Zieh die Blöcke herum, bis der Song wieder richtig klingt. Mit ▶ hörst du alles am Stück.',
+      body: 'Schieb die Blöcke hin und her, bis der Song wieder richtig klingt. Mit ▶ hörst du alles am Stück.',
     },
     confirm: {
       title: 'Bestätigen',
@@ -195,7 +196,7 @@ export default {
     rounds: { one: '<num>{count}</num> Runde', other: '<num>{count}</num> Runden' },
     snippets: { one: '<num>{count}</num> Schnipsel', other: '<num>{count}</num> Schnipsel' },
     snippetsLevel: { one: '<num>{count}</num> Schnipsel ({difficulty})', other: '<num>{count}</num> Schnipsel ({difficulty})' },
-    roundTime: '<num>{seconds} s</num>',
+    roundTime: '<num>{seconds}</num> s',
     waitingStart: 'Warten, bis der Host loslegt',
     waitingPlaylist: 'Der Host wählt die Playlist',
     pickPlaylist: 'Wähl eine Playlist, um zu starten',

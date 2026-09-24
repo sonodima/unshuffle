@@ -8,8 +8,8 @@ export default {
   hero: {
     /** Small line above the logo (letter-spaced). */
     eyebrow: '音楽パーティーゲーム',
-    /** Under the logo. <b>…</b> is the highlighted second sentence. */
-    tagline: 'あのヒット曲がバラバラに。<b>元どおりに並べ直せ！</b>',
+    /** Under the logo. <b>…</b> is the highlighted second sentence. One line on a 360px phone: ≤ 21 characters. */
+    tagline: 'ヒット曲がバラバラに。<b>元どおりに並べ直せ！</b>',
   },
   cardLabel: 'プレイ',
   demoLabel: 'ラウンドのデモ',
@@ -52,7 +52,8 @@ export default {
     namePlaceholder: '名前を入力',
     randomName: 'ランダムな名前',
     lookTitle: 'アバターを選ぶ',
-    lookDescription: '絵文字とカラーを選ぼう。ほかのプレイヤーにはこう見えます。',
+    /** One line on phones (~19 full-width characters). */
+    lookDescription: 'みんなに見える絵文字とカラーを選ぼう。',
     done: '完了',
     preview: 'プレビュー',
   },
@@ -79,7 +80,7 @@ export default {
   /** "How to play" dialog: three illustrated steps and the scoring rule. */
   howTo: {
     title: '遊び方',
-    description: '1ラウンドにつき1曲。バラバラになったヒット曲を、より正確に、より速く並べ直した人の勝ち！',
+    description: '1ラウンドにつき1曲。バラバラになったヒット曲を、速く正確に並べ直した人の勝ち！',
     gotIt: 'わかった、遊ぼう！',
     /** The fake "confirm" button in the third illustration (tiny pill). */
     confirmButton: '確定',
@@ -96,7 +97,7 @@ export default {
       },
       confirm: {
         title: '誰よりも早く確定',
-        body: '最初に確定した人が出ると、全員のラストタイマーがスタートします。',
+        body: '最初の1人が確定すると、全員のラストタイマーがスタートします。',
       },
     },
     /** {points} = maximum points per round, already formatted; <b>…</b> highlights it. */

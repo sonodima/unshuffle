@@ -32,8 +32,13 @@ export default {
 
   board: {
     region: 'Deine Reihenfolge',
-    titleMine: 'Deine Reihenfolge',
-    titleCorrect: 'Die richtige Reihenfolge',
+    /**
+     * Board titles, paired with the toggle below: "Deine Version" vs "Das Original"
+     * (your cover of the song vs the original). On phones the title shares one row
+     * with the toggle, so it must stay short (≈ 13 characters).
+     */
+    titleMine: 'Deine Version',
+    titleCorrect: 'Das Original',
     toggle: {
       label: 'Angezeigte Reihenfolge',
       mine: 'Deine Version',

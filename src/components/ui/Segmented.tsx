@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { cn } from './cn'
 import { playSfx } from './sound'
 
@@ -28,6 +28,12 @@ export interface SegmentedProps<T extends string | number> {
   /** md 48px (56 with sublabels) · sm 40px. Default md. */
   size?: 'sm' | 'md'
   tone?: SegmentedTone
+  /**
+   * As wide as its labels (at least what a `min-w-*` class gives) instead of filling the row:
+   * equal segments sharing the labels' total width, widened to the longest label + its padding
+   * when one wouldn't fit in its share. A fixed width never squeezes a long translation.
+   */
+  fit?: boolean
   className?: string
 }
 
@@ -51,6 +57,7 @@ export function Segmented<T extends string | number>({
   disabled = false,
   size = 'md',
   tone = 'violet',
+  fit = false,
   className,
 }: SegmentedProps<T>) {
   const layoutId = useId()
@@ -59,6 +66,29 @@ export function Segmented<T extends string | number>({
   const hasSub = options.some((o) => o.sublabel != null)
   const interactive = !readOnly && !disabled
   const selectedIndex = options.findIndex((o) => o.value === value)
+
+  // fit: labels of very different lengths ("Твой" / "Верный") can't all fit in equal shares of
+  // their total; then every segment gets the longest label's width. Measured before paint, again
+  // once the webfonts are in; nothing is set while the labels fit (the common case).
+  useLayoutEffect(() => {
+    const root = ref.current
+    if (!fit || !root) return
+    let live = true
+    const measure = () => {
+      if (!live) return
+      root.style.minWidth = ''
+      const labels = [...root.querySelectorAll<HTMLElement>('[data-seg-label]')]
+      if (!labels.some((l) => l.scrollWidth - l.clientWidth > 0.5)) return
+      const widest = Math.max(...labels.map((l) => l.scrollWidth))
+      // n × (label + the segment's px-1.5 padding) + the root's p-1 and 1px border.
+      root.style.minWidth = `calc(${labels.length} * (${widest}px + 0.75rem) + 0.5rem + 2px)`
+    }
+    measure()
+    void document.fonts?.ready.then(measure)
+    return () => {
+      live = false
+    }
+  }, [fit, options])
 
   const select = (o: SegmentedOption<T>) => {
     if (!interactive || o.disabled || o.value === value) return
@@ -92,7 +122,8 @@ export function Segmented<T extends string | number>({
       aria-disabled={disabled || undefined}
       onKeyDown={onKeyDown}
       className={cn(
-        'relative flex w-full rounded-[18px] border border-white/[0.08] bg-ink-950/55 p-1 shadow-well',
+        'relative flex rounded-[18px] border border-white/[0.08] bg-ink-950/55 p-1 shadow-well',
+        fit ? 'w-max max-w-full' : 'w-full',
         disabled && 'opacity-50',
         className,
       )}
@@ -126,8 +157,11 @@ export function Segmented<T extends string | number>({
               />
             )}
             <span
+              data-seg-label
               className={cn(
-                'relative truncate font-display leading-none font-bold transition-colors duration-200',
+                // A label may use the side padding (it stays centred); past the segment's edges it ends in an
+                // ellipsis instead of spilling onto its neighbour (items-center alone would let it overflow).
+                'relative max-w-[calc(100%+0.75rem)] truncate font-display leading-none font-bold transition-colors duration-200',
                 size === 'md' ? 'text-[15px]' : 'text-[13px]',
                 selected ? (DARK_TEXT[tone] && !readOnly ? 'text-ink-950' : 'text-white') : 'text-ink-200',
                 interactive && !selected && 'group-hover:text-white',
@@ -138,7 +172,7 @@ export function Segmented<T extends string | number>({
             {o.sublabel != null && (
               <span
                 className={cn(
-                  'relative mt-1 truncate text-[10px] leading-none font-bold tracking-[0.08em] uppercase transition-colors duration-200',
+                  'relative mt-1 max-w-[calc(100%+0.75rem)] truncate text-[10px] leading-none font-bold tracking-[0.08em] uppercase transition-colors duration-200',
                   selected ? (DARK_TEXT[tone] && !readOnly ? 'text-ink-950/70' : 'text-white/80') : 'text-ink-400',
                 )}
               >

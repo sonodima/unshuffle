@@ -11,7 +11,8 @@
 //   reveal → 結果発表 · leaderboard → ランキング · final standings → 最終結果
 //   points → 点 ("5,000点"; label スコア) · perfect → パーフェクト / 完璧な並び
 //   pair in sequence → つながったペア (count: 組) · right place → 正しい位置
-//   rematch → リベンジ (host button もう一回) · difficulty → かんたん / ふつう / むずかしい / おに
+//   rematch → もう一戦 (guest request; host button もう一回; リベンジ only when everyone scored 0)
+//   difficulty → かんたん / ふつう / むずかしい / おに · round start slam → ドン！
 //   ranks → "{rank}位", positions → "{pos}番目" (ui.ordinal is the bare number)
 // Style: です・ます for explanations and errors, friendly casual (〜しよう) for
 // playful lines; full-width punctuation (、。！？「」（）：), no spaces between

@@ -102,16 +102,22 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
   const waiting = (
     <>
       <Equalizer bars={4} size={18} label={null} className="shrink-0" />
-      <span className="leading-tight">{t('final.dock.waiting')}</span>
+      <span className="leading-tight text-balance">{t('final.dock.waiting')}</span>
     </>
   )
 
+  // The wide button takes what Leave leaves, its label wrapping to a second line if needed. It is
+  // never narrower than its longest word (min-width auto): a word that can't fit wraps the pill
+  // instead, the wide button on a row of its own (the host's on top) and Leave centred on the other.
+  // rounded-[48px] is rounded-full on one row (≤ 96px tall: the radius is clamped to half the height) and a
+  // rounded box on two.
   const pill = (big: boolean) => (
     <div
       role="group"
       aria-label={t('final.dock.label')}
       className={cn(
-        'glass-dock pointer-events-auto flex w-full items-center gap-2 rounded-full p-2 sm:gap-3',
+        'glass-dock @container pointer-events-auto flex w-full items-center justify-center gap-2 rounded-[48px] p-2 sm:gap-3',
+        isHost ? 'flex-wrap-reverse' : 'flex-wrap',
         big ? (isHost ? 'max-w-[600px] pb-1.5' : 'max-w-[520px] pb-1.5') : 'max-w-[560px] pb-1',
       )}
     >
@@ -120,13 +126,23 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
           <Button variant="glass" size="lg" leftIcon="logout" onClick={leave} className="shrink-0 max-[380px]:px-5">
             {t('final.dock.leave')}
           </Button>
-          <Button variant="primary" size={big ? 'xl' : 'lg'} leftIcon="refresh" fullWidth loading={busy} onClick={replay} sound="go" className="min-w-0 flex-1">
+          <Button variant="primary" size={big ? 'xl' : 'lg'} leftIcon="refresh" fullWidth loading={busy} onClick={replay} sound="go" className="flex-1">
             {t('final.dock.playAgain')}
           </Button>
         </>
       ) : onRematch ? (
         <>
-          <Button variant="secondary" size="lg" leftIcon={asked ? 'check' : 'refresh'} fullWidth disabled={asked} onClick={rematch} sound="pop" className="min-w-0 flex-1 max-[380px]:px-4">
+          <Button
+            variant="secondary"
+            size="lg"
+            leftIcon={asked ? 'check' : 'refresh'}
+            fullWidth
+            disabled={asked}
+            onClick={rematch}
+            sound="pop"
+            // Phones: "sent" is often longer than "rematch!": it drops the tick, the padding and a notch of size first.
+            className={cn('flex-1 max-[380px]:px-4', asked && '@max-[24rem]:px-4 @max-[24rem]:text-[14px] @max-[24rem]:[&_.btn-label>svg]:hidden')}
+          >
             {asked ? t('final.dock.rematchSent') : t('final.dock.rematch')}
           </Button>
           <Button variant="glass" size="lg" leftIcon="logout" onClick={leave} className="shrink-0 max-[380px]:px-5">
@@ -152,8 +168,10 @@ export function ActionDock({ isHost, othersOnline, onPlayAgain, onLeave, delay, 
   let caption: ReactNode = null
   let hint: ReactNode = null
   if (!isHost && onRematch) {
+    // rounded-[16px]: a pill on one line (the radius is clamped to half the height), a rounded box
+    // when a long message takes two.
     caption = (
-      <div role="status" className="glass-flat flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold text-ink-100">
+      <div role="status" className="glass-flat flex items-center gap-2 rounded-[16px] px-3.5 py-1.5 text-[13px] font-bold text-ink-100">
         {waiting}
       </div>
     )

@@ -39,7 +39,8 @@ export default {
     toggle: {
       label: '표시할 순서',
       mine: '내 순서',
-      mineShort: '내 순서',
+      /** Phones: "내 답" pairs with "정답". */
+      mineShort: '내 답',
       correct: '정답 순서',
       correctShort: '정답',
     },
@@ -93,8 +94,8 @@ export default {
     region: '내 점수',
     eyebrow: '라운드 점수',
     timedOut: '시간 초과',
-    /** "확정까지 55.8초"; the pill spaces the two tags itself. */
-    confirmedIn: '<wide>확정까지</wide> <num>{time}</num>',
+    /** "55.8초 만에 확정"; below 400 px only "55.8초" shows. The pill spaces the two tags itself. */
+    confirmedIn: '<num>{time}</num> <wide>만에 확정</wide>',
     barAria: { other: '{max}점 중 {points}점' },
     correct: '제자리',
     pairs: { other: '이어진 쌍' },

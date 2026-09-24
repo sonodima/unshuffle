@@ -43,7 +43,7 @@ export default {
     lost: 'Connexion perdue',
     lostDetail: 'Nouvelle tentative…',
     /** After ~5 s: the player will be let back in automatically. */
-    lostDetailLong: 'Nouvel essai… retour automatique.',
+    lostDetailLong: 'Nouvel essai… reconnexion automatique.',
     /** After ~30 s of retries. */
     hostSilent: 'L’hôte ne répond pas',
     hostSilentDetail: 'On attend son retour…',

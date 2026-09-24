@@ -63,8 +63,11 @@ export default {
     allZeroSub: 'Ни одного очка — самое время отыграться.',
     /** Shared first place. */
     tie: 'Ничья!',
-    /** I'm one of the tied winners. {names}: the other winners, already joined ("Юля и Марк"). */
-    tieWithMe: 'Ты и {names} делите первое место',
+    /**
+     * I'm one of the tied winners. {names}: the other winners, already joined ("Юля",
+     * "Юля и Марк", "Юля, Марк и Тимур"): after the colon, so it reads for any number.
+     */
+    tieWithMe: 'На первом месте вместе с тобой: {names}',
     /** {names}: all the tied winners, already joined ("Тимур и Юля"). Always two or more. */
     tieOthers: '{names} делят первое место',
     /** I won alone. */
@@ -76,12 +79,15 @@ export default {
       many: '{points} очков',
       other: '{points} очка',
     },
-    /** Subtitle when I won: my total, then the runner-up {name} and my lead {gap} (formatted points). */
+    /**
+     * Subtitle when I won: my total, then the runner-up {name} and my lead {gap} (formatted
+     * points). No-break space after «на»: the number must not wrap alone on a 360 px phone.
+     */
     youWinLead: {
-      one: '{points} очко · {name} отстаёт на {gap}',
-      few: '{points} очка · {name} отстаёт на {gap}',
-      many: '{points} очков · {name} отстаёт на {gap}',
-      other: '{points} очка · {name} отстаёт на {gap}',
+      one: '{points} очко · {name} отстаёт на {gap}',
+      few: '{points} очка · {name} отстаёт на {gap}',
+      many: '{points} очков · {name} отстаёт на {gap}',
+      other: '{points} очка · {name} отстаёт на {gap}',
     },
     /** I won with the same points as {name}, thanks to the faster confirmations. */
     youWinFaster: 'Очков поровну, но ты быстрее, чем {name}',
@@ -89,12 +95,15 @@ export default {
     theyWin: '{name} побеждает!',
     /** I have the winner's points but lost on time. */
     sameScore: 'Очков поровну, но {name} быстрее: решило время',
-    /** My place: {rank} (the bare number, ending added here) out of {total} players, with my points. */
+    /**
+     * My place: {rank} (the bare number, ending added here: «на 2-м месте») out of {total}
+     * players, with my points (instrumental after «с»: 1 очком, 2 / 5 очками, 21 очком).
+     */
     myRank: {
-      one: 'У тебя {rank}-е место из {total} и {points} очко',
-      few: 'У тебя {rank}-е место из {total} и {points} очка',
-      many: 'У тебя {rank}-е место из {total} и {points} очков',
-      other: 'У тебя {rank}-е место из {total} и {points} очка',
+      one: 'Ты на {rank}-м месте из {total} с {points} очком',
+      few: 'Ты на {rank}-м месте из {total} с {points} очками',
+      many: 'Ты на {rank}-м месте из {total} с {points} очками',
+      other: 'Ты на {rank}-м месте из {total} с {points} очками',
     },
   },
 
@@ -107,8 +116,11 @@ export default {
     playAgain: 'Ещё раз',
     /** Guest: nudge the host for a rematch. */
     rematch: 'Реванш!',
-    /** Guest: the rematch button right after tapping it (disabled for a few seconds). */
-    rematchSent: 'Запрос отправлен',
+    /**
+     * Guest: the rematch button right after tapping it (disabled for a few seconds). It
+     * shares the row with «Выйти» (wider than Italian "Esci"): one short word.
+     */
+    rematchSent: 'Отправлено',
     /** Guest: next to an animated equalizer while the host decides. */
     waiting: 'Ждём, когда хост начнёт новую игру…',
     /** Host: who asked for a rematch. {names}: one or two names, already joined ("Юля и Марк"); plural by how many. */
@@ -214,7 +226,8 @@ export default {
     },
     lightning: {
       title: 'Молния',
-      description: 'Самое быстрое «Готово» в раундах с очками',
+      /** Only rounds that scored points count («не впустую»). */
+      description: 'Самое быстрое «Готово» — и не впустую',
       /** {time}: average time, e.g. "38,3 с". */
       value: 'в среднем {time}',
     },

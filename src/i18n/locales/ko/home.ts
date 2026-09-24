@@ -47,7 +47,7 @@ export default {
     namePlaceholder: '닉네임을 정해 주세요',
     randomName: '랜덤 닉네임',
     lookTitle: '내 스타일',
-    lookDescription: '이모지와 색상을 골라요. 다른 플레이어에게는 이렇게 보여요.',
+    lookDescription: '이모지와 색상을 골라 보세요. 다른 플레이어에게 이렇게 보여요.',
     done: '완료',
     preview: '미리 보기',
   },
@@ -57,7 +57,7 @@ export default {
     caption: {
       shuffle: '히트곡이 산산조각 나는 중…',
       listen: '조각을 들어 보세요',
-      sort: '올바른 순서로 끌어다 놓으세요',
+      sort: '제자리로 끌어다 놓으세요',
       solved: '퍼펙트! 가장 먼저 확정하세요',
     },
     solvedPoints: '퍼펙트! +{points}',
@@ -81,7 +81,7 @@ export default {
         bodyTouch: '유명한 히트곡을 박자에 맞춰 자르고 뒤섞어요. 블록을 탭하면 들을 수 있어요.',
       },
       sort: {
-        title: '올바른 순서로 끌어다 놓기',
+        title: '제자리로 끌어다 놓기',
         /** <play></play> = the ▶ icon. */
         body: '원곡처럼 들릴 때까지 블록을 옮겨요. <play></play> 버튼으로 내 순서를 들어 볼 수 있어요.',
       },

@@ -45,16 +45,16 @@ export default {
   lost: {
     title: '接続が切れました',
     hostClosedTitle: 'ホストがルームを閉じました',
-    hostLeftTitle: 'ホストがゲームから抜けました',
+    hostLeftTitle: 'ホストが退出しました',
     hostGoneDescription: 'このルームはもう利用できません。',
-    hostGoneHintFinal: 'ゲームは終了していました。新しいルームを作ってリベンジしよう。',
+    hostGoneHintFinal: 'ゲームは終了していました。新しいルームを作ってもう一戦しよう。',
     noRetryDescription: 'ルームとの接続が途切れました。',
     noRetryHint: '接続を確認して、ホームからもう一度お試しください。',
     descriptionLobby: 'ホストから応答がありません。ルームが閉じられたのかもしれません。',
     description: 'ホストからしばらく応答がありません。',
     hintLobby: '少し待ってからもう一度試すか、ホームに戻って自分のルームを作りましょう。',
     hintGame: 'ホストがまだゲーム中なら、再参加するとスコアはそのままで続きから遊べます。',
-    hintFinal: 'ホストがまだ接続中なら、再参加してリベンジマッチができます。',
+    hintFinal: 'ホストがまだ接続中なら、再参加してもう一戦できます。',
   },
 
   exit: {
@@ -161,7 +161,7 @@ export default {
       party: 'お祝い',
       mindBlown: '脳みそ爆発',
       cool: 'イケてる',
-      rematch: 'リベンジ',
+      rematch: 'もう一戦',
     },
   },
 

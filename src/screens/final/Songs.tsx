@@ -138,7 +138,7 @@ export function Songs({ rounds, reduced, className }: SongsProps) {
                     className="aspect-square w-full rounded-block shadow-lift"
                     iconSize={36}
                   />
-                  <span className="num absolute top-2 left-2 rounded-full bg-ink-950/85 px-2 py-0.5 text-[11px] font-bold tracking-wider text-ink-100 ring-1 ring-white/15">
+                  <span className="num absolute top-2 left-2 rounded-full bg-ink-950/85 px-2 py-0.5 text-[11px] font-bold tracking-wider whitespace-nowrap text-ink-100 ring-1 ring-white/15">
                     {t('final.roundShort', { round: r.index + 1 })}
                   </span>
                   <span

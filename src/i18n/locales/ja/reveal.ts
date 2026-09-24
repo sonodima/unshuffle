@@ -114,7 +114,7 @@ export default {
     good: 'いい耳してる！',
     close: 'あと少し…！',
     more: 'もう一度よく聴いてみよう',
-    none: '正しい位置のピースはなし',
+    none: '正しい位置のピースはゼロ',
   },
 
   rankUp: { other: '順位が{count}つ上がりました' },

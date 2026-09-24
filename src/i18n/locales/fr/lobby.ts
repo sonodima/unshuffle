@@ -71,9 +71,9 @@ export default {
     copyFailed: 'Échec de la copie',
     /** Screen readers. {code}: the room code spelled letter by letter ("K X Q P M"). */
     copyLabel: 'Code du salon {code}. Copier le code',
-    /** Button (phones: shares the row with "Partager" and the QR button). Short. */
-    copyLink: 'Copier le lien',
-    /** "Copier le lien" right after a successful copy. */
+    /** Button (phones: shares the row with "Partager" and the QR button, ~117px at 360px): the verb alone, like "Partager". */
+    copyLink: 'Copier',
+    /** "Copier" right after a successful copy. */
     linkCopied: 'Copié !',
     share: 'Partager',
     showQr: 'Afficher le QR code',
@@ -225,7 +225,7 @@ export default {
     /** Row titles are also the pickers' names. Hints are one short line (they truncate). */
     rounds: { title: 'Manches', hint: 'Une chanson par manche' },
     snippets: { title: 'Extraits', hint: 'Plus d’extraits, plus dur' },
-    roundTime: { title: 'Temps par manche', hint: 'Pour remettre en ordre' },
+    roundTime: { title: 'Temps par manche', hint: 'Pour tout replacer' },
     finalTimer: { title: 'Chrono final', hint: 'Après la 1re validation' },
   },
 
@@ -248,7 +248,7 @@ export default {
       },
     },
     reorder: {
-      title: 'Remets en ordre',
+      title: 'Remets dans l’ordre',
       body: 'Glisse les blocs jusqu’à ce que la chanson sonne juste. Avec ▶, écoute-la en entier dans ton ordre.',
     },
     confirm: {

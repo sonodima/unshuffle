@@ -95,7 +95,14 @@ export function StartBar({ isHost, settings, players, hostId, onStart, onUpdateS
         <p className={cn('truncate font-extrabold', dock ? 'text-[15px]' : 'text-sm', playlist ? 'text-ink-50' : 'text-ink-300')} title={playlist?.title}>
           {playlist ? playlist.title : t('lobby.bar.noPlaylist')}
         </p>
-        <p className="mt-0.5 truncate text-xs font-semibold text-ink-400">
+        {/* Phones: the guests' waiting line and the host's nudge may take a second (balanced) line
+            next to the sleeve; the rules summary stays on one. */}
+        <p
+          className={cn(
+            'mt-0.5 text-xs font-semibold text-ink-400',
+            !dock && (!isHost || !playlist) ? 'line-clamp-2 text-balance' : 'truncate',
+          )}
+        >
           {!dock && !isHost ? <WaitingText>{waiting}</WaitingText> : !dock && !playlist ? t('lobby.bar.pickPlaylist') : rules}
         </p>
       </div>

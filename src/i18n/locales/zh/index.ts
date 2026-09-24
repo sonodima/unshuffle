@@ -1,7 +1,7 @@
 // 简体中文 (zh-CN): mirrors the Italian source catalog exactly.
 //
 // Glossary — keep these consistent:
-//   round → 回合 (display "回合 1/3", prose "第1回合"; count "5回合")
+//   round → 回合 (labels "回合 1/3"; prose and the big intro headline "第1回合"; count "5回合")
 //   snippet (spezzone) → 片段 (count 个) · block (blocco, the tile) → 方块
 //   host → 房主 · lobby → 大厅 (back to it: 返回大厅) · room → 房间 · room code → 房间码
 //   join → 加入 · leave → 退出 · kick → 移出 · invite → 邀请 · spectator → 观战 / 观战中
@@ -15,7 +15,7 @@
 //   difficulty → 简单 / 普通 / 困难 / 地狱 · go! → 开冲！
 //   ranks → "{rank}名" (第1名), positions → "{pos}位" (第3位); ui.ordinal is "第{n}"
 //   own row / own name → 我, "{name}（我）"; players count → 位玩家 / 人
-//   click → 点击 (mouse), tap → 轻点 / 点一下 (touch)
+//   click → 点击 (mouse), tap → 轻点 / 点一下 (touch) · hold a block → 按住 (往后连播)
 //   song titles in prose → 《{title}》; the other person → 对方 (gender-neutral)
 // Style: casual 你, short and lively; full-width punctuation (，。！？：；（）“”《》——…);
 // no spaces between Chinese and digits (90秒, 3位玩家); one space around Latin words

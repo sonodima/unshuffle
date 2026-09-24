@@ -77,13 +77,13 @@ export default {
     /** Guest: nudge the host for a rematch. */
     rematch: 'Revanche !',
     /** Guest: the rematch button right after tapping it (disabled for a few seconds). */
-    rematchSent: 'Demande envoyée',
+    rematchSent: 'Envoyé !',
     /** Guest: next to an animated equalizer while the host decides. */
     waiting: 'En attente de l’hôte pour rejouer…',
     /** Host: who asked for a rematch. {names}: one or two names, already joined ("Giulia et Marco"); plural by how many. */
-    rematchNamed: { one: '{names} veut sa revanche !', other: '{names} veulent leur revanche !' },
+    rematchNamed: { one: '{names} veut remettre ça !', other: '{names} veulent remettre ça !' },
     /** Host: three or more players asked for a rematch. */
-    rematchMany: { one: '{count} joueur veut sa revanche !', other: '{count} joueurs veulent leur revanche !' },
+    rematchMany: { one: '{count} joueur veut remettre ça !', other: '{count} joueurs veulent remettre ça !' },
   },
 
   /** Host leaving while others are still connected. */
@@ -122,7 +122,7 @@ export default {
     accuracy: 'Extraits à la bonne place, en moyenne',
     avgTime: 'Temps moyen de validation',
     /** Late joiner: the first round they played. */
-    lateFrom: 'dès la manche {round}',
+    lateFrom: 'dès la manche {round}',
     /** Unit under each total (tiny, uppercase); plural by the score. */
     points: { one: 'point', other: 'points' },
   },
@@ -141,7 +141,7 @@ export default {
     },
     lightning: {
       title: 'Éclair',
-      description: 'Validation la plus rapide sur les manches à points',
+      description: 'Validation la plus rapide, hors manches à zéro',
       /** {time}: average time, e.g. "38,3 s". */
       value: '{time} en moyenne',
     },

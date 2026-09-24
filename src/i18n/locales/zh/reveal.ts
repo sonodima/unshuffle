@@ -94,16 +94,16 @@ export default {
         touch: '全部放对了！· 轻点重听',
       },
       none: {
-        hover: '一个位置都没放对 · 点击重听',
-        touch: '一个位置都没放对 · 轻点重听',
+        hover: '全部放错了 · 点击重听',
+        touch: '全部放错了 · 轻点重听',
       },
       /** {count} right positions out of {n} blocks. */
       partial: {
         hover: {
-          other: '{n}个位置你放对了{count}个 · 点击重听',
+          other: '{n}个位置放对了{count}个 · 点击重听',
         },
         touch: {
-          other: '{n}个位置你放对了{count}个 · 轻点重听',
+          other: '{n}个位置放对了{count}个 · 轻点重听',
         },
       },
     },
@@ -155,9 +155,9 @@ export default {
     perfect: '顺序完美！',
     almost: '差一点就完美了！',
     good: '好耳力！',
-    close: '就差一点…',
+    close: '有点感觉了…',
     more: '还得多听几遍',
-    none: '没有片段放对位置',
+    none: '一个都没放对…',
   },
 
   /** Screen-reader label of the rank-change arrow. */
@@ -226,6 +226,6 @@ export default {
     /** Guests, while the host decides. */
     waiting: '等待房主…',
     /** Guests, with the auto-advance countdown; <num> is the dimmed seconds. */
-    waitingIn: { other: '等待房主…<num>（{count}秒）</num>' },
+    waitingIn: { other: '等待房主…<num>{count}秒</num>' },
   },
 } satisfies Catalog['reveal']

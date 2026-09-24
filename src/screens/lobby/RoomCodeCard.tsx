@@ -22,8 +22,9 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
   const codeCopy = useCopy(1600)
   const [shareable] = useState(() => canNativeShare(joinUrl))
   const compact = variant === 'compact'
-  // Narrow card (phones, the 320px desktop column) with two text buttons: drop their icons so both labels fit.
-  const tight = shareable ? '@max-[22.5rem]:px-3.5 @max-[22.5rem]:[&_.btn-label>svg]:hidden' : undefined
+  // Narrow card (phones, the 320px desktop column) with two text buttons: drop their icons so both labels fit,
+  // and let a label come within 8px of the pill's ends before the row wraps (it is centred either way).
+  const tight = shareable ? '@max-[22.5rem]:px-2 @max-[22.5rem]:[&_.btn-label>svg]:hidden' : undefined
   const canHover = useCanHover()
   const shownUrl = splitDisplayUrl(joinUrl)
 
@@ -79,23 +80,41 @@ export function RoomCodeCard({ code, joinUrl, variant = 'full', className }: Roo
       </button>
 
       {compact ? (
-        <div className="mt-4 flex gap-2 sm:justify-center">
+        // One row of equal buttons while both labels fit; otherwise "copy link" takes the first row
+        // and share + QR the second. The buttons keep min-width auto (never narrower than their
+        // label, capped by max-w-full), so a label that doesn't fit wraps the row instead of spilling.
+        // Equal widths: both grow from a 3rem basis (above any padding), the share group from 3rem + the QR button.
+        <div className="mt-4 flex flex-wrap gap-2 sm:justify-center">
           <Button
             variant="glass"
             size="md"
             leftIcon={link.state === 'copied' ? 'check' : 'link'}
-            className={cn('min-w-0 flex-1 sm:max-w-[220px]', tight, link.state === 'copied' && 'text-lime')}
+            className={cn('max-w-full flex-[1_1_3rem] sm:max-w-[220px]', tight, link.state === 'copied' && 'text-lime')}
             onClick={copyLink}
             sound={false}
           >
-            {t(link.state === 'copied' ? 'lobby.code.linkCopied' : 'lobby.code.copyLink')}
+            {link.state === 'copied' ? (
+              // "Copiato!" keeps the room of "Copia link": the row never re-wraps under the finger.
+              <span className="grid justify-items-center">
+                <span className="col-start-1 row-start-1">{t('lobby.code.linkCopied')}</span>
+                <span aria-hidden className="invisible col-start-1 row-start-1">
+                  {t('lobby.code.copyLink')}
+                </span>
+              </span>
+            ) : (
+              t('lobby.code.copyLink')
+            )}
           </Button>
-          {shareable && (
-            <Button variant="glass" size="md" leftIcon="share" className={cn('min-w-0 flex-1 sm:max-w-[220px]', tight)} onClick={share}>
-              {t('lobby.code.share')}
-            </Button>
+          {shareable ? (
+            <div className="flex max-w-full flex-[1_1_6.25rem] gap-2 sm:max-w-[calc(220px+3.25rem)]">
+              <Button variant="glass" size="md" leftIcon="share" className={cn('max-w-full flex-1', tight)} onClick={share}>
+                {t('lobby.code.share')}
+              </Button>
+              <IconButton icon="qr" label={t('lobby.code.showQr')} variant="glass" size="md" onClick={() => setQrOpen(true)} />
+            </div>
+          ) : (
+            <IconButton icon="qr" label={t('lobby.code.showQr')} variant="glass" size="md" onClick={() => setQrOpen(true)} />
           )}
-          <IconButton icon="qr" label={t('lobby.code.showQr')} variant="glass" size="md" onClick={() => setQrOpen(true)} />
         </div>
       ) : (
         <div className="mt-6 flex items-stretch gap-4 border-t border-white/[0.07] pt-5">

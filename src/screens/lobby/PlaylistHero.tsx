@@ -146,12 +146,15 @@ export function PlaylistRecord({ playlist, sleeve, spin = true, glow = true, res
   )
 }
 
-/** Text with a softly bouncing ellipsis (reduced motion: static). */
+/**
+ * Text with a softly blinking ellipsis (reduced motion: static). Plain inline boxes, so the
+ * text wraps or truncates like any other (the dots stick to the last word: no break before a ".").
+ */
 export function WaitingText({ children, className }: { children: string; className?: string }) {
   return (
-    <span className={cn('inline-flex items-baseline', className)}>
+    <span className={className}>
       {children}
-      <span aria-hidden className="inline-flex">
+      <span aria-hidden>
         {[0, 1, 2].map((i) => (
           <span key={i} className="animate-blink" style={{ animationDelay: `${i * 0.2}s` }}>
             .

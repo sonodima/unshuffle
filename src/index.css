@@ -181,6 +181,11 @@
     word-break: keep-all;
     overflow-wrap: break-word;
   }
+  /* Japanese and Chinese break between any two characters, but never before small kana,
+     prolonged sound marks or closing punctuation (。、」！), the strict kinsoku rules. */
+  :root:is(:lang(ja), :lang(zh)) {
+    line-break: strict;
+  }
   /* Ideographs and hangul have no italic: the sporty slant of display type
      (display-skew, button labels) is dropped for them. */
   :lang(ja),
@@ -479,7 +484,31 @@
     display: inline-flex;
     align-items: center;
     gap: inherit;
+    /* Can be squeezed by the button (a min-w-0 flex item, a fixed width): .btn-text gives way, never the icons. */
+    min-width: 0;
     transform: skewX(var(--text-skew, -7deg));
+  }
+  /*
+    The label text (Button wraps its children in it). A button squeezed narrower than its
+    label no longer lets the text spill out of the pill: sm / md labels stay on one line and
+    end in an ellipsis (the whole text stays the accessible name, and Button shows it as the
+    tooltip), big CTAs (lg / xl, 56–68px tall) first wrap to a second, balanced line.
+    Nothing changes for a label that fits: an auto-width button is still as wide as its text.
+  */
+  .btn-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* The clip box reaches past the 1em line box, so accents (É, Й) and descenders survive. */
+    padding-block: 0.25em;
+    margin-block: -0.25em;
+  }
+  /* Between words only: a word too long for the pill ends in an ellipsis (hyphenated caps read badly). */
+  :is(.btn-lg, .btn-xl) .btn-text {
+    white-space: normal;
+    text-wrap: balance;
+    /* Room for accented capitals between the two lines; a single line sits exactly as before. */
+    line-height: 1.12;
   }
   .btn:not(:disabled):not([aria-busy='true']):hover {
     filter: brightness(1.07) saturate(1.05);

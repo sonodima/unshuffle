@@ -55,7 +55,7 @@ export default {
       shuffle: 'Der Hit wird zerschnipselt…',
       listen: 'Hör dir die Schnipsel an',
       sort: 'Zieh sie an die richtige Stelle',
-      solved: 'Perfekt! Jetzt zuerst bestätigen',
+      solved: 'Perfekt! Jetzt schnell bestätigen',
     },
     solvedPoints: 'Perfekt! +{points}',
     stepsLabel: 'So geht’s – ganz kurz',
@@ -72,7 +72,8 @@ export default {
     confirmButton: 'Bestätigen',
     steps: {
       listen: {
-        title: 'Hör dir die Schnipsel an',
+        /** No-break space before "an": the particle never sits alone on the second line. */
+        title: 'Hör dir die Schnipsel an',
         bodyMouse: 'Ein bekannter Hit wird im Takt zerschnitten und gemischt. Klick auf einen Block, um ihn anzuhören.',
         bodyTouch: 'Ein bekannter Hit wird im Takt zerschnitten und gemischt. Tipp auf einen Block, um ihn anzuhören.',
       },

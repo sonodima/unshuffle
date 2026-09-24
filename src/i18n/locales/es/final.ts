@@ -55,7 +55,8 @@ export default {
     /** Host: back to the lobby with the same players. Short. */
     playAgain: 'Otra partida',
     rematch: '¡Revancha!',
-    rematchSent: 'Solicitud enviada',
+    /** Right after tapping «¡Revancha!» (agrees with «revancha»). Short: shares the row with «Salir». */
+    rematchSent: '¡Pedida!',
     waiting: 'Esperando al anfitrión para la revancha…',
     rematchNamed: { one: '¡{names} quiere la revancha!', other: '¡{names} quieren la revancha!' },
     rematchMany: { one: '¡{count} jugador quiere la revancha!', other: '¡{count} jugadores quieren la revancha!' },
@@ -85,8 +86,8 @@ export default {
     offline: 'Sin conexión',
     perfectRounds: 'Rondas perfectas',
     accuracy: 'Fragmentos en su lugar, en promedio',
-    avgTime: 'Tiempo medio para confirmar',
-    lateFrom: 'desde la ronda {round}',
+    avgTime: 'Tiempo promedio para confirmar',
+    lateFrom: 'desde la ronda {round}',
     points: { one: 'punto', other: 'puntos' },
   },
 
@@ -103,17 +104,18 @@ export default {
     lightning: {
       title: 'Rayo',
       description: 'Confirmación más rápida en las rondas con puntos',
-      value: 'promedio de {time}',
+      value: '{time} en promedio',
     },
     sniper: {
       title: 'Francotirador',
       description: 'Más fragmentos en su lugar',
-      value: 'promedio de {accuracy}',
+      value: '{accuracy} en promedio',
     },
     lastSecond: {
       title: 'Último segundo',
-      description: 'Más rondas terminadas fuera de tiempo',
-      value: { one: '{count} vez fuera de tiempo', other: '{count} veces fuera de tiempo' },
+      description: 'Más rondas sin confirmar a tiempo',
+      /** Mono line under the name, ~15 characters on phones: the description says what is counted. */
+      value: { one: '{count} ronda', other: '{count} rondas' },
     },
   },
 
@@ -131,7 +133,7 @@ export default {
   },
 
   songs: {
-    title: 'Las canciones de la partida',
+    title: 'Las canciones',
     aside: 'Vuelve a escucharlas aquí o en Deezer',
     play: 'Escuchar la vista previa de {title}, de {artist}, ronda {round}',
     stop: 'Detener la vista previa de {title}, de {artist}, ronda {round}',

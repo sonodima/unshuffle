@@ -20,7 +20,7 @@
 //   right place      제자리; wrong place 틀린 자리; pairs in sequence 이어진 쌍
 //   perfect          퍼펙트 (stamp, badges, awards); "완벽한 순서" in sentences
 //   points           {points}점; rank {rank}위; position {pos}번째 (chips: {pos}번)
-//   rematch          "한 판 더"; host's play again "다시 하기"
+//   rematch          "한 판 더" (request: "… 님이 한 판 더 하재요!"); host's play again "다시 하기"
 //   nickname         닉네임; tap / click 탭 / 클릭; me 나
 //   difficulty       쉬움 / 보통 / 어려움 / 지옥
 import type { Catalog } from '../../catalog'

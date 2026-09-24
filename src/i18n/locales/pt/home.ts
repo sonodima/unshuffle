@@ -71,7 +71,7 @@ export default {
     randomName: 'Nome aleatório',
     /** Title of the avatar / colour picker dialog. */
     lookTitle: 'Seu visual',
-    lookDescription: 'Escolha emoji e cor: é assim que a galera vai ver você.',
+    lookDescription: 'Escolha emoji e cor: é assim que a galera vai te ver.',
     /** Closes the picker. */
     done: 'Pronto',
     /** Small heading over the preview of your avatar and name (uppercase). */
@@ -85,7 +85,7 @@ export default {
     caption: {
       shuffle: 'O hit vira picadinho…',
       listen: 'Ouça os trechos',
-      sort: 'Arraste na ordem certa',
+      sort: 'Arraste para a ordem certa',
       solved: 'Perfeito! Confirme primeiro',
     },
     /** Phone caption when the demo is solved (one line). {points} = points won, already formatted (5.000). */
@@ -116,7 +116,7 @@ export default {
         bodyTouch: 'Um hit famoso é cortado no ritmo da música e embaralhado. Toque num bloco para ouvir.',
       },
       sort: {
-        title: 'Arraste na ordem certa',
+        title: 'Arraste para a ordem certa',
         /** <play></play> is replaced by a small ▶ icon (the "play your order" button). Keep it empty. */
         body: 'Mova os blocos até a música soar igual à original. Com <play></play> você ouve a sua ordem.',
       },

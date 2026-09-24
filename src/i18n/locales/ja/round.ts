@@ -63,16 +63,20 @@ export default {
     snippets: { other: '<b>{count}</b>ピース' },
     seconds: '<b>{seconds}</b>秒',
     spectator: 'このラウンドは観戦です。次のラウンドから参加できます。',
-    howToHover: 'ブロックをクリックして聴いたら、ドラッグで正しい位置へ。',
-    howToTouch: 'ブロックをタップして聴いたら、ドラッグで正しい位置へ。',
+    /** Same words as the dock hints (試聴 / ドラッグで). One line on phones: ≤ 19 characters. */
+    howToHover: 'クリックで試聴、ドラッグで正しい位置へ。',
+    howToTouch: 'タップで試聴、ドラッグで正しい位置へ。',
     /** Shown inside the countdown ring before "3" (small). */
     ready: '準備はいい？',
     readyLabel: 'スタート準備',
     countdownLabel: 'あと{seconds}秒でスタート',
   },
 
-  /** Full-screen slam when the round starts (huge type). */
-  go: 'スタート！',
+  /**
+   * Full-screen slam when the round starts, after the 3-2-1 (huge type: only 3
+   * full-width characters fit a phone). "3、2、1、ドン！" — the race-start call.
+   */
+  go: 'ドン！',
   syncing: 'ラウンドを同期中…',
 
   /** Top bar while playing: tiny eyebrows, keep them short. */
@@ -157,7 +161,7 @@ export default {
     guestTitle: 'ゲームから退出しますか？',
     hostBody: 'あなたはホストです。全員のゲームが終了します。',
     hostAloneBody: 'ゲームはここで終了します。',
-    guestBody: 'ゲームはあなた抜きで続きます。ゲームが続いている間なら、再参加してスコアを取り戻せます。',
+    guestBody: 'ゲームはあなた抜きで続きます。進行中なら、再参加してスコアを取り戻せます。',
     keepPlaying: 'プレイを続ける',
     stay: '残る',
     leave: 'ゲームから退出',

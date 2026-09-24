@@ -45,7 +45,7 @@ export default {
   lost: {
     title: 'Conexión perdida',
     hostClosedTitle: 'El anfitrión ha cerrado la sala',
-    hostLeftTitle: 'El anfitrión ha abandonado la partida',
+    hostLeftTitle: 'El anfitrión se ha ido',
     hostGoneDescription: 'La sala ya no está disponible.',
     hostGoneHintFinal: 'La partida ya había terminado: crea una sala nueva para la revancha.',
     noRetryDescription: 'Se ha cortado la conexión con la sala.',
@@ -110,7 +110,7 @@ export default {
   /** Toasts for room events. {name} is a player's nickname. */
   toast: {
     someone: 'Un jugador',
-    joined: '{name} se une a la sala',
+    joined: '{name} se ha unido a la sala',
     /** Under "joined": players in the room now (always 2 or more). */
     roomCount: { one: '{count} jugador en la sala', other: '{count} jugadores en la sala' },
     left: '{name} ha salido de la sala',

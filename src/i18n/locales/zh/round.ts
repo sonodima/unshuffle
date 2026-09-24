@@ -66,8 +66,9 @@ export default {
     /**
      * Huge one-line headline: <word> white text, <n> the round number (lime),
      * <total> "/total" (small, grey). Keep the three tags; spaces between tags don't show.
+     * Chinese reads "第1回合" with the small "/3" trailing: <word> is used twice.
      */
-    headline: '<word>回合</word> <n>{number}</n><total>/{total}</total>',
+    headline: '<word>第</word><n>{number}</n><word>回合</word><total>/{total}</total>',
     /** Screen-reader label of the round facts list. */
     rulesLabel: '本回合规则',
     /** Fact pills. <b> = the number (white). */
@@ -165,9 +166,9 @@ export default {
     hints: {
       playAll: '<kbd>{space}</kbd> 播放全部',
       confirm: '<kbd>{mod}</kbd> + <kbd>{enter}</kbd> <action>确认</action>',
-      pointer: '点击方块试听 · 按住从这里连播 · 拖动换位置',
+      pointer: '点击方块试听 · 按住往后连播 · 拖动换位置',
       /** Same, after confirming (blocks can't move any more). */
-      pointerLocked: '点击方块试听 · 按住从这里连播',
+      pointerLocked: '点击方块试听 · 按住往后连播',
     },
   },
 

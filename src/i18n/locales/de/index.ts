@@ -4,6 +4,7 @@
 //   round → Runde (R3 = "Runde 3")        snippet → Schnipsel (der, pl. die Schnipsel)
 //   block (draggable tile) → Block/Blöcke  shuffle/slice → zerschnipseln
 //   order → Reihenfolge (short: Folge)     in the right place → an der richtigen Stelle / richtig platziert
+//   reveal board: mine → Deine Version, correct → (Das) Original (titles and toggle)
 //   pair in sequence → passendes Paar      confirm → bestätigen, Bestätigen (button)
 //   final timer → Endspurt                 host → Host (no article in "Du bist Host")
 //   lobby → Lobby   room → Raum, Raumcode  playlist → Playlist(s)   track/song → Song(s)

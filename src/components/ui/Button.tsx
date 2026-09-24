@@ -52,6 +52,28 @@ function usePressSound(sound: SfxName | false, blocked: boolean) {
   }
 }
 
+/**
+ * A label cut short by its button (an ellipsis, see .btn-text in index.css): the whole text
+ * becomes the button's tooltip. Checked when the pointer or focus arrives, so it costs nothing
+ * until then and always matches the current layout; a `title` passed by the caller wins.
+ */
+function syncCutTitle(button: HTMLButtonElement) {
+  const text = button.querySelector<HTMLElement>(':scope > .btn-label > .btn-text')
+  if (!text) return
+  const cut = text.scrollWidth - text.clientWidth > 1 || text.scrollHeight - text.clientHeight > 1
+  if (cut) {
+    // The text as read out: without aria-hidden parts (a width-reserving copy of another label).
+    let whole = ''
+    const walk = document.createTreeWalker(text, NodeFilter.SHOW_TEXT)
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) if (!n.parentElement?.closest('[aria-hidden="true"]')) whole += n.textContent
+    button.title = whole.replace(/\s+/g, ' ').trim()
+    button.dataset.cutTitle = ''
+  } else if ('cutTitle' in button.dataset) {
+    button.removeAttribute('title')
+    delete button.dataset.cutTitle
+  }
+}
+
 /** Chunky GeoGuessr-style 3D pill button. */
 export function Button({
   ref,
@@ -68,9 +90,12 @@ export function Button({
   type = 'button',
   onClick,
   onPointerDown,
+  onPointerEnter,
+  onFocus,
   ...rest
 }: ButtonProps) {
   const t = useT()
+  const ownTitle = rest.title != null
   const blocked = !!disabled || loading
   const press = usePressSound(sound, blocked)
   const iconPx = ICON_PX[size]
@@ -87,6 +112,14 @@ export function Button({
         press.onPointerDown(e)
         onPointerDown?.(e)
       }}
+      onPointerEnter={(e) => {
+        if (!ownTitle) syncCutTitle(e.currentTarget)
+        onPointerEnter?.(e)
+      }}
+      onFocus={(e) => {
+        if (!ownTitle) syncCutTitle(e.currentTarget)
+        onFocus?.(e)
+      }}
       onClick={(e) => {
         if (loading) {
           e.preventDefault()
@@ -99,7 +132,7 @@ export function Button({
     >
       <span className={cn('btn-label', loading && 'invisible')}>
         {leftIcon != null && renderIcon(leftIcon, iconPx)}
-        {children != null && <span>{children}</span>}
+        {children != null && <span className="btn-text">{children}</span>}
         {rightIcon != null && renderIcon(rightIcon, iconPx)}
       </span>
       {loading && (

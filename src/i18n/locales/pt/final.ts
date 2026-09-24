@@ -2,7 +2,8 @@
 // round-by-round table and the songs of the game.
 //
 // Points: {points} is the score already formatted ("18.304"); plural forms are
-// chosen by the score itself (pt-BR `one` = 0 and 1). Uppercase comes from CSS.
+// chosen by the score itself. pt-BR `one` covers 0 too, so every points plural has a
+// `zero` form ("0 pontos", not "0 ponto"). Uppercase comes from CSS.
 import type { Catalog } from '../../catalog'
 
 export default {
@@ -38,7 +39,7 @@ export default {
     soloGood: 'Mandou bem!',
     soloOk: 'Fim de jogo!',
     /** Subtitle "18.304 pontos em 5 rodadas". {rounds} is the phrase headline.rounds. */
-    pointsInRounds: { one: '{points} ponto em {rounds}', other: '{points} pontos em {rounds}' },
+    pointsInRounds: { zero: '{points} pontos em {rounds}', one: '{points} ponto em {rounds}', other: '{points} pontos em {rounds}' },
     /** "5 rodadas" inside headline.pointsInRounds. */
     rounds: { one: '{count} rodada', other: '{count} rodadas' },
     /** Several players, nobody scored. */
@@ -53,9 +54,13 @@ export default {
     /** I won alone. */
     youWin: 'Você venceu!',
     /** Subtitle when I won and nobody else is in the standings. */
-    youWinPoints: { one: '{points} ponto', other: '{points} pontos' },
+    youWinPoints: { zero: '{points} pontos', one: '{points} ponto', other: '{points} pontos' },
     /** Subtitle when I won: my total, then my lead {gap} (formatted points) over the runner-up {name}. */
-    youWinLead: { one: '{points} ponto · +{gap} à frente de {name}', other: '{points} pontos · +{gap} à frente de {name}' },
+    youWinLead: {
+      zero: '{points} pontos · +{gap} à frente de {name}',
+      one: '{points} ponto · +{gap} à frente de {name}',
+      other: '{points} pontos · +{gap} à frente de {name}',
+    },
     /** I won with the same points as {name}, thanks to the faster confirmations. */
     youWinFaster: 'Empate em pontos com {name}, mas você confirmou antes',
     /** Someone else won. {name} is shown in the winner's color. */
@@ -64,6 +69,7 @@ export default {
     sameScore: 'Mesmos pontos que {name}: vence quem confirmou antes',
     /** My place: {rank} (already an ordinal, ui.ordinal: "2º") out of {total} players, with my points. */
     myRank: {
+      zero: 'Você ficou em {rank} de {total}, com {points} pontos',
       one: 'Você ficou em {rank} de {total}, com {points} ponto',
       other: 'Você ficou em {rank} de {total}, com {points} pontos',
     },
@@ -104,9 +110,13 @@ export default {
     /** Accessible name of the podium list. */
     label: 'Pódio',
     /** Screen readers, one podium step. {rank}: the place, already an ordinal (ui.ordinal: "1º"). */
-    slot: { one: '{rank} lugar: {name}, {points} ponto', other: '{rank} lugar: {name}, {points} pontos' },
+    slot: { zero: '{rank} lugar: {name}, {points} pontos', one: '{rank} lugar: {name}, {points} ponto', other: '{rank} lugar: {name}, {points} pontos' },
     /** Same, for my own step. */
-    slotMe: { one: '{rank} lugar: {name} (você), {points} ponto', other: '{rank} lugar: {name} (você), {points} pontos' },
+    slotMe: {
+      zero: '{rank} lugar: {name} (você), {points} pontos',
+      one: '{rank} lugar: {name} (você), {points} ponto',
+      other: '{rank} lugar: {name} (você), {points} pontos',
+    },
     /** Button on the winner's avatar: tap for more confetti. */
     cheer: 'Aplaudir {name}',
   },
@@ -126,7 +136,7 @@ export default {
     /** Late joiner: the first round they played. */
     lateFrom: 'desde a rodada {round}',
     /** Unit under each total (tiny, uppercase); plural by the score. */
-    points: { one: 'ponto', other: 'pontos' },
+    points: { zero: 'pontos', one: 'ponto', other: 'pontos' },
   },
 
   /** Award cards. Titles are small display type in a half-width card on phones: keep them short. */
@@ -142,8 +152,9 @@ export default {
       value: { one: '{count} rodada perfeita', other: '{count} rodadas perfeitas' },
     },
     lightning: {
-      title: 'Relâmpago',
-      description: 'Confirmação mais rápida nas rodadas com pontos',
+      /** One word that fits the half-width card at 360px ("Relâmpago" broke mid-word there). */
+      title: 'Turbo',
+      description: 'Mais veloz nas rodadas com pontos',
       /** {time}: average time, e.g. "38,3 s". */
       value: 'média de {time}',
     },

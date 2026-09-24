@@ -75,8 +75,8 @@ export default {
     /** Round duration; "s" = seconds. */
     seconds: '<b>{seconds}</b> s',
     spectator: 'Cette manche, tu la regardes : tu joueras dès la prochaine.',
-    howToHover: 'Clique sur un bloc pour l’écouter, puis fais-le glisser à sa place.',
-    howToTouch: 'Touche un bloc pour l’écouter, puis fais-le glisser à sa place.',
+    howToHover: 'Clique sur un bloc pour l’écouter, puis glisse-le à sa place.',
+    howToTouch: 'Touche un bloc pour l’écouter, puis glisse-le à sa place.',
     /** Shown inside the countdown ring before "3" (small, uppercase). */
     ready: 'Prêts ?',
     /** Screen-reader text of the countdown ring: before the count / while counting ({seconds} = 3, 2, 1). */

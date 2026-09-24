@@ -93,7 +93,7 @@ export function RoundBreakdown({ summary, me, className }: RoundBreakdownProps) 
                       <span className="num hidden w-7 shrink-0 text-[12px] font-bold text-ink-400 sm:block">{t('final.roundShort', { round: r.index + 1 })}</span>
                       <span className="relative shrink-0">
                         <Cover src={r.track?.coverSmall || r.track?.cover} className="size-10 rounded-lg sm:size-11" />
-                        <span className="num absolute -top-2 -left-2 rounded-full bg-ink-950 px-1.5 text-[11px] leading-[17px] font-bold text-ink-200 ring-1 ring-white/15 sm:hidden">
+                        <span className="num absolute -top-2 -left-2 rounded-full bg-ink-950 px-1.5 text-[11px] leading-[17px] font-bold whitespace-nowrap text-ink-200 ring-1 ring-white/15 sm:hidden">
                           {t('final.roundShort', { round: r.index + 1 })}
                         </span>
                       </span>

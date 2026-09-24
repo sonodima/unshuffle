@@ -384,7 +384,9 @@ function RevealContent({
                 <motion.section className="rv-area-board flex min-h-0 flex-col" aria-label={t('reveal.board.region')} {...section(0.3)}>
                   <div className="mb-4 px-1 xl:mt-4">
                     <div className="flex min-h-10 items-center justify-between gap-3">
-                      <h3 className="display display-skew min-w-0 truncate text-[13px] text-white md:text-[15px]">
+                      {/* Beside the toggle on phones: a long title takes a second, balanced line (the row is 40px tall anyway);
+                          leading-[1.12] keeps accented capitals of the two lines apart (one line sits exactly as before). */}
+                      <h3 className="display display-skew min-w-0 text-[13px] leading-[1.12] text-balance text-white md:text-[15px]">
                         {t(view === 'correct' ? 'reveal.board.titleCorrect' : 'reveal.board.titleMine')}
                       </h3>
                       {progress.sorted ? (
@@ -400,7 +402,8 @@ function RevealContent({
                             options={viewOptions}
                             value={view}
                             onChange={setChosenView}
-                            className="w-[172px] md:w-[252px]"
+                            fit
+                            className="md:min-w-[252px]"
                           />
                         </motion.div>
                       ) : (
@@ -410,7 +413,7 @@ function RevealContent({
                         </div>
                       )}
                     </div>
-                    <p className="mt-1 truncate text-[11px] font-semibold text-ink-400 md:text-xs">
+                    <p className="mt-1 line-clamp-2 text-[11px] font-semibold text-balance text-ink-400 md:text-xs">
                       {boardHint(model, progress.sorted, view, canHover)}
                     </p>
                   </div>

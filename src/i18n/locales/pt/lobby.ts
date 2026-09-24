@@ -10,7 +10,7 @@ export default {
   /** Player count in the desktop start dock. */
   players: { one: '<num>{count}</num> jogador', other: '<num>{count}</num> jogadores' },
   /** Track count of a playlist (picker cards, chosen playlist badge). */
-  tracks: { one: '<num>{count}</num> música', other: '<num>{count}</num> músicas' },
+  tracks: { zero: '<num>{count}</num> músicas', one: '<num>{count}</num> música', other: '<num>{count}</num> músicas' },
   /** Dismiss button of the lobby dialogs (remove a player, edit your profile). */
   cancel: 'Cancelar',
 
@@ -71,11 +71,12 @@ export default {
     copyFailed: 'Não deu para copiar',
     /** Screen readers. {code}: the room code spelled letter by letter ("K X Q P M"). */
     copyLabel: 'Código da sala {code}. Copiar código',
-    /** Button (phones: shares the row with "Compartilhar" and the QR button). Short. */
+    /** Button (phones: shares the row with "Enviar" and the QR button). Short. */
     copyLink: 'Copiar link',
     /** "Copiar link" right after a successful copy. */
     linkCopied: 'Copiado!',
-    share: 'Compartilhar',
+    /** Opens the native share sheet (phones: ~117px next to "Copiar link"): "Enviar", not the longer "Compartilhar". */
+    share: 'Enviar',
     showQr: 'Mostrar QR code',
     enlargeQr: 'Ampliar QR code',
     /** Desktop card, next to the QR code. */
@@ -86,14 +87,14 @@ export default {
   /** QR code dialog. */
   qr: {
     title: 'Chame a galera',
-    description: 'Escaneie o QR com a câmera do celular ou compartilhe o link.',
+    description: 'Escaneie o QR com a câmera do celular ou envie o link.',
     /** Label above the room code. */
     code: 'Código',
     /** Button next to the link. */
     copy: 'Copiar',
     copied: 'Copiado',
     copyFailed: 'Não deu para copiar: selecione o link e copie manualmente.',
-    shareLink: 'Compartilhar link',
+    shareLink: 'Enviar link',
     /** The QR image (screen readers). */
     imageLabel: 'QR code para entrar na sala',
   },
@@ -143,7 +144,7 @@ export default {
     source: 'Músicas do Deezer · prévias de 30 segundos',
     searchLabel: 'Buscar playlist',
     /** Must fit a 300px-wide field on phones (~32 characters). */
-    searchPlaceholder: 'Busque ou cole um link do Deezer',
+    searchPlaceholder: 'Busque ou cole um link Deezer',
     searching: 'Buscando',
     clear: 'Limpar busca',
     /** Shelf heading while the search box is empty. */
@@ -153,7 +154,7 @@ export default {
     /** {query}: what the host typed. */
     resultsFor: 'Resultados para “{query}”',
     /** Result count (next to the heading, and for screen readers). */
-    count: { one: '{count} playlist', other: '{count} playlists' },
+    count: { zero: 'Nenhuma playlist', one: '{count} playlist', other: '{count} playlists' },
     /** Screen readers. */
     loading: 'Carregando…',
     /** Screen readers. */
@@ -165,7 +166,11 @@ export default {
     /** Card subtitle of a playlist shorter than the shortest game. */
     tracksTooShort: { one: '<num>{count}</num> música · curta demais', other: '<num>{count}</num> músicas · curta demais' },
     /** Card subtitle. {creator}: Deezer user / curator name. */
-    tracksBy: { one: '<num>{count}</num> música · {creator}', other: '<num>{count}</num> músicas · {creator}' },
+    tracksBy: {
+      zero: '<num>{count}</num> músicas · {creator}',
+      one: '<num>{count}</num> música · {creator}',
+      other: '<num>{count}</num> músicas · {creator}',
+    },
     /** Category chips row (screen readers). */
     chips: 'Categorias',
     chipsPrev: 'Categorias anteriores',
@@ -270,10 +275,10 @@ export default {
     snippetsLevel: { one: '<num>{count}</num> trecho ({difficulty})', other: '<num>{count}</num> trechos ({difficulty})' },
     /** Seconds per round, e.g. "90s". */
     roundTime: '<num>{seconds}s</num>',
-    /** Guests. Animated dots follow: no final punctuation. */
-    waitingStart: 'Esperando o host começar a partida',
-    /** Guests. Animated dots follow: no final punctuation. */
-    waitingPlaylist: 'O host está escolhendo a playlist',
+    /** Guests. Animated dots follow: no final punctuation. One line, ~28 characters on 360px phones. */
+    waitingStart: 'Esperando o host dar o play',
+    /** Guests. Animated dots follow: no final punctuation. One line, ~28 characters on 360px phones. */
+    waitingPlaylist: 'Esperando a playlist do host',
     pickPlaylist: 'Escolha uma playlist para começar',
     solo: 'Dá para jogar solo também',
     /** In place of the playlist title in the dock, before one is picked. */

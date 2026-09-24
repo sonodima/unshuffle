@@ -80,7 +80,7 @@ export default {
     enlargeQr: 'Enlarge QR code',
     /** Desktop card, next to the QR code. */
     phoneTitle: 'Join from your phone',
-    phoneBody: 'Scan the QR or open the link: jump right in, no account needed.',
+    phoneBody: 'Scan the QR or open the link. No account needed.',
   },
 
   /** QR code dialog. */
@@ -271,7 +271,7 @@ export default {
     /** Seconds per round, e.g. "90s". */
     roundTime: '<num>{seconds}s</num>',
     /** Guests. Animated dots follow: no final punctuation. */
-    waitingStart: 'Waiting for the host to start the game',
+    waitingStart: 'Waiting for the host to start',
     /** Guests. Animated dots follow: no final punctuation. */
     waitingPlaylist: 'The host is picking a playlist',
     pickPlaylist: 'Pick a playlist to start',

@@ -9,7 +9,8 @@
 //   рейтинг · final standings → итоги · points → очки (очко / очка / очков) · right
 //   place → на своём месте · pair in sequence → верная пара · perfect → идеально ·
 //   spectator → зритель («Ты в зрителях») · rematch → реванш · play again → «Ещё раз» ·
-//   difficulty → Легко / Нормально / Сложно / Хардкор.
+//   difficulty → Легко / Средне / Сложно / Хардкор (they sit under the numbers of a
+//   4-way picker, ~55 px on phones: «Нормально» did not fit).
 // Register: «ты», lively; «…» quotes (nested „…“); NBSP between a number and «с»/«мин».
 // Players' gender is unknown: no past-tense verbs or adjectives agreeing with the
 // player (use present tense, impersonal or plural forms: «жмёт», «угадано», «все

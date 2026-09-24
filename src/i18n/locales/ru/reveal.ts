@@ -55,19 +55,24 @@ export default {
   board: {
     /** Screen-reader name of the board section. */
     region: 'Твоя последовательность',
-    /** Board title, depending on which arrangement is shown. */
+    /**
+     * Board title, depending on which arrangement is shown. One line next to the toggle
+     * (~200 px on phones, uppercase display type): «Правильный порядок» was cut.
+     */
     titleMine: 'Твой порядок',
-    titleCorrect: 'Правильный порядок',
+    titleCorrect: 'Верный порядок',
     /**
      * Two-option toggle above the board, once sorted. Each option is ~120 px wide
-     * on tablets/desktop and ~80 px on phones (the short forms).
+     * on tablets/desktop and ~80 px on phones (the short forms), padding included:
+     * in Unbounded even «Твой порядок» (116 px) spills, so the long forms are the
+     * short ones too. The title beside the toggle already says «… порядок».
      */
     toggle: {
       /** Screen-reader name of the toggle. */
       label: 'Какой порядок показан',
-      mine: 'Твой порядок',
+      mine: 'Твой',
       mineShort: 'Твой',
-      correct: 'Верный порядок',
+      correct: 'Верный',
       correctShort: 'Верный',
     },
     /** Screen-reader labels of the two counters while the ✓ / ✗ pop in. */

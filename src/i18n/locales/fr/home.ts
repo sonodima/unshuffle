@@ -32,7 +32,7 @@ export default {
     /** Under the button while the room is being opened. */
     pending: 'Ouverture du salon…',
     /** Hint under "Créer un salon". <b>…</b> is the bold lead-in. One line on phones (~50 characters). */
-    solo: '<b>Jouer en solo :</b> crée le salon et lance-toi.',
+    solo: '<b>En solo ?</b> Crée le salon et lance-toi.',
   },
   join: {
     /** Divider above the 5 code boxes (uppercase). */
@@ -102,7 +102,7 @@ export default {
   /** "How to play" dialog: three illustrated steps and the scoring rule. */
   howTo: {
     title: 'Comment jouer',
-    description: 'Un tube par manche, mis en morceaux. Pour gagner, remets-le dans l’ordre mieux et plus vite que les autres.',
+    description: 'Un tube par manche, mis en morceaux. Pour gagner, remets-le dans l’ordre, mieux et plus vite que les autres.',
     /** Closes the dialog. */
     gotIt: 'Compris, on joue !',
     /** The fake "confirm" button drawn in the third illustration (tiny pill, uppercase): keep it very short. */
@@ -118,7 +118,7 @@ export default {
       sort: {
         title: 'Glisse-les dans le bon ordre',
         /** <play></play> is replaced by a small ▶ icon (the "play your order" button). Keep it empty. */
-        body: 'Déplace les blocs jusqu’à ce que la chanson sonne comme la version originale. Appuie sur <play></play> pour écouter ton ordre.',
+        body: 'Déplace les blocs jusqu’à ce que la chanson sonne comme l’originale. Appuie sur <play></play> pour écouter ta version.',
       },
       confirm: {
         title: 'Valide avant les autres',

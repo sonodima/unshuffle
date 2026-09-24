@@ -172,8 +172,11 @@ export default {
     /** Next to the title on wide screens. */
     source: 'Треки из Deezer · отрывки по 30 секунд',
     searchLabel: 'Поиск плейлистов',
-    /** Must fit a 300px-wide field on phones (~32 characters). */
-    searchPlaceholder: 'Найди или вставь ссылку Deezer',
+    /**
+     * Must fit a 300px-wide field on phones (~32 characters, but Cyrillic runs wider:
+     * "Найди или вставь ссылку Deezer" was cut at 390 px; keep it ≤ ~24 characters).
+     */
+    searchPlaceholder: 'Поиск или ссылка Deezer',
     searching: 'Идёт поиск',
     clear: 'Очистить поиск',
     /** Shelf heading while the search box is empty. */
@@ -265,13 +268,16 @@ export default {
     hostDecides: 'Решает хост',
     /** Option label in seconds, e.g. "90 с". Keep it very short (4 options share a row). */
     seconds: '{seconds} с',
-    /** Screen readers, a snippets option: "8 · Нормально". */
+    /** Screen readers, a snippets option: "8 · Средне". */
     snippetsOption: '{snippets} · {difficulty}',
-    /** Row titles are also the pickers' names. Hints are one short line (they truncate). */
+    /**
+     * Row titles are also the pickers' names. Hints are one short line (they truncate).
+     * On a 360 px phone the finalTimer hint gets ~105 px next to its long title: ≤ ~16 characters.
+     */
     rounds: { title: 'Раунды', hint: 'Одна песня на раунд' },
     snippets: { title: 'Фрагменты', hint: 'Больше кусочков — сложнее' },
     roundTime: { title: 'Время раунда', hint: 'На расстановку' },
-    finalTimer: { title: 'Финальный таймер', hint: 'После первого «Готово»' },
+    finalTimer: { title: 'Финальный таймер', hint: 'После «Готово»' },
   },
 
   /** "How to play" card (guests, while they wait). */
@@ -304,17 +310,17 @@ export default {
       title: 'Жми «Готово»',
       /** {count}: seconds of the final timer (10–30). */
       body: {
-        one: 'Кто первым нажмёт «Готово», запускает финальный таймер: у остальных останется {count} секунда.',
-        few: 'Кто первым нажмёт «Готово», запускает финальный таймер: у остальных останется {count} секунды.',
-        many: 'Кто первым нажмёт «Готово», запускает финальный таймер: у остальных останется {count} секунд.',
-        other: 'Кто первым нажмёт «Готово», запускает финальный таймер: у остальных останется {count} секунды.',
+        one: 'Первое «Готово» запускает финальный таймер: у остальных останется {count} секунда.',
+        few: 'Первое «Готово» запускает финальный таймер: у остальных останется {count} секунды.',
+        many: 'Первое «Готово» запускает финальный таймер: у остальных останется {count} секунд.',
+        other: 'Первое «Готово» запускает финальный таймер: у остальных останется {count} секунды.',
       },
     },
   },
 
   /** Bottom start bar (host CTA / guests waiting). */
   bar: {
-    // Rules summary items, shown in a row separated by " · ": "5 раундов · 8 фрагментов (нормально) · 90 с".
+    // Rules summary items, shown in a row separated by " · ": "5 раундов · 8 фрагментов (средне) · 90 с".
     rounds: {
       one: '<num>{count}</num> раунд',
       few: '<num>{count}</num> раунда',
@@ -327,7 +333,7 @@ export default {
       many: '<num>{count}</num> фрагментов',
       other: '<num>{count}</num> фрагмента',
     },
-    /** Desktop dock. {difficulty}: difficulty name, lowercased ("нормально"). */
+    /** Desktop dock. {difficulty}: difficulty name, lowercased ("средне"). */
     snippetsLevel: {
       one: '<num>{count}</num> фрагмент ({difficulty})',
       few: '<num>{count}</num> фрагмента ({difficulty})',

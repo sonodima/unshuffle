@@ -80,12 +80,14 @@ export function SettingsPanel({ settings, editable, onChange, density = 'regular
       <div className={cn('flex flex-col', compact ? 'mt-4 gap-3.5' : 'mt-5 gap-5')}>
         {ROWS.map((row) => (
           <div key={row.key} className={cn('flex flex-col', compact ? 'gap-1.5' : 'gap-2')}>
-            <div className="flex items-baseline justify-between gap-3 px-1">
+            {/* The hint fills what the title leaves: one line when it fits, else two, and it moves
+                below the title when less than 7rem is left. */}
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 px-1">
               <span className="flex shrink-0 items-center gap-2 text-sm font-extrabold whitespace-nowrap text-ink-100">
                 <Icon name={row.icon} size={16} strokeWidth={2.4} className="shrink-0 self-center text-ink-300" />
                 {t(row.title)}
               </span>
-              <span className="min-w-0 truncate text-right text-[11px] font-medium text-ink-400">{t(row.hint)}</span>
+              <span className="line-clamp-2 min-w-28 flex-1 basis-0 text-right text-[11px] font-medium text-pretty text-ink-400">{t(row.hint)}</span>
             </div>
             <Segmented<number>
               label={t(row.title)}

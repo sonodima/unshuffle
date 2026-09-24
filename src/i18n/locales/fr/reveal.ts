@@ -86,8 +86,8 @@ export default {
       },
       /** The player's own arrangement is shown. */
       mine: {
-        hover: 'Voici ton ordre · clique pour écouter',
-        touch: 'Voici ton ordre · touche pour écouter',
+        hover: 'Comme tu les as placés · clique pour écouter',
+        touch: 'Comme tu les as placés · touche pour écouter',
       },
       perfect: {
         hover: 'Tout est à sa place ! · clique pour réécouter',
@@ -187,7 +187,7 @@ export default {
     /** Leaderboard title (and screen-reader name of the panel). */
     title: 'Classement',
     /** Small label on the right of the title. */
-    after: 'après la manche {round}',
+    after: 'après la manche {round}',
     /** Badge next to my own name (tiny: 2–4 letters). */
     you: 'toi',
     /** Icon label on the best score(s) of the round. */
@@ -195,7 +195,7 @@ export default {
     /** Under the name of a player without a result. */
     spectator: 'En tribune',
     /** Late joiner, seen by the others; {round} = the round they start playing. */
-    spectatorFrom: 'En tribune · joue dès la manche {round}',
+    spectatorFrom: 'En tribune · joue dès la manche {round}',
     noAnswer: 'Aucune réponse',
     /** Round stats under the leaderboard (tiny labels, one line each, three columns). */
     stats: {

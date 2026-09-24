@@ -75,8 +75,8 @@ export default {
     /** Round duration; "s" = seconds. */
     seconds: '<b>{seconds}</b> s',
     spectator: 'Nesta rodada você só assiste: joga a partir da próxima.',
-    howToHover: 'Clique num bloco para ouvir e arraste até o lugar dele.',
-    howToTouch: 'Toque num bloco para ouvir e arraste até o lugar dele.',
+    howToHover: 'Clique num bloco para ouvir. Depois, arraste até o lugar certo.',
+    howToTouch: 'Toque num bloco para ouvir. Depois, arraste até o lugar certo.',
     /** Shown inside the countdown ring before "3" (small, uppercase). */
     ready: 'Bora?',
     /** Screen-reader text of the countdown ring: before the count / while counting ({seconds} = 3, 2, 1). */
@@ -124,7 +124,11 @@ export default {
     confirmedBy: '<name>{name}</name> confirmou!',
     /** Line under the title; <n> is the live seconds count (animated). "s" = seconds. */
     othersLeft: 'Os outros ainda têm <n>{seconds}</n> s',
-    youLeft: { one: 'Só mais <n>{count}</n> segundo', other: 'Você ainda tem <n>{count}</n> segundos' },
+    youLeft: {
+      zero: 'Restam <n>{count}</n> segundos',
+      one: 'Só mais <n>{count}</n> segundo',
+      other: 'Você ainda tem <n>{count}</n> segundos',
+    },
     /** For players who can't act any more (already confirmed, spectators). */
     finalTimer: 'Contagem final: <n>{seconds}</n> s',
   },

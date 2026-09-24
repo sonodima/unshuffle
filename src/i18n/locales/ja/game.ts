@@ -27,7 +27,7 @@ export default {
     invalidCode: 'ルームコードが正しくありません。',
     cancelled: 'キャンセルしました。',
     hostLost: 'ホストとの接続が切れました。',
-    hostGone: 'ホストがゲームから抜けました。',
+    hostGone: 'ホストが退出しました。',
     welcomeTimeout: 'ホストから応答がありません。少し待ってからもう一度お試しください。',
     joinFailed: 'ルームに参加できませんでした。もう一度お試しください。',
     createFailed: 'ルームを作成できませんでした。もう一度お試しください。',

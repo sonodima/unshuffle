@@ -200,7 +200,7 @@ export default {
     snippetsLevel: { other: '조각 <num>{count}</num>개 ({difficulty})' },
     roundTime: '<num>{seconds}초</num>',
     /** Animated dots follow: no final punctuation. */
-    waitingStart: '호스트가 게임을 시작하길 기다리는 중',
+    waitingStart: '호스트가 시작하길 기다리는 중',
     waitingPlaylist: '호스트가 플레이리스트를 고르는 중',
     pickPlaylist: '플레이리스트를 골라 시작하세요',
     solo: '혼자서도 할 수 있어요',

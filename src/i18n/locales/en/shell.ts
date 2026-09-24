@@ -66,10 +66,10 @@ export default {
     /** The host left for good, the player was in the lobby. */
     hostClosedTitle: 'The host closed the room',
     /** The host left for good during or after the game. */
-    hostLeftTitle: 'The host left the game',
+    hostLeftTitle: 'The host has left',
     hostGoneDescription: 'This room is no longer available.',
     /** Hint when the game had already ended (otherwise exit.gone.hint is shown). */
-    hostGoneHintFinal: 'The game was over: create a new room for a rematch.',
+    hostGoneHintFinal: 'The game’s over. Create a new room for a rematch.',
     /** No "Retry" possible (e.g. on the host's own tab). */
     noRetryDescription: 'The connection to the room dropped.',
     noRetryHint: 'Check your connection, then try again from the home screen.',

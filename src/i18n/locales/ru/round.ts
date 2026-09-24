@@ -57,7 +57,7 @@ export default {
     playAll: '«Слушать всё» играет блоки в текущем порядке: если звучит гладко, ты почти у цели.',
     hold: 'Зажми блок — и последовательность заиграет прямо с него.',
     pairs: 'Два соседних блока в верном порядке приносят очки, даже если стоят не на своих местах.',
-    firstConfirm: 'Кто первым нажмёт «Готово», запускает финальный таймер для всех.',
+    firstConfirm: 'Первое «Готово» запускает финальный таймер для всех.',
     edges: 'Ищи начало песни и место, где она затихает: это первые и последние блоки.',
     /** {points} = the maximum score of a round (5 000, formatted). */
     perfect: 'Идеальный порядок = {points} очков. Без напряга.',
@@ -94,8 +94,11 @@ export default {
     countdownLabel: 'Старт через {seconds}',
   },
 
-  /** Full-screen slam when the round starts. Very short (1 word, huge type). */
-  go: 'Погнали!',
+  /**
+   * Full-screen slam when the round starts. Very short: 1 word, huge type (26vw), only
+   * ~4 characters fit a phone («Погнали!» showed as «ГНА»). «Го!» is the gamers' "go".
+   */
+  go: 'Го!',
   /** Shown while the board data for the round arrives. */
   syncing: 'Синхронизирую раунд…',
 
@@ -190,9 +193,9 @@ export default {
     hints: {
       playAll: '<kbd>{space}</kbd> слушать всё',
       confirm: '<kbd>{mod}</kbd> + <kbd>{enter}</kbd> <action>готово</action>',
-      pointer: 'Клик по блоку — послушать · зажми — слушать с него · перетащи — переставить',
+      pointer: 'Кликни по блоку — послушать · зажми — слушать с него · перетащи — переставить',
       /** Same, after confirming (blocks can't move any more). */
-      pointerLocked: 'Клик по блоку — послушать · зажми — слушать с него',
+      pointerLocked: 'Кликни по блоку — послушать · зажми — слушать с него',
     },
   },
 

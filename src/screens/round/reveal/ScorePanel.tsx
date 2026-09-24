@@ -185,7 +185,7 @@ function Stat({
         <span className="rv-tnum text-lg leading-none font-extrabold text-white md:text-xl">{shown ? value : '–'}</span>
         <span className="rv-tnum ml-auto pl-1 text-[11px] font-bold text-ink-300 md:text-xs">{shown ? `+${formatPoints(points)}` : ''}</span>
       </span>
-      <span className="mt-1.5 block truncate text-[11px] font-bold text-ink-200 md:text-xs">{label}</span>
+      <span className="mt-1.5 line-clamp-2 text-[11px] font-bold text-balance text-ink-200 md:text-xs">{label}</span>
     </motion.div>
   )
 }

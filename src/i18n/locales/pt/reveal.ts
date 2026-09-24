@@ -65,7 +65,7 @@ export default {
     },
     /** Screen-reader labels of the two counters while the ✓ / ✗ pop in. */
     tallyCorrect: { one: '{count} no lugar certo', other: '{count} no lugar certo' },
-    tallyWrong: { one: '{count} errado', other: '{count} errados' },
+    tallyWrong: { zero: '{count} errados', one: '{count} errado', other: '{count} errados' },
     /**
      * Tiny chips in the corner of a misplaced block (~6 characters).
      * `was`: on the right order, where the player had put that snippet.
@@ -140,7 +140,7 @@ export default {
     /** Label under the “6/8” stat (small, one line). */
     correct: 'no lugar certo',
     /** Label under the pair count (small, one line); the number is shown above it. */
-    pairs: { one: 'par em sequência', other: 'pares em sequência' },
+    pairs: { zero: 'pares em sequência', one: 'par em sequência', other: 'pares em sequência' },
     /** My overall total after this round. */
     total: 'Total da partida',
     /**
@@ -171,15 +171,13 @@ export default {
 
   /** Screen-reader summary once my points are shown. */
   announce: {
-    /**
-     * {points} = round points, {correct} of {n} blocks right, {pairs} = announce.pairs.
-     * Worded without a noun after {points}, so it reads well for 0 (pt-BR `one` = 0 and 1).
-     */
+    /** {points} = round points, {correct} of {n} blocks right, {pairs} = announce.pairs. */
     result: {
-      one: 'Pontuação: {points}. {correct} de {n} no lugar certo, {pairs}.',
-      other: 'Pontuação: {points}. {correct} de {n} no lugar certo, {pairs}.',
+      zero: '{points} pontos: {correct} de {n} no lugar certo, {pairs}.',
+      one: '{points} ponto: {correct} de {n} no lugar certo, {pairs}.',
+      other: '{points} pontos: {correct} de {n} no lugar certo, {pairs}.',
     },
-    pairs: { one: '{count} par em sequência', other: '{count} pares em sequência' },
+    pairs: { zero: '{count} pares em sequência', one: '{count} par em sequência', other: '{count} pares em sequência' },
     /** Wraps the summary on a perfect round. */
     perfect: 'Sequência perfeita! {result}',
     /** Wraps the summary when the timer ran out. */
@@ -213,6 +211,7 @@ export default {
     row: {
       /** {points} this round, {correct} of {n} blocks in the right place. */
       played: {
+        zero: '{rank}, {name}: {points} pontos nesta rodada, {correct} de {n} no lugar certo, total {total}',
         one: '{rank}, {name}: {points} ponto nesta rodada, {correct} de {n} no lugar certo, total {total}',
         other: '{rank}, {name}: {points} pontos nesta rodada, {correct} de {n} no lugar certo, total {total}',
       },

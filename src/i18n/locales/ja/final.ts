@@ -59,13 +59,13 @@ export default {
     leave: '退出',
     /** Host: back to the lobby with the same players. Short. */
     playAgain: 'もう一回',
-    /** Guest: nudge the host for a rematch. */
-    rematch: 'リベンジ！',
+    /** Guest: nudge the host for a rematch (もう一戦, not リベンジ: the winner may ask too). */
+    rematch: 'もう一戦！',
     rematchSent: 'リクエスト送信済み',
-    waiting: 'もう一回やるか、ホストが検討中…',
+    waiting: 'もう一回やるかはホスト次第…',
     /** {names}: one or two names, already joined. */
-    rematchNamed: { other: '{names}がリベンジを希望！' },
-    rematchMany: { other: '{count}人がリベンジを希望！' },
+    rematchNamed: { other: '{names}がもう一戦したいって！' },
+    rematchMany: { other: '{count}人がもう一戦したいって！' },
   },
 
   leaveDialog: {
@@ -99,14 +99,18 @@ export default {
     points: { other: '点' },
   },
 
-  /** Award cards: short titles (half-width card on phones). */
+  /**
+   * Award cards: short titles (half-width card on phones). Descriptions wrap at
+   * ~8 full-width characters on phones, ~10 on desktop: keep them to one line or
+   * a clean two-line break.
+   */
   awards: {
     title: 'アワード',
     aside: '特別賞',
     nameAndOthers: { other: '{name}ほか{count}人' },
     goldenEar: {
       title: '絶対音感',
-      description: 'パーフェクト回数が最多',
+      description: 'パーフェクト最多',
       value: { other: 'パーフェクト{count}回' },
     },
     lightning: {
@@ -117,14 +121,14 @@ export default {
     },
     sniper: {
       title: '百発百中',
-      description: '正しい位置のピースが最多',
+      description: '正しい位置の数が最多',
       /** {accuracy}: snippets in place per round ("6.8/8") or a percentage ("85%"). */
       value: '平均{accuracy}',
     },
     /** Most rounds that ran out of time: a friendly booby prize. */
     lastSecond: {
       title: 'マイペース',
-      description: 'タイムアップ回数が最多',
+      description: 'タイムアップ最多',
       value: { other: 'タイムアップ{count}回' },
     },
   },

@@ -42,10 +42,10 @@ export default {
   /** Tiny facts in the footer (~11px, one line each). */
   footer: {
     players: {
-      one: '1 jugador',
+      one: '{count} jugador',
       other: 'De 1 a {count} jugadores',
     },
-    noAccount: 'Sin cuentas: se juega en el navegador',
+    noAccount: 'Sin registro: se juega en el navegador',
     deezer: 'Vistas previas musicales de Deezer',
   },
   profile: {

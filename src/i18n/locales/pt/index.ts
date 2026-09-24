@@ -10,12 +10,15 @@
 //   spectator → assistindo / "você está assistindo" (gender-neutral)
 //   home screen → início                   retry → tentar de novo
 //   play-all → ouvir tudo                  3-2-1 → "Bora?" … "Já!"
+//   share (native sheet) → enviar ("Enviar", "Enviar link": "Compartilhar" doesn't fit phones)
+//   back home → "volte ao início" (not "pelo início"); object pronoun → te ("te ver")
 // Tone: você, informal and lively ("bora", "galera", "dá para"), but errors stay
 // plain. Prefer neutral wording (todo mundo, quem, alguém, a outra pessoa) over
 // gendered adjectives. Quotes “…”, ellipsis …, ordinals via ui.ordinal ({n}º).
-// Plurals: pt-BR cardinal `one` covers 0 AND 1 (CLDR), so every `one` form must
-// read well for 0 too ("0 ponto" is accepted pt-BR); `many` (exact millions) is
-// left to `other`, which is the same text when the number is written in digits.
+// Plurals: pt-BR cardinal `one` covers 0 AND 1 (CLDR). Wherever a count can be 0
+// (points, pairs, wrong snippets, tracks, seconds left…) the plural has an explicit
+// `zero` form, so it reads "0 pontos", never "0 ponto". A count that is never 0 needs
+// no `zero`; `many` (exact millions) is left to `other`, the same text in digits.
 import type { Catalog } from '../../catalog'
 import board from './board'
 import final from './final'

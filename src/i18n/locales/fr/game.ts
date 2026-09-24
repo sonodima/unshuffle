@@ -45,7 +45,7 @@ export default {
     server: 'Le serveur de connexion ne répond pas. Réessaie dans quelques secondes.',
     signaling: 'Serveur de connexion injoignable. Réessaie dans un instant ou change de réseau (Wi‑Fi ou données mobiles).',
     createTimeout: 'Le serveur de connexion ne répond pas. Réessaie dans quelques secondes.',
-    joinTimeout: 'Impossible de se connecter à l’hôte. Réessaie ; si ça ne marche pas, essaie un autre réseau (Wi‑Fi ou données mobiles).',
+    joinTimeout: 'Impossible de se connecter à l’hôte. Réessaie ; si ça ne passe toujours pas, change de réseau (Wi‑Fi ou données mobiles).',
     hostNoAnswer: 'L’hôte ne répond pas. Vérifie le code ou réessaie dans un instant.',
     roomNotFound: 'Salon introuvable. Vérifie le code.',
     invalidCode: 'Code de salon invalide. Il fait 5 lettres, par exemple KXQPM.',

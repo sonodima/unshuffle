@@ -71,7 +71,7 @@ export default {
     hostGoneHintFinal: 'A partida já tinha acabado: crie uma nova sala para a revanche.',
     /** No "Tentar de novo" possible (e.g. on the host's own tab). */
     noRetryDescription: 'A conexão com a sala caiu.',
-    noRetryHint: 'Verifique a conexão e tente de novo pelo início.',
+    noRetryHint: 'Verifique a conexão e volte ao início para tentar de novo.',
     descriptionLobby: 'O host não responde: talvez tenha fechado a sala.',
     description: 'O host não responde há um tempo.',
     hintLobby: 'Tente de novo daqui a pouco ou volte ao início e crie a sua.',
@@ -98,17 +98,17 @@ export default {
     gone: {
       title: 'Sala indisponível',
       description: 'O host fechou a sala ou perdeu a conexão.',
-      hint: 'Crie uma nova sala pelo início ou entre com outro código.',
+      hint: 'Volte ao início para criar uma nova sala ou entrar com outro código.',
     },
     /** Rejoining failed (network). */
     failed: {
       title: 'Não foi possível voltar',
-      hint: 'Verifique a conexão e tente de novo com o código, pelo início.',
+      hint: 'Verifique a conexão e volte ao início para entrar de novo com o código.',
     },
     /** Any other reason. */
     generic: {
       title: 'Você está fora da sala',
-      hint: 'Dá para voltar com o mesmo código pelo início.',
+      hint: 'Volte ao início e entre de novo com o mesmo código.',
     },
   },
 
@@ -122,15 +122,15 @@ export default {
     /** {hint} is the exit.gone hint. */
     goneRoom: 'A sala <b>{code}</b> não existe mais. {hint}',
     failedRoom:
-      'Não consegui levar você de volta para a sala <b>{code}</b>. Se a partida ainda estiver rolando, entre de novo com o código pelo início.',
-    failed: 'Se a partida ainda estiver rolando, entre de novo com o código pelo início.',
+      'Não consegui te levar de volta para a sala <b>{code}</b>. Se a partida ainda estiver rolando, volte ao início e entre de novo com o código.',
+    failed: 'Se a partida ainda estiver rolando, volte ao início e entre de novo com o código.',
   },
 
   /** Full-screen crash fallback. */
   crash: {
     eyebrow: 'Erro inesperado',
     title: 'Algo deu errado',
-    body: 'O disco arranhou. Recarregue a página: se você estava numa sala, eu tento levar você de volta.',
+    body: 'O disco arranhou. Recarregue a página: se você estava numa sala, eu tento te levar de volta.',
     reload: 'Recarregar',
     showDetails: 'Detalhes técnicos',
     hideDetails: 'Ocultar detalhes',

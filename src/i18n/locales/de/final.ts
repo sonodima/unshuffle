@@ -52,8 +52,10 @@ export default {
     leave: 'Raus',
     playAgain: 'Nochmal!',
     rematch: 'Revanche!',
-    rematchSent: 'Anfrage gesendet',
-    waiting: 'Warten, bis der Host eine Revanche startet…',
+    /** Same button, disabled for a few seconds after the tap: keep it as short as "Revanche!". */
+    rematchSent: 'Angefragt',
+    /** One line on phones (cut beyond ~38 characters at 360 px). */
+    waiting: 'Revanche? Der Host entscheidet…',
     rematchNamed: { one: '{names} will eine Revanche!', other: '{names} wollen eine Revanche!' },
     rematchMany: { one: '{count} Person will eine Revanche!', other: '{count} Leute wollen eine Revanche!' },
   },

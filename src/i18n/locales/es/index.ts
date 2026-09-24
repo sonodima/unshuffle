@@ -10,7 +10,8 @@
 //   confirm → confirmar (button "Confirmar"), confirmación
 //   final timer → temporizador final     time's up → tiempo agotado
 //   playlist → playlist (f., pl. playlists)   song / track → canción, audio track → pista
-//   preview (Deezer 30 s clip) → vista previa   link → enlace
+//   preview (Deezer 30 s clip) → vista previa   link → enlace (only the tight
+//     phone button lobby.code.copyLink says «Copiar link»)
 //   reveal → resultados            leaderboard / standings → clasificación
 //   in the right place → en su lugar     pair in sequence → par en secuencia
 //   perfect round → ronda perfecta       rematch → revancha      points → puntos

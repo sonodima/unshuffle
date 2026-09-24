@@ -83,7 +83,7 @@ export default {
     caption: {
       shuffle: '神曲被切成了碎片…',
       listen: '逐个试听片段',
-      sort: '拖到正确的顺序',
+      sort: '拖回正确的顺序',
       solved: '完美！抢先确认',
     },
     /** Phone caption when the demo is solved (one line). {points} = points won, already formatted (5,000). */
@@ -100,7 +100,7 @@ export default {
   /** "How to play" dialog: three illustrated steps and the scoring rule. */
   howTo: {
     title: '怎么玩',
-    description: '每回合一首神曲，被切成碎片。谁拼得又准又快，谁就赢。',
+    description: '每回合一首神曲，切碎打乱。谁拼得又准又快，谁就赢。',
     /** Closes the dialog. */
     gotIt: '懂了，开玩！',
     /** The fake "confirm" button drawn in the third illustration (tiny pill, uppercase): keep it very short. */
@@ -109,14 +109,14 @@ export default {
       listen: {
         title: '试听片段',
         /** Shown on devices with a mouse. */
-        bodyMouse: '一首热门歌曲会按节拍切开并打乱。点击方块就能试听。',
+        bodyMouse: '热门歌曲按节拍切成片段，顺序全被打乱。点击方块就能试听。',
         /** Shown on touch screens. */
-        bodyTouch: '一首热门歌曲会按节拍切开并打乱。点一下方块就能试听。',
+        bodyTouch: '热门歌曲按节拍切成片段，顺序全被打乱。点一下方块就能试听。',
       },
       sort: {
-        title: '拖到正确的顺序',
+        title: '拖回正确的顺序',
         /** <play></play> is replaced by a small ▶ icon (the "play your order" button). Keep it empty. */
-        body: '移动方块，直到歌曲听起来和原版一样。点<play></play>听听你排的顺序。',
+        body: '拖动方块，直到听起来和原曲一样。点<play></play>听听你排的顺序。',
       },
       confirm: {
         title: '抢先确认',

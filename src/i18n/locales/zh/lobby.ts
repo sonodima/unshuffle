@@ -80,7 +80,7 @@ export default {
     enlargeQr: '放大二维码',
     /** Desktop card, next to the QR code. */
     phoneTitle: '用手机加入',
-    phoneBody: '扫二维码或打开链接：秒进房间，无需注册。',
+    phoneBody: '扫码或打开链接，秒进房间，无需注册。',
   },
 
   /** QR code dialog. */
@@ -205,9 +205,9 @@ export default {
     none: '尚未选择歌单',
     incoming: '歌单马上就来',
     /** {creator}: Deezer user / curator name. */
-    by: '来自{creator}',
+    by: '创建者：{creator}',
     hostEmpty: '搜索歌单、点一个分类，或者粘贴 Deezer 链接。',
-    guestEmpty: '房主选好后就会显示在这里：准备好耳朵吧。',
+    guestEmpty: '房主选好后会显示在这里，竖起耳朵等着吧！',
     change: '更换',
   },
 
@@ -238,16 +238,16 @@ export default {
       title: '试听',
       /** Mouse / trackpad. {count}: snippets per song (6–16). */
       bodyClick: {
-        other: '每首歌都被切成{count}个片段并打乱。点击方块即可试听。',
+        other: '每首歌切成{count}个片段，顺序全被打乱。点击方块就能试听。',
       },
       /** Touch screens. {count}: snippets per song (6–16). */
       bodyTap: {
-        other: '每首歌都被切成{count}个片段并打乱。点一下方块即可试听。',
+        other: '每首歌切成{count}个片段，顺序全被打乱。点一下方块就能试听。',
       },
     },
     reorder: {
       title: '排序',
-      body: '拖动方块，直到歌曲听起来顺了。点 ▶ 按当前顺序完整听一遍。',
+      body: '拖动方块，直到整首歌听着顺耳。点 ▶ 按当前顺序从头听一遍。',
     },
     confirm: {
       title: '确认',
